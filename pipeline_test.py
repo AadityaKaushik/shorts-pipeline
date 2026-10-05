@@ -274,7 +274,17 @@ def run_one(run_dir, history, args, idx):
            "duration": None, "narration_seconds": None, "wall": 0.0,
            "fail_stage": None}
 
-    topic = step_topic(history, args.topic, args.category)
+    if args.reuse:
+        # Replay topic + checked script from a previous experiment job dir,
+        # spending zero topic/script/factcheck calls. Great for iterating on
+        # the code prompt within the 20/day flash budget.
+        src = Path(args.reuse)
+        topic = json.loads((src / "topic.json").read_text(encoding="utf-8"))
+        fc = json.loads((src / "factcheck.json").read_text(encoding="utf-8"))
+        script = json.loads((src / "script.json").read_text(encoding="utf-8"))
+        segments = fc.get("segments") or script["segments"]
+    else:
+        topic = step_topic(history, args.topic, args.category)
     row["topic"] = topic["topic"]
     job_id = f"{datetime.now():%H%M%S}-{slugify(topic['topic'])}" or f"job{idx}"
     jdir = run_dir / job_id
@@ -282,26 +292,28 @@ def run_one(run_dir, history, args, idx):
     save = lambda name, obj: (jdir / name).write_text(
         json.dumps(obj, indent=2), encoding="utf-8")
     save("topic.json", topic)
-    print(f"  topic: {topic['topic']} [{topic.get('category')}]")
+    print(f"  topic: {topic['topic']} [{topic.get('category')}]"
+          + (" (reused)" if args.reuse else ""))
 
-    # script, with regeneration if the fact-check rejects it (max 2 regens)
-    segments = None
-    for attempt in range(3):
-        script = step_script(topic)
-        save("script.json", script)
-        fc = step_factcheck(topic, script)
-        save("factcheck.json", fc)
-        if fc.get("ok"):
-            segments = fc.get("segments") or script["segments"]
-            if fc.get("issues"):
-                print(f"    fact-check fixed: {len(fc['issues'])} issue(s)")
-            break
-        print(f"    fact-check rejected script (attempt {attempt + 1}): "
-              f"{'; '.join(fc.get('issues', []))[:200]}")
-    if segments is None:
-        row["fail_stage"] = "factcheck"
-        row["wall"] = round(time.time() - t0, 1)
-        return row
+    if not args.reuse:
+        # script, with regeneration if the fact-check rejects it (max 2 regens)
+        segments = None
+        for attempt in range(3):
+            script = step_script(topic)
+            save("script.json", script)
+            fc = step_factcheck(topic, script)
+            save("factcheck.json", fc)
+            if fc.get("ok"):
+                segments = fc.get("segments") or script["segments"]
+                if fc.get("issues"):
+                    print(f"    fact-check fixed: {len(fc['issues'])} issue(s)")
+                break
+            print(f"    fact-check rejected script (attempt {attempt + 1}): "
+                  f"{'; '.join(fc.get('issues', []))[:200]}")
+        if segments is None:
+            row["fail_stage"] = "factcheck"
+            row["wall"] = round(time.time() - t0, 1)
+            return row
 
     # code -> static checks -> render -> repair loop
     code_model = args.code_model or MODELS["code"]
@@ -375,6 +387,9 @@ def main():
     ap.add_argument("--code-model", help="override the code/repair model")
     ap.add_argument("--commit", action="store_true",
                     help="append successful topics to history.json")
+    ap.add_argument("--reuse", metavar="DIR",
+                    help="replay topic/script/factcheck JSONs from a previous "
+                         "experiment job dir; only code/repair/metadata call out")
     args = ap.parse_args()
 
     history = (json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
