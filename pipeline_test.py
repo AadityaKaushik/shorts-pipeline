@@ -136,13 +136,22 @@ def gemini_call(step, model, prompt, want_json):
 
 def chat_call(provider, model, prompt):
     url, key_name = PROVIDERS[provider]
-    data = llm_call(
-        url, {"Authorization": f"Bearer {ENV[key_name]}"},
-        {"model": model,
-         "messages": [{"role": "user", "content": prompt}],
-         "max_tokens": 8000},
-        f"{provider}:{model}")
-    return data["choices"][0]["message"]["content"]
+    label = f"{provider}:{model}"
+    # Free endpoints sometimes return HTTP 200 with an error payload instead of
+    # "choices" — treat that as retryable, not a crash.
+    for attempt in range(3):
+        data = llm_call(
+            url, {"Authorization": f"Bearer {ENV[key_name]}"},
+            {"model": model,
+             "messages": [{"role": "user", "content": prompt}],
+             "max_tokens": 8000},
+            label)
+        if data.get("choices"):
+            return data["choices"][0]["message"]["content"]
+        err = json.dumps(data.get("error", data))[:300]
+        print(f"    [{label}] response without choices: {err}; retrying in 15s")
+        time.sleep(15)
+    raise RuntimeError(f"{label}: no usable response after 3 tries")
 
 
 def dispatch(step, spec, prompt, want_json):
