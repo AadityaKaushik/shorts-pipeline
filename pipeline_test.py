@@ -147,7 +147,9 @@ def chat_call(provider, model, prompt):
              "max_tokens": 8000},
             label)
         if data.get("choices"):
-            return data["choices"][0]["message"]["content"]
+            content = data["choices"][0].get("message", {}).get("content")
+            if content and content.strip():
+                return content
         err = json.dumps(data.get("error", data))[:300]
         print(f"    [{label}] response without choices: {err}; retrying in 15s")
         time.sleep(15)
