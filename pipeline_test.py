@@ -14,6 +14,7 @@ Stdlib only. Keys come from .env and are never printed.
 """
 import argparse
 import ast
+import http.client
 import json
 import os
 import re
@@ -102,7 +103,8 @@ def llm_call(url, headers, body, label):
                 delay = min(delay * 2, 120)
                 continue
             raise
-        except (TimeoutError, urllib.error.URLError, ConnectionError) as e:
+        except (TimeoutError, urllib.error.URLError, ConnectionError,
+                http.client.HTTPException, json.JSONDecodeError) as e:
             print(f"    [{label}] {type(e).__name__}, retrying in {delay}s")
             time.sleep(delay)
             delay = min(delay * 2, 120)
