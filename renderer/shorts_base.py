@@ -18,12 +18,14 @@ ACCENT_2 = "#ffb74d"  # orange: second item / contrast
 ACCENT_3 = "#81c784"  # green: results / "correct"
 MUTED = "#9e9e9e"     # grey: secondary text
 
-# Layout. YouTube's own buttons and title cover the bottom and right edges,
-# so all content stays within these bounds.
+# Layout. YouTube's own buttons and title cover the bottom edge (below about
+# y=-3.0) and the right edge, so content and captions stay above/inside that.
+# Content gets the band CONTENT_BOTTOM..CONTENT_TOP; captions sit alone at
+# CAPTION_Y, between the content and YouTube's bottom overlay.
 SAFE_WIDTH = 4.0
 CONTENT_TOP = 3.4
-CONTENT_BOTTOM = -1.4
-CAPTION_Y = -2.1
+CONTENT_BOTTOM = -2.1
+CAPTION_Y = -2.75
 MAX_CAPTION_CHARS = 20
 MAX_CAPTION_WORDS = 4
 

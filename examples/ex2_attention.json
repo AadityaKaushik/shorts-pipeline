@@ -2,32 +2,56 @@
   "topic": "How attention weights are computed",
   "segments": [
     {
-      "narration": "How does an AI model decide which words to pay attention to?",
+      "narration": "When an AI reads a sentence, how does it decide which words matter to each other?",
       "visual": "Title 'Attention' with subtitle 'how transformers decide what matters'"
     },
     {
-      "narration": "Every word becomes a vector of numbers. To understand one word, the model compares it with all the others.",
-      "visual": "Three word boxes 'the', 'cat', 'sat' in a row, each with a small column vector beneath"
+      "narration": "First, every word becomes a vector: a list of numbers capturing its meaning.",
+      "visual": "Three word boxes 'the', 'cat', 'sat' in the upper band, each with a small column vector beneath"
     },
     {
-      "narration": "Each comparison is a dot product: multiply the two vectors entry by entry, and add.",
-      "visual": "Arrows from the middle word to its neighbours, and the equation score = q dot k"
+      "narration": "Words with similar meanings get vectors that point in similar directions in that space.",
+      "visual": "Two arrows from a common origin in the main band, pointing in nearly the same direction"
     },
     {
-      "narration": "That gives a score for every pair of words. Bigger score, stronger connection.",
-      "visual": "A 3 by 3 matrix of scores labelled 'scores'"
+      "narration": "That's the key: to compare two words, measure how aligned their vectors are.",
+      "visual": "A third arrow pointing far away from the other two, in grey"
     },
     {
-      "narration": "But raw scores can be any size, so softmax squashes each row into weights that sum to one.",
-      "visual": "The row [2, 1, 0] transforms under softmax into [0.67, 0.24, 0.09]"
+      "narration": "The dot product does exactly that: multiply matching entries, then add them up.",
+      "visual": "The equation q dot k = q1 k1 + q2 k2 in the lower band"
     },
     {
-      "narration": "Now each word rebuilds itself as a weighted average of all the others.",
-      "visual": "Three bars under the word boxes with heights 0.67, 0.24 and 0.09"
+      "narration": "Aligned vectors give a big positive score. Unrelated ones give a score near zero.",
+      "visual": "A green 2.0 next to the aligned pair, a grey 0.1 next to the stray arrow"
     },
     {
-      "narration": "Those weights are attention. The model literally learns where to look, one dot product at a time.",
-      "visual": "The bars flash and the payoff line 'attention = learned weights' appears"
+      "narration": "Score every pair of words in the sentence and you get a whole grid of raw numbers.",
+      "visual": "The arrows fade; a 3 by 3 score matrix appears in the main band"
+    },
+    {
+      "narration": "But raw scores can be any size, and we need clean percentages.",
+      "visual": "The largest and smallest entries of the matrix are highlighted"
+    },
+    {
+      "narration": "Softmax fixes that: it squashes each row into positive weights that sum to one.",
+      "visual": "The first row [2, 1, 0] transforms under softmax into [0.67, 0.24, 0.09]"
+    },
+    {
+      "narration": "Big scores turn into big weights, and small scores get squeezed down close to zero.",
+      "visual": "The 0.67 is highlighted green, the 0.09 is highlighted grey"
+    },
+    {
+      "narration": "Now each word rebuilds itself as a weighted average of all the other words.",
+      "visual": "The row fades; bars grow under the three word boxes with heights 0.67, 0.24, 0.09"
+    },
+    {
+      "narration": "The word cat might take sixty seven percent of its meaning from itself, and the rest from its neighbours.",
+      "visual": "Percent labels 67, 24 and 9 appear on the bars"
+    },
+    {
+      "narration": "That's attention: the model learns where to look, one dot product at a time.",
+      "visual": "The bars flash and the payoff line 'attention = learned weights' appears in the lower band"
     }
   ]
 }

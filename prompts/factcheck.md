@@ -1,4 +1,4 @@
-You are a careful STEM reviewer. Check the narration script below for factual accuracy. It is for a 45-second educational video at the stated level, so simplification is fine, but nothing may be WRONG.
+You are a careful STEM reviewer. Check the narration script below for factual accuracy. It is for a 75-second educational video at the stated level, so simplification is fine, but nothing may be WRONG.
 
 ## The topic
 

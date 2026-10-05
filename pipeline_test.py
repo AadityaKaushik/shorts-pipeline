@@ -82,14 +82,14 @@ def llm_call(url, headers, body, label):
     """POST with retries/backoff on 429 and 5xx."""
     call_counts[label] = call_counts.get(label, 0) + 1
     delay = 5
-    for attempt in range(5):
+    for attempt in range(7):
         try:
             return post_json(url, headers, body)
         except urllib.error.HTTPError as e:
             if e.code == 429 or e.code >= 500:
                 print(f"    [{label}] HTTP {e.code}, retrying in {delay}s")
                 time.sleep(delay)
-                delay = min(delay * 2, 60)
+                delay = min(delay * 2, 120)
                 continue
             raise
     raise RuntimeError(f"{label}: gave up after repeated 429/5xx")
@@ -413,7 +413,7 @@ def main():
         "first_try_success": sum(1 for r in rows if r["first_try"]),
         "avg_attempts": round(sum(r["attempts"] for r in rows) / len(rows), 2) if rows else 0,
         "durations": [r["duration"] for r in ok],
-        "in_40_58s": sum(1 for r in ok if r["duration"] and 40 <= r["duration"] <= 58),
+        "in_65_90s": sum(1 for r in ok if r["duration"] and 65 <= r["duration"] <= 90),
         "model_calls": call_counts,
         "code_model": args.code_model or MODELS["code"],
         "rows": rows,

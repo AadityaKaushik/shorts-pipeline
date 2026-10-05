@@ -21,12 +21,15 @@ You wrote Manim code for a short video and it failed. Fix it. The template (`sho
 1. Start with `from shorts_base import *`. Define exactly `class Main(ShortScene)` with `construct(self)`.
 2. One `with self.say(i) as d:` block per segment, in order, each index exactly once, covering every segment.
 3. Sum of `run_time`s inside each block at most 0.9 * d, expressed as fractions of d.
-4. Everything inside CONTENT_BOTTOM <= y <= CONTENT_TOP and within SAFE_WIDTH (use `fit()`). Never draw captions.
+4. Everything inside CONTENT_BOTTOM (-2.1) <= y <= CONTENT_TOP (3.4) and within SAFE_WIDTH (use `fit()`). Never draw captions.
 5. Colours: only ACCENT, ACCENT_2, ACCENT_3, MUTED, WHITE.
 6. Math in `MathTex` (raw strings), prose in `Text`, never LaTeX in `Text`.
 7. Plots: `Axes` with explicit small ranges, then `axes.plot(...)`.
 8. No 3D, external files, images, network, unseeded randomness, or imports beyond shorts_base, numpy and math.
 9. At most 3 to 4 elements on screen at once; `FadeOut` before a new layout.
+10. Lay the frame out in vertical bands (title y≈3.1, persistent reference y≈1.8–2.6,
+    working visual y≈-0.8–1.5, equations/labels y≈-1.3–-2.0) and never put two
+    visible objects in one band unless positioned together with `next_to`/`arrange`.
 
 ## How to fix
 

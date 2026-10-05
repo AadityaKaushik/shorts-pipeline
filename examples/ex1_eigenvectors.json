@@ -2,32 +2,56 @@
   "topic": "Eigenvectors: the directions a matrix only stretches",
   "segments": [
     {
-      "narration": "What if a matrix could move every vector, except a special few?",
+      "narration": "What if a matrix could move every single vector in the plane, except a special few?",
       "visual": "Title 'Eigenvectors' with the subtitle 'the arrows a matrix can't turn'"
     },
     {
-      "narration": "This matrix transforms the whole plane. Apply it, and every vector gets pushed somewhere new.",
-      "visual": "The matrix A = [[2,1],[1,2]] above a small coordinate grid"
+      "narration": "A matrix is a transformation machine: feed in any vector, and it outputs a new one.",
+      "visual": "A box labelled A in the main band with an arrow in (v) and an arrow out (Av)"
     },
     {
-      "narration": "Watch these two arrows: they swing around to point in completely new directions.",
+      "narration": "Here's matrix A. Let's apply it to the whole plane at once and watch.",
+      "visual": "The matrix A = [[2,1],[1,2]] in the upper band, a coordinate grid in the main band"
+    },
+    {
+      "narration": "These two grey arrows get swung around. They point somewhere completely different from where they started.",
       "visual": "Two grey arrows on the grid rotate to their transformed positions"
     },
     {
-      "narration": "But this arrow never turns. The matrix only stretches it along its own line.",
-      "visual": "A blue arrow on the diagonal stretches to three times its length along a dashed line"
+      "narration": "Most vectors behave like that: the transformation changes both their length and their direction.",
+      "visual": "A third grey arrow transforms, also changing direction"
     },
     {
-      "narration": "Any vector like this is called an eigenvector: A times v equals lambda times v.",
-      "visual": "The equation A v = lambda v appears below the grid"
+      "narration": "But this blue arrow refuses to turn. A only stretches it along its own line.",
+      "visual": "Grey arrows fade; a blue arrow on the diagonal stretches to triple length along a dashed line"
     },
     {
-      "narration": "Lambda is the eigenvalue, the stretch factor. Here the arrow tripled, so lambda is three.",
+      "narration": "That's an eigenvector. The name comes from German, where eigen means own.",
+      "visual": "The label 'eigenvector' appears in the lower band"
+    },
+    {
+      "narration": "Why doesn't it turn? Because A's push on this vector lines up exactly with the vector itself.",
+      "visual": "An orange arrow drawn on top of the blue one, showing the push along the same line"
+    },
+    {
+      "narration": "In symbols: A times v equals lambda times v. Same direction, just scaled.",
+      "visual": "The label is replaced by the equation A v = lambda v in the lower band"
+    },
+    {
+      "narration": "Lambda is called the eigenvalue. Our arrow stretched to triple length, so lambda equals three.",
       "visual": "The equation becomes A v = 3 v and the blue arrow flashes"
     },
     {
-      "narration": "Eigenvectors are the directions a matrix treats as its own: it scales them, and does nothing more.",
-      "visual": "Everything fades except the payoff line 'the directions a matrix only scales'"
+      "narration": "And hiding on the other diagonal is a second eigenvector, one A doesn't stretch at all.",
+      "visual": "A green arrow on the anti-diagonal with its own dashed line; it stays the same length"
+    },
+    {
+      "narration": "Its eigenvalue is one. Find all the eigenvectors, and you've found the skeleton of the matrix.",
+      "visual": "The equation becomes lambda one = 3, lambda two = 1"
+    },
+    {
+      "narration": "Along these directions a messy transformation becomes simple multiplication. That's why eigenvectors power vibration analysis and PageRank.",
+      "visual": "Everything fades except the title and the payoff 'the directions a matrix only scales'"
     }
   ]
 }

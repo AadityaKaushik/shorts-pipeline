@@ -1,4 +1,4 @@
-You pick one topic for a 45-second animated STEM explainer video (a YouTube Short).
+You pick one topic for a 75-second animated STEM explainer video (a YouTube Short).
 
 ## Audience and level
 
@@ -8,7 +8,7 @@ You pick one topic for a 45-second animated STEM explainer video (a YouTube Shor
 
 ## Rules
 
-1. Pick ONE topic with ONE core idea that can be explained in about 45 seconds.
+1. Pick ONE topic with ONE core idea whose WHY — the mechanism behind it — can be properly explained in about 75 seconds, not just stated.
 2. Do not repeat or closely paraphrase any topic in the history below.
 3. Do not use either of the two most recent categories: {{RECENT_CATEGORIES}}
 4. The idea must be visualisable with simple 2D animation: equations, short labels, axes and plots, arrows, boxes, small graphs or trees, matrices, bars, or a code snippet of at most 6 lines. No photos, 3D, maps or real-world imagery.

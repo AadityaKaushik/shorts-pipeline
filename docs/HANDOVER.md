@@ -96,7 +96,7 @@ YouTube's July 2025 "inauthentic content" policy targets fully automated, low-ef
   - CS: why hash table lookups are O(1) on average, how Dijkstra's algorithm works
   - Engineering and physics: how an RC circuit charges, how a transistor acts as a switch, why bridges use trusses
   - Web and IT: how TLS handshakes work, what the event loop does in JavaScript, how DNS resolution works
-- **Format:** about 45 seconds (target 40 to 55), **one core idea per Short**, a hook in the first segment, accurate and precise.
+- **Format:** about 75 seconds (target 65 to 90; owner's decision, 5 Oct 2026, after finding 45s too shallow), **one core idea per Short explained with its WHY** — the mechanism, not just the statement — a hook in the first segment, accurate and precise.
 - **Tone:** clear, confident, no hype or clickbait, no false claims.
 
 ---
@@ -1000,7 +1000,8 @@ Inputs: the full history list (topic and category), and the category-rotation ru
 
 Script rules:
 
-- 6 to 9 segments, totalling **100 to 125 words** (about 40 to 55 seconds). Calibrate against `narration_seconds` from real renders.
+- 10 to 14 segments, totalling **185 to 215 words** (about 70 to 80 seconds at the measured ~0.37 s/word Kokoro pace). Calibrate against `narration_seconds` from real renders.
+- At least 3 segments must explain the **mechanism** (why the fact holds), not just state it.
 - Narration is **spoken text only**: no LaTeX, symbols, code syntax or markdown. Write "x squared", "O of n log n", "e to the i pi". The TTS reads exactly what's written.
 - 8 to 20 words per segment. Segment 0 is the hook. One core idea. The last segment lands the payoff, with no "like and subscribe".
 - `visual` must be **concrete and feasible in Manim v1**: an equation, a short text label, axes with a plotted function, arrows, boxes and circles, a small graph or tree, a matrix, a code snippet of 6 lines or fewer, bars. No photos, 3D, maps or real-world imagery.
@@ -1091,7 +1092,7 @@ Each example needs its own segments JSON (in the script contract format), must r
 ### 11.8 Exit criteria for Phase 4
 
 - On a batch of **20 varied topics**: final render success of at least 85% after repairs, and first-try success measured and recorded.
-- Durations within 40 to 58 seconds for 90% or more of videos.
+- Durations within 65 to 90 seconds for 90% or more of videos.
 - The owner has watched at least 5 outputs, and they're accurate and look good.
 - Prompts frozen in `prompts/`, with the metrics saved.
 
@@ -1108,6 +1109,44 @@ Built and verified in the Claude Code session:
 - Helper scripts in `scripts/`: `check_n8n_key.sh`, `verify_keys.py`, `debug_gemini_403.py`, `render_example.py`, `test_llm_steps.py`, `run_harness_remapped.sh` (temporary — routes the two denied keys to working ones), `commit.sh`.
 
 **Blocked on the owner:** replace the denied TOPIC and SCRIPT_CHECK keys, watch the three example videos, then run the 20-topic batch (11.8).
+
+### 11.10 Later the same day (5 Oct 2026): format retarget and quota findings
+
+**Owner feedback after watching the first renders:** captions floated with dead
+space below them, content crowded the top and overlapped (worst in the RC video),
+and 45s was too shallow to explain anything properly.
+
+Changes made:
+
+1. **Layout** (`renderer/shorts_base.py`): `CAPTION_Y` −2.1 → **−2.75**,
+   `CONTENT_BOTTOM` −1.4 → **−2.1**. Content now uses ~69% of frame height.
+   The code/repair prompts additionally prescribe **vertical bands** (title ≈3.1,
+   persistent reference 1.8–2.6, working visual −0.8–1.5, equations −1.3–−2.0)
+   and forbid two objects sharing a band unless positioned together. The renderer
+   image must be rebuilt when `shorts_base.py` changes (it is COPY'd in).
+2. **Length:** target ~75s. Script prompt: 10–14 segments, 185–215 words, with
+   at least 3 "mechanism" segments. Harness duration window now 65–90s.
+3. **Examples** rewritten to the new standard (~190 words, 12–13 segments each)
+   and re-rendered. **Owner approval still pending.**
+
+Quota facts learned (important for Phase 5 scheduling):
+
+- Gemini free tier is **20 requests/day/project on `gemini-3.8-flash`** (hit the
+  limit during testing; error names the metric and limit). Flash-lite limits are
+  far higher. One video/day fits easily; same-day batch tests do not.
+- `gemini-3.1-pro-preview` returns **429 instantly** on these keys — a consumer
+  "Google AI Pro" subscription does **not** grant API quota. The "Pro if Flash
+  underperforms" option in 2.2 needs a billed API project instead.
+- 3.8-flash shows intermittent model-wide **503 "high demand"**; the harness
+  retries with backoff (7 tries, up to 120s) and the light steps (topic,
+  factcheck, metadata) fall back one model when saturated. Code/repair never
+  fall back.
+- The owner's **replacement TOPIC and SCRIPT_CHECK keys are still denied**
+  ("project has been denied access") — same error as the originals. Two denied
+  projects in a row suggests Google is flagging the account pattern; if the next
+  replacement is also denied, consider consolidating steps onto the three
+  working keys instead (the per-step env-var layout makes that a `.env`-only change).
+- 20-topic batch: owner decided **not** to run it for now.
 
 ---
 

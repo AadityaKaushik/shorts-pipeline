@@ -7,4 +7,4 @@ set -a
 set +a
 export GEMINI_API_KEY_TOPIC="$GEMINI_API_KEY_METADATA"
 export GEMINI_API_KEY_SCRIPT_CHECK="$GEMINI_API_KEY_CODE"
-exec python3 pipeline_test.py "$@"
+exec python3 -u pipeline_test.py "$@"

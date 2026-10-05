@@ -1,4 +1,4 @@
-You write YouTube metadata for a 45-second animated STEM explainer Short.
+You write YouTube metadata for a 75-second animated STEM explainer Short.
 
 ## The topic
 

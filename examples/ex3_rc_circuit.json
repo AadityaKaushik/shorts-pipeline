@@ -2,32 +2,52 @@
   "topic": "How a capacitor charges through a resistor (the RC time constant)",
   "segments": [
     {
-      "narration": "Why does a camera flash need a moment before it fires?",
+      "narration": "Why does a camera flash take a moment before it's ready to fire?",
       "visual": "Title 'Charging a Capacitor' with subtitle 'the RC circuit'"
     },
     {
-      "narration": "Inside is a capacitor charging through a resistor. Connect a battery, and current begins to flow into the capacitor.",
-      "visual": "A simple circuit loop: battery V0 on the left, resistor R on top, capacitor C on the right"
+      "narration": "Inside, a battery charges a capacitor through a resistor. This loop is called an RC circuit.",
+      "visual": "A circuit loop in the upper band: battery V0 on the left, resistor R on top, capacitor C on the right"
     },
     {
-      "narration": "The capacitor's voltage climbs quickly at first, then slows down as it fills up.",
-      "visual": "Axes below the circuit, with the charging curve drawn from left to right"
+      "narration": "The capacitor stores charge like a bucket stores water. The resistor throttles the flow into it.",
+      "visual": "The capacitor plates flash with the label 'stores', then the resistor flashes with the label 'throttles'"
     },
     {
-      "narration": "The curve is V naught times one minus e to the minus t over R C.",
-      "visual": "The equation V(t) = V0 (1 - e^(-t/RC)) below the axes"
+      "narration": "Close the switch, and current starts to flow. The capacitor's voltage begins climbing from zero.",
+      "visual": "Axes appear in the main band and the first part of the charging curve is drawn"
     },
     {
-      "narration": "R times C is called tau, the time constant, measured in seconds.",
-      "visual": "A dashed vertical line at t = tau on the axes, labelled tau = RC"
+      "narration": "But look at the shape of the curve: fast at first, then slower and slower. Why is that?",
+      "visual": "The rest of the curve is drawn, flattening as it approaches the top"
     },
     {
-      "narration": "After one tau, the capacitor sits at about sixty three percent of full charge.",
-      "visual": "A dashed horizontal line at 63 percent meeting the curve at tau"
+      "narration": "The current is driven by the gap between the battery's voltage and the capacitor's voltage.",
+      "visual": "A dashed line at V0 above the curve, and the equation I equals V0 minus VC over R in the lower band"
     },
     {
-      "narration": "By five tau it is essentially full. A bigger resistor or capacitor stretches the curve, charging slower.",
-      "visual": "A dot at five tau near the top of the curve, and the payoff 'tau = RC sets the speed'"
+      "narration": "Early on that gap is at its biggest, so charge pours in fast.",
+      "visual": "A tall orange arrow near t = 0 from the curve up to the V0 line"
+    },
+    {
+      "narration": "As the capacitor fills, the gap shrinks, the current weakens, and charging slows itself down.",
+      "visual": "The arrow moves right along the curve, shrinking as the gap narrows"
+    },
+    {
+      "narration": "That self-slowing gives the exact curve: V naught times one minus e to the minus t over RC.",
+      "visual": "The current equation is replaced by V(t) = V0 (1 - e^(-t/RC)) in the lower band"
+    },
+    {
+      "narration": "R times C is tau, the time constant. After one tau, you've covered sixty three percent of the way.",
+      "visual": "A dashed vertical line at t = tau and a dashed horizontal line at 63 percent meeting on the curve"
+    },
+    {
+      "narration": "Every tau after that closes sixty three percent of whatever gap is left.",
+      "visual": "Dots on the curve at two tau and three tau labelled 86 and 95 percent"
+    },
+    {
+      "narration": "By five tau the capacitor is ninety nine percent full, and your camera flash is finally ready.",
+      "visual": "A green dot at five tau near the top, and the payoff 'tau = RC sets the wait' in the lower band"
     }
   ]
 }
