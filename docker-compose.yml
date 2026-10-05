@@ -1,0 +1,55 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=Asia/Kolkata
+      - TZ=Asia/Kolkata
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_RESTRICT_FILE_ACCESS_TO=/files
+      - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./data:/files
+    depends_on:
+      - renderer
+
+  renderer:
+    build: ./renderer
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - RENDER_TIMEOUT=900
+      - TTS_URL=http://tts:8001
+      - TTS_VOICE=af_heart
+    volumes:
+      - ./data:/files
+    depends_on:
+      - tts
+    deploy:
+      resources:
+        limits:
+          cpus: "3"
+          memory: 6g
+
+  tts:
+    build: ./tts
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8001"
+    environment:
+      - TTS_VOICE=af_heart
+    volumes:
+      - tts_cache:/cache
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 3g
+
+volumes:
+  n8n_data:
+  tts_cache:
