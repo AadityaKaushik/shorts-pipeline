@@ -1148,6 +1148,34 @@ Quota facts learned (important for Phase 5 scheduling):
   working keys instead (the per-step env-var layout makes that a `.env`-only change).
 - 20-topic batch: owner decided **not** to run it for now.
 
+### 11.11 Provider migration (5 Oct 2026, evening): Groq + OpenRouter
+
+The denied-key and quota problems were solved by moving the light steps off
+Gemini entirely. The owner added `GROQ_API_KEY` and `OPENROUTER_API_KEY` to `.env`.
+
+**New model split** (replaces the table in 2.2 for the affected steps; specs are
+`provider:model` for OpenAI-compatible providers, bare names for Gemini):
+
+| Step | Model | Why |
+|---|---|---|
+| Topic | `groq:openai/gpt-oss-20b` | Groq free tier: 1,000 req/day |
+| Script | `groq:openai/gpt-oss-120b` | **Llama 3.3 is gone from Groq's catalog**, and HF free credits are $0.10/month (effectively nothing), so the original Llama-via-HF plan is dead. gpt-oss-120b is the strongest free writer available. |
+| Fact-check | `groq:qwen/qwen3.8-27b` | Different model family from the script writer; caught a real subtlety in testing |
+| Code | `gemini-3.8-flash` (CODE key) | 20 req/day free is enough for production |
+| Repair | follows the code model (REPAIR key when Gemini) | |
+| Metadata | `gemini-3.5-flash-lite` (METADATA key) | That key works and flash-lite limits are high |
+
+- Free code alternative, also used for A/B metrics:
+  `--code-model "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free"` (OpenRouter free: 50 req/day, or 1,000/day after a one-time $10 top-up).
+- Saturation fallbacks all stay within Groq (qwen ↔ gpt-oss variants).
+- The denied `GEMINI_API_KEY_TOPIC` / `GEMINI_API_KEY_SCRIPT_CHECK` are now unused
+  (kept in `.env` in case Google un-denies them); `HF_TOKEN` is unused as well.
+- `scripts/list_provider_models.py` lists Groq's catalog and OpenRouter's
+  zero-priced models; provider catalogs change often, so re-run it before
+  changing any model spec.
+- Script prompt now also bans parentheses and coordinate tuples in narration
+  (gpt-oss slipped "(0,1)"-style text past the earlier wording).
+
 ---
 
 ## 12. Phase 5: Generation workflow (n8n)

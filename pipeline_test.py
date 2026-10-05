@@ -30,13 +30,23 @@ HISTORY_PATH = ROOT / "data" / "state" / "history.json"
 EXPERIMENTS = ROOT / "data" / "experiments"
 RENDER_URL = "http://localhost:8000/render"
 
+# Model specs are either a bare Gemini model name, or "provider:model_id" for
+# an OpenAI-compatible provider from PROVIDERS. Light steps run on Groq's free
+# tier (1,000 req/day) since two of the five Gemini keys are denied; code and
+# repair stay on Gemini 3.8-flash (20 req/day free, enough for production).
+# Free alternative for code: --code-model "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free"
 MODELS = {
-    "topic": "gemini-3.5-flash-lite",
-    "factcheck": "gemini-3.8-flash",
-    "code": "gemini-3.8-flash",       # --code-model overrides
-    "repair": "gemini-3.8-flash",     # follows --code-model
+    "topic": "groq:openai/gpt-oss-20b",
+    "script": "groq:openai/gpt-oss-120b",
+    "factcheck": "groq:qwen/qwen3.8-27b",   # different family from the script writer
+    "code": "gemini-3.8-flash",             # --code-model overrides
+    "repair": "gemini-3.8-flash",           # follows --code-model
     "metadata": "gemini-3.5-flash-lite",
-    "script": "meta-llama/Llama-3.3-70B-Instruct",
+}
+PROVIDERS = {
+    "groq": ("https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY"),
+    "openrouter": ("https://openrouter.ai/api/v1/chat/completions", "OPENROUTER_API_KEY"),
+    "hf": ("https://router.huggingface.co/v1/chat/completions", "HF_TOKEN"),
 }
 KEY_NAMES = {
     "topic": "GEMINI_API_KEY_TOPIC",
@@ -95,48 +105,56 @@ def llm_call(url, headers, body, label):
     raise RuntimeError(f"{label}: gave up after repeated 429/5xx")
 
 
-# When a model is saturated (sustained 503s), these steps may fall back one
+# When a model is saturated (sustained 503s/429s), these steps may fall back one
 # model for the call rather than failing the run. Code/repair never fall back:
 # a weaker coder would poison the success metrics.
 FALLBACK_MODELS = {
-    "topic": "gemini-3.8-flash",
-    "factcheck": "gemini-3.5-flash-lite",
-    "metadata": "gemini-3.8-flash",
+    "topic": "groq:qwen/qwen3.8-27b",
+    "script": "groq:openai/gpt-oss-20b",
+    "factcheck": "groq:openai/gpt-oss-120b",
+    "metadata": "groq:openai/gpt-oss-20b",
 }
 
 
-def gemini(step, prompt, model=None, want_json=True):
-    model = model or MODELS[step]
+def gemini_call(step, model, prompt, want_json):
     key = ENV[KEY_NAMES[step]]
     body = {"contents": [{"parts": [{"text": prompt}]}]}
     if want_json:
         body["generationConfig"] = {"responseMimeType": "application/json"}
+    data = llm_call(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+        {"x-goog-api-key": key}, body, f"gemini:{model}")
+    return data["candidates"][0]["content"]["parts"][0]["text"]
 
-    def call(m):
-        data = llm_call(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent",
-            {"x-goog-api-key": key}, body, f"gemini:{m}")
-        return data["candidates"][0]["content"]["parts"][0]["text"]
 
+def chat_call(provider, model, prompt):
+    url, key_name = PROVIDERS[provider]
+    data = llm_call(
+        url, {"Authorization": f"Bearer {ENV[key_name]}"},
+        {"model": model,
+         "messages": [{"role": "user", "content": prompt}],
+         "max_tokens": 8000},
+        f"{provider}:{model}")
+    return data["choices"][0]["message"]["content"]
+
+
+def dispatch(step, spec, prompt, want_json):
+    provider, _, model_id = spec.partition(":")
+    if model_id and provider in PROVIDERS:
+        return chat_call(provider, model_id, prompt)
+    return gemini_call(step, spec, prompt, want_json)
+
+
+def llm(step, prompt, model=None, want_json=True):
+    spec = model or MODELS[step]
     try:
-        return call(model)
+        return dispatch(step, spec, prompt, want_json)
     except RuntimeError:
         fb = FALLBACK_MODELS.get(step)
-        if not fb:
+        if not fb or fb == spec:
             raise
-        print(f"    [{step}] {model} saturated, falling back to {fb}")
-        return call(fb)
-
-
-def llama(prompt):
-    data = llm_call(
-        "https://router.huggingface.co/v1/chat/completions",
-        {"Authorization": f"Bearer {ENV['HF_TOKEN']}"},
-        {"model": MODELS["script"],
-         "messages": [{"role": "user", "content": prompt}],
-         "max_tokens": 2048, "temperature": 0.7},
-        "llama")
-    return data["choices"][0]["message"]["content"]
+        print(f"    [{step}] {spec} saturated, falling back to {fb}")
+        return dispatch(step, fb, prompt, want_json)
 
 
 def parse_json_reply(text):
@@ -228,14 +246,14 @@ def step_topic(history, forced_topic, forced_category):
     prompt = fill("topic", HISTORY=hist_text, RECENT_CATEGORIES=", ".join(recent))
     if forced_category:
         prompt += f"\n\nFor this run, the category MUST be: {forced_category}\n"
-    return parse_json_reply(gemini("topic", prompt))
+    return parse_json_reply(llm("topic", prompt))
 
 
 def step_script(topic):
     prompt = fill("script", TOPIC_JSON=json.dumps(topic, indent=2))
     for attempt in range(3):
         try:
-            script = parse_json_reply(llama(prompt))
+            script = parse_json_reply(llm("script", prompt))
             assert isinstance(script["segments"], list) and script["segments"]
             return script
         except (ValueError, KeyError, AssertionError, json.JSONDecodeError) as e:
@@ -246,7 +264,7 @@ def step_script(topic):
 def step_factcheck(topic, script):
     prompt = fill("factcheck", TOPIC_JSON=json.dumps(topic, indent=2),
                   SCRIPT_JSON=json.dumps(script, indent=2))
-    return parse_json_reply(gemini("factcheck", prompt))
+    return parse_json_reply(llm("factcheck", prompt))
 
 
 def render(job_id, code, segments):
@@ -259,7 +277,7 @@ def step_metadata(topic, segments):
     narration = " ".join(s["narration"] for s in segments)
     prompt = fill("metadata", TOPIC_JSON=json.dumps(topic, indent=2),
                   NARRATION_TEXT=narration)
-    return parse_json_reply(gemini("metadata", prompt))
+    return parse_json_reply(llm("metadata", prompt))
 
 
 def slugify(text):
@@ -318,9 +336,9 @@ def run_one(run_dir, history, args, idx):
     # code -> static checks -> render -> repair loop
     code_model = args.code_model or MODELS["code"]
     seg_json = json.dumps(segments, indent=2)
-    reply = gemini("code", fill("code", EXAMPLES=examples_block(),
-                                SEGMENTS_JSON=seg_json),
-                   model=code_model, want_json=False)
+    reply = llm("code", fill("code", EXAMPLES=examples_block(),
+                             SEGMENTS_JSON=seg_json),
+                model=code_model, want_json=False)
     code = extract_code(reply)
 
     result = None
@@ -350,9 +368,9 @@ def run_one(run_dir, history, args, idx):
               f"{str(result.get('error'))[:150]}")
         if attempt == MAX_REPAIRS:
             break
-        reply = gemini("repair", fill("repair", ERROR=str(result.get("error")),
-                                      CODE=code, SEGMENTS_JSON=seg_json),
-                       model=code_model, want_json=False)
+        reply = llm("repair", fill("repair", ERROR=str(result.get("error")),
+                                   CODE=code, SEGMENTS_JSON=seg_json),
+                    model=code_model, want_json=False)
         code = extract_code(reply)
 
     if not result.get("ok"):

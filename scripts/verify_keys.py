@@ -66,16 +66,27 @@ def check_gemini(name, key):
     print(f"{name}: OK — has {found}" + (f", missing {missing}" if missing else ""))
 
 
-def check_hf(key):
+CHAT_PROVIDERS = [
+    # (env var, chat completions URL, model to test)
+    ("HF_TOKEN", "https://router.huggingface.co/v1/chat/completions",
+     "meta-llama/Llama-3.3-70B-Instruct"),
+    ("GROQ_API_KEY", "https://api.groq.com/openai/v1/chat/completions",
+     "llama-3.3-70b-versatile"),
+    ("OPENROUTER_API_KEY", "https://openrouter.ai/api/v1/chat/completions",
+     "qwen/qwen3-coder:free"),
+]
+
+
+def check_chat(name, url, model, key):
     if not key:
-        print("HF_TOKEN: MISSING (empty in .env)")
+        print(f"{name}: MISSING (empty in .env)")
         return
     try:
         data = get_json(
-            "https://router.huggingface.co/v1/chat/completions",
+            url,
             headers={"Authorization": f"Bearer {key}"},
             body={
-                "model": "meta-llama/Llama-3.3-70B-Instruct",
+                "model": model,
                 "messages": [{"role": "user", "content": "Reply with the single word: ok"}],
                 "max_tokens": 5,
             },
@@ -83,20 +94,21 @@ def check_hf(key):
     except urllib.error.HTTPError as e:
         detail = ""
         try:
-            detail = " — " + e.read().decode()[:200]
+            detail = " — " + e.read().decode()[:300]
         except Exception:
             pass
-        print(f"HF_TOKEN: FAILED (HTTP {e.code}: {e.reason}){detail}")
+        print(f"{name}: FAILED (HTTP {e.code}: {e.reason}){detail}")
         return
     except Exception as e:
-        print(f"HF_TOKEN: FAILED ({type(e).__name__})")
+        print(f"{name}: FAILED ({type(e).__name__})")
         return
     reply = data["choices"][0]["message"]["content"].strip()
-    print(f"HF_TOKEN: OK — Llama-3.3-70B replied: {reply!r}")
+    print(f"{name}: OK — {model} replied: {reply!r}")
 
 
 if __name__ == "__main__":
     env = load_env()
     for name in GEMINI_KEYS:
         check_gemini(name, env.get(name, ""))
-    check_hf(env.get("HF_TOKEN", ""))
+    for name, url, model in CHAT_PROVIDERS:
+        check_chat(name, url, model, env.get(name, ""))
