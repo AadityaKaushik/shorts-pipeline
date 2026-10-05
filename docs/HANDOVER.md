@@ -174,7 +174,7 @@ Planned additions: `data/state/` (Phase 5), `data/experiments/` (Phase 4), `prom
 | 1 | Accounts and setup | ✅ Done (a few items to verify, Section 10) |
 | 2 | Infrastructure (WSL2, Docker, n8n, renderer, YouTube OAuth) | ✅ Done |
 | 3 | Render template (TTS, sync, captions) | ✅ Done |
-| 4 | Prompts, tested in a Python harness | ⏳ Next |
+| 4 | Prompts, tested in a Python harness | 🔄 In progress (see 11.9) |
 | 5 | Generation workflow in n8n | Planned |
 | 6 | Publishing workflow | Planned |
 | 7 | Alerts | Planned |
@@ -925,6 +925,16 @@ head -c 600 data/renders/gauss/narration.json    # should show "words" with timi
 
 ## 10. Open items to verify before Phase 4
 
+**Status as of 5 Oct 2026 (Claude Code session):**
+
+- ✅ Item 1 resolved: `.env` had Windows CRLF line endings, so every value carried an invisible `\r` and the key compared as MISMATCH. Fixed with `sed -i 's/\r$//' .env`; now MATCH (`scripts/check_n8n_key.sh`). **If `.env` is ever edited in a Windows editor again, re-run that script.**
+- ⚠️ Item 2 partly resolved: the owner created **five per-step Gemini keys** from different Google accounts (`GEMINI_API_KEY_TOPIC`, `_SCRIPT_CHECK`, `_CODE`, `_REPAIR`, `_METADATA`). All five list all three planned models, but **TOPIC and SCRIPT_CHECK are hard-denied on `generateContent`** ("Your project has been denied access", PERMISSION_DENIED) — those two keys must be replaced. CODE, REPAIR and METADATA work (`scripts/verify_keys.py`, `scripts/debug_gemini_403.py`).
+- ✅ Item 3 resolved: HF token works through the OpenAI-compatible router; Llama-3.3-70B responds. Note: requests need a `User-Agent` header or Cloudflare returns 403.
+- ✅ Item 4 resolved (five keys + HF_TOKEN present).
+- ⏸ Items 5 and 6 still owner tasks (publishing test posts; GitHub Pages wording).
+- ✅ Item 7 resolved: git initialized on `main` with the Section 20 `.gitignore`; no remote yet.
+- ✅ Item 8 resolved: second-run `test_phase3.py` took **38.7s** for a 25.7s video; the three Phase 4 example scenes took 98–139s each for ~40s videos. The 900s render timeout has ample headroom.
+
 1. **n8n encryption key:** confirm `.env` has a line named exactly `N8N_ENCRYPTION_KEY` whose value matches `docker compose exec n8n cat /home/node/.n8n/config`. Confirm `docker compose up -d` shows no "variable is not set" warning, and that the YouTube credential in n8n is still connected.
 2. **Gemini models available on the owner's key:** check `gemini-3.8-flash`, `gemini-3.5-flash-lite` and `gemini-3.1-pro-preview` in AI Studio or with a test call, and check free-tier limits for each.
 3. **Hugging Face token:** fine-grained, with the "Make calls to Inference Providers" permission. Add it to `.env` as `HF_TOKEN`. Confirm `meta-llama/Llama-3.3-70B-Instruct` is served by some provider through the router, and check the monthly free credits; these are small.
@@ -1084,6 +1094,20 @@ Each example needs its own segments JSON (in the script contract format), must r
 - Durations within 40 to 58 seconds for 90% or more of videos.
 - The owner has watched at least 5 outputs, and they're accurate and look good.
 - Prompts frozen in `prompts/`, with the metrics saved.
+
+---
+
+### 11.9 Phase 4 progress (5 Oct 2026)
+
+Built and verified in the Claude Code session:
+
+- **All six prompts** in `prompts/` with `{{PLACEHOLDER}}` tokens (filled identically by the harness now and n8n later).
+- **Three example scenes** in `examples/` (eigenvectors, attention, RC circuit), each with its segments JSON. All three rendered **first try**: 40.4s / 41.2s / 40.4s, render times 98–139s. **The owner has not yet watched them — required before they're trusted as style examples.**
+- **`pipeline_test.py`** per spec 11.7, stdlib only (no venv needed). Key mapping: one env var per step (`GEMINI_API_KEY_TOPIC`, `_SCRIPT_CHECK`, `_CODE`, `_REPAIR`, `_METADATA`), with OS environment overriding `.env`. Models: topic/metadata `gemini-3.5-flash-lite`, factcheck/code/repair `gemini-3.8-flash` (`--code-model` overrides code+repair), script Llama-3.3-70B via HF router.
+- `data/state/history.json` seeded empty; `data/experiments/` created.
+- Helper scripts in `scripts/`: `check_n8n_key.sh`, `verify_keys.py`, `debug_gemini_403.py`, `render_example.py`, `test_llm_steps.py`, `run_harness_remapped.sh` (temporary — routes the two denied keys to working ones), `commit.sh`.
+
+**Blocked on the owner:** replace the denied TOPIC and SCRIPT_CHECK keys, watch the three example videos, then run the 20-topic batch (11.8).
 
 ---
 

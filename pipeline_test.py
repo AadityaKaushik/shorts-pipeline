@@ -95,16 +95,37 @@ def llm_call(url, headers, body, label):
     raise RuntimeError(f"{label}: gave up after repeated 429/5xx")
 
 
+# When a model is saturated (sustained 503s), these steps may fall back one
+# model for the call rather than failing the run. Code/repair never fall back:
+# a weaker coder would poison the success metrics.
+FALLBACK_MODELS = {
+    "topic": "gemini-3.8-flash",
+    "factcheck": "gemini-3.5-flash-lite",
+    "metadata": "gemini-3.8-flash",
+}
+
+
 def gemini(step, prompt, model=None, want_json=True):
     model = model or MODELS[step]
     key = ENV[KEY_NAMES[step]]
     body = {"contents": [{"parts": [{"text": prompt}]}]}
     if want_json:
         body["generationConfig"] = {"responseMimeType": "application/json"}
-    data = llm_call(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-        {"x-goog-api-key": key}, body, f"gemini:{model}")
-    return data["candidates"][0]["content"]["parts"][0]["text"]
+
+    def call(m):
+        data = llm_call(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent",
+            {"x-goog-api-key": key}, body, f"gemini:{m}")
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+
+    try:
+        return call(model)
+    except RuntimeError:
+        fb = FALLBACK_MODELS.get(step)
+        if not fb:
+            raise
+        print(f"    [{step}] {model} saturated, falling back to {fb}")
+        return call(fb)
 
 
 def llama(prompt):
