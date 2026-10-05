@@ -75,9 +75,55 @@ def _caption(text):
 class ShortScene(Scene):
     pad = 0.25  # short pause after each segment, in seconds
 
+    # Bounds the frame-check enforces, with a small slack over the layout rules.
+    _X_LIMIT = SAFE_WIDTH / 2 + 0.15
+    _Y_TOP = CONTENT_TOP + 0.15
+    _Y_BOTTOM = CONTENT_BOTTOM - 0.15
+
     def setup(self):
         data = json.loads(Path("narration.json").read_text(encoding="utf-8"))
         self.segments = data["segments"]
+        self._violations = []
+
+    def sweep(self, *keep, run_time=0.4):
+        """FadeOut everything on stage except `keep` (captions are safe).
+
+        Call at the start of a segment that lays out new visuals, so stale
+        elements never linger under new ones.
+        """
+        keep_set = set(keep)
+        doomed = [m for m in self.mobjects
+                  if m not in keep_set and not getattr(m, "_is_caption", False)]
+        if doomed:
+            self.play(*[FadeOut(m) for m in doomed], run_time=run_time)
+
+    def _check_bounds(self, seg_index):
+        """Record any mobject outside the content area; the renderer fails the
+        job on violations so the repair loop gets a precise, fixable error."""
+        for m in self.mobjects:
+            if getattr(m, "_is_caption", False) or not m.has_points():
+                continue
+            try:
+                left, right = m.get_left()[0], m.get_right()[0]
+                bottom, top = m.get_bottom()[1], m.get_top()[1]
+            except Exception:
+                continue
+            problems = []
+            if right > self._X_LIMIT:
+                problems.append(f"right edge x={right:.2f} > {self._X_LIMIT:.2f}")
+            if left < -self._X_LIMIT:
+                problems.append(f"left edge x={left:.2f} < {-self._X_LIMIT:.2f}")
+            if top > self._Y_TOP:
+                problems.append(f"top y={top:.2f} > {self._Y_TOP:.2f}")
+            if bottom < self._Y_BOTTOM:
+                problems.append(f"bottom y={bottom:.2f} < {self._Y_BOTTOM:.2f} "
+                                "(the caption area — content must stay above it)")
+            if problems:
+                self._violations.append(
+                    f"segment {seg_index}: {type(m).__name__} out of frame: "
+                    + "; ".join(problems))
+        Path("bounds_violations.json").write_text(
+            json.dumps(self._violations), encoding="utf-8")
 
     @contextmanager
     def say(self, i):
@@ -95,6 +141,7 @@ class ShortScene(Scene):
             c.move_to(off_screen)
         state = {"idx": 0}
         holder = VGroup(*caps)
+        holder._is_caption = True
 
         def update(m):
             t = self.renderer.time - start
@@ -117,3 +164,4 @@ class ShortScene(Scene):
                 self.wait(remaining)
             holder.clear_updaters()
             self.remove(holder)
+            self._check_bounds(i)

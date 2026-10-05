@@ -12,7 +12,7 @@ class Main(ShortScene):
         with self.say(0) as d:
             title = Text("Eigenvectors", font_size=44, color=ACCENT)
             title.move_to(UP * 3.1)
-            hook = Text("the arrows a matrix can't turn", font_size=24, color=MUTED)
+            hook = Text("the vectors behind PageRank", font_size=24, color=MUTED)
             hook.next_to(title, DOWN, buff=0.25)
             self.play(Write(title), run_time=d * 0.5)
             self.play(FadeIn(hook, shift=UP * 0.2), run_time=d * 0.3)
@@ -113,7 +113,5 @@ class Main(ShortScene):
             payoff = fit(Text("the directions a matrix only scales",
                               font_size=28, color=ACCENT_3))
             payoff.move_to(UP * 0.3)
-            self.play(FadeOut(plane), FadeOut(ev), FadeOut(ev2), FadeOut(axis),
-                      FadeOut(axis2), FadeOut(eq), FadeOut(mat),
-                      run_time=d * 0.3)
+            self.sweep(title, run_time=d * 0.3)
             self.play(Write(payoff), run_time=d * 0.5)

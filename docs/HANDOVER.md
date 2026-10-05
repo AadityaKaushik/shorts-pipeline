@@ -1176,6 +1176,33 @@ Gemini entirely. The owner added `GROQ_API_KEY` and `OPENROUTER_API_KEY` to `.en
 - Script prompt now also bans parentheses and coordinate tuples in narration
   (gpt-oss slipped "(0,1)"-style text past the earlier wording).
 
+### 11.12 Owner review of the first machine video (5 Oct 2026): quality hardening
+
+The first end-to-end machine-generated video (KMP, Nemotron code, 90.1s) rendered
+first-try but the owner rejected it: content spilled out of frame, stale elements
+stayed under new ones, and the script launched into KMP with no context. Fixes,
+in three layers:
+
+1. **Mechanical bounds enforcement** (not just prompt rules): `ShortScene` now
+   measures every mobject's bounding box at the end of each segment
+   (`_check_bounds`, slack 0.15 over the layout constants) and writes
+   `bounds_violations.json`; the renderer **fails the job** with a per-segment,
+   per-edge error (e.g. "segment 4: Axes right edge x=2.60 > 2.15"), which the
+   repair loop consumes. A visually broken render is now a *failed* render.
+2. **Stage management**: new template helper `self.sweep(*keep, run_time=0.4)`
+   fades out everything on stage except `keep` (captions immune via an
+   `_is_caption` mark). Code/repair prompts require it when a segment lays out
+   new visuals; examples demonstrate it.
+3. **Hook-driven scripts**: the topic "hook" is now a concrete real-world
+   scenario (10–18 words, app/device/everyday life — never an abstract question),
+   and the script rules require: segments 0–1 set up that scenario jargon-free,
+   every term defined before use ("assume the viewer has never heard of this"),
+   the whole explanation anchored to the scenario, and the final segment
+   resolving it. Ex1's hook was reworked to the PageRank framing to model this.
+
+Note: the renderer image must be rebuilt for template changes; the example
+renders double as a regression test of the bounds checker (they must pass it).
+
 ---
 
 ## 12. Phase 5: Generation workflow (n8n)

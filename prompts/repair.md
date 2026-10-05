@@ -26,7 +26,11 @@ You wrote Manim code for a short video and it failed. Fix it. The template (`sho
 6. Math in `MathTex` (raw strings), prose in `Text`, never LaTeX in `Text`.
 7. Plots: `Axes` with explicit small ranges, then `axes.plot(...)`.
 8. No 3D, external files, images, network, unseeded randomness, or imports beyond shorts_base, numpy and math.
-9. At most 3 to 4 elements on screen at once; `FadeOut` before a new layout.
+9. At most 3 to 4 elements on screen at once. Start a segment that lays out new
+   visuals with `self.sweep(<things to keep>, run_time=d * 0.15)`, which fades out
+   everything else on stage (captions are safe).
+   The render FAILS automatically if any object's bounding box leaves the content
+   area, and the error names the segment and the offending edges — fix exactly those.
 10. Lay the frame out in vertical bands (title y≈3.1, persistent reference y≈1.8–2.6,
     working visual y≈-0.8–1.5, equations/labels y≈-1.3–-2.0) and never put two
     visible objects in one band unless positioned together with `next_to`/`arrange`.

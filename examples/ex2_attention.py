@@ -59,10 +59,8 @@ class Main(ShortScene):
                 r"\begin{bmatrix} 2 & 1 & 0 \\ 1 & 3 & 1 \\ 0 & 1 & 2 \end{bmatrix}",
                 font_size=38)
             scores.move_to(UP * 0.2)
-            self.play(FadeOut(VGroup(qa, ka, stray, big, small)),
-                      run_time=d * 0.25)
-            self.play(FadeOut(eq), FadeIn(scores, shift=UP * 0.2),
-                      run_time=d * 0.45)
+            self.sweep(title, items, run_time=d * 0.25)
+            self.play(FadeIn(scores, shift=UP * 0.2), run_time=d * 0.45)
 
         with self.say(7) as d:
             self.play(Indicate(scores, color=ACCENT_2, scale_factor=1.05),
@@ -90,7 +88,7 @@ class Main(ShortScene):
                                 stroke_width=0)
                 bar.next_to(item, DOWN, buff=0.3, aligned_edge=UP)
                 bars.add(bar)
-            self.play(FadeOut(scores), FadeOut(note), run_time=d * 0.2)
+            self.sweep(title, items, run_time=d * 0.2)
             self.play(*[GrowFromEdge(b, UP) for b in bars], run_time=d * 0.5)
 
         with self.say(11) as d:

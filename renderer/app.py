@@ -85,6 +85,7 @@ def render(job: Job):
     d.mkdir(parents=True, exist_ok=True)
     shutil.rmtree(d / "media", ignore_errors=True)
     (d / "final.mp4").unlink(missing_ok=True)
+    (d / "bounds_violations.json").unlink(missing_ok=True)
     (d / "scene.py").write_text(job.code, encoding="utf-8")
 
     try:
@@ -110,6 +111,17 @@ def render(job: Job):
     if p.returncode != 0 or out is None:
         return {"ok": False, "job_id": jid, "stage": "render",
                 "error": clean_error(p.stderr or p.stdout)}
+
+    # The template records any mobject that left the content area. Treat that
+    # as a failure so the repair loop fixes the layout.
+    vfile = d / "bounds_violations.json"
+    if vfile.exists():
+        violations = json.loads(vfile.read_text())
+        if violations:
+            return {"ok": False, "job_id": jid, "stage": "render",
+                    "error": "content out of frame (video rendered but unusable); "
+                             "reposition or shrink these:\n"
+                             + "\n".join(violations[:12])}
 
     final = d / "final.mp4"
     shutil.move(str(out), final)

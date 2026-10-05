@@ -2,8 +2,8 @@
   "topic": "Eigenvectors: the directions a matrix only stretches",
   "segments": [
     {
-      "narration": "What if a matrix could move every single vector in the plane, except a special few?",
-      "visual": "Title 'Eigenvectors' with the subtitle 'the arrows a matrix can't turn'"
+      "narration": "Google ranks billions of web pages by hunting for one special kind of vector. Let's meet it.",
+      "visual": "Title 'Eigenvectors' with the subtitle 'the vectors behind PageRank'"
     },
     {
       "narration": "A matrix is a transformation machine: feed in any vector, and it outputs a new one.",
@@ -50,7 +50,7 @@
       "visual": "The equation becomes lambda one = 3, lambda two = 1"
     },
     {
-      "narration": "Along these directions a messy transformation becomes simple multiplication. That's why eigenvectors power vibration analysis and PageRank.",
+      "narration": "Along these directions, a messy transformation becomes simple multiplication. Google's PageRank is exactly such an eigenvector.",
       "visual": "Everything fades except the title and the payoff 'the directions a matrix only scales'"
     }
   ]
