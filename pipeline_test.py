@@ -79,7 +79,7 @@ ENV = {**load_env(),
           if k.startswith("GEMINI_API_KEY_") or k == "HF_TOKEN"}}
 
 
-def post_json(url, headers, body, timeout=180):
+def post_json(url, headers, body, timeout=600):
     req = urllib.request.Request(
         url, data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json",
@@ -102,6 +102,11 @@ def llm_call(url, headers, body, label):
                 delay = min(delay * 2, 120)
                 continue
             raise
+        except (TimeoutError, urllib.error.URLError, ConnectionError) as e:
+            print(f"    [{label}] {type(e).__name__}, retrying in {delay}s")
+            time.sleep(delay)
+            delay = min(delay * 2, 120)
+            continue
     raise RuntimeError(f"{label}: gave up after repeated 429/5xx")
 
 
