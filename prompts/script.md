@@ -30,11 +30,23 @@ You write the narration script for a 75-second animated STEM explainer video (a 
 
 ## Visual rules
 
-For each segment, describe in one sentence what appears on screen. It must be concrete and feasible with simple 2D animation:
+For each segment, describe in one sentence what appears on screen. The animator
+can ONLY draw this vocabulary — nothing else exists:
 
-- an equation, a short text label, axes with a plotted function, arrows, boxes and circles, a small graph or tree, a matrix, bars, or a code snippet of 6 lines or fewer
-- NO photos, 3D, maps, or real-world imagery
-- at most 3 to 4 elements on screen at once; say when the stage clears
+- an equation; a short text label; axes with a plotted curve; arrows; circles,
+  dots and rectangles (optionally labelled with text); bars of given heights;
+  a small matrix; a small graph or tree of labelled nodes; a code snippet of
+  6 lines or fewer
+- NO icons, pictures or drawings of objects — there is no "coin icon", no
+  "phone", no "person". Represent objects with labelled shapes instead:
+  a coin is a circle labelled H, a server is a rectangle labelled "server".
+- NO photos, 3D, maps, or real-world imagery.
+- Describe each visual as a LAYOUT instruction the animator can follow literally
+  ("a bar chart with bars at heights 1, 3, 2 labelled A, B, C"), not as a scene
+  to imagine ("coins raining down").
+- At most 3 to 4 elements on screen at once; say when the stage clears.
+- Prefer ONE visual that evolves across several segments (the same axes gaining
+  a curve, then a line, then a dot) over a new picture per segment.
 
 ## Output
 

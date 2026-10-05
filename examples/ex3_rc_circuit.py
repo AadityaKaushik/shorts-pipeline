@@ -11,7 +11,7 @@ def circuit():
 
     rbox = Rectangle(width=0.7, height=0.32, color=WHITE).move_to(UP * h / 2)
     top = VGroup(Line(tl, rbox.get_left()), rbox, Line(rbox.get_right(), tr))
-    r_label = MathTex("R", font_size=28).next_to(rbox, UP, buff=0.12)
+    r_label = MathTex("R", font_size=24).next_to(rbox, UP, buff=0.12)
 
     # capacitor: a gap in the right edge covered by two parallel plates
     gap, plate = 0.14, 0.4
@@ -21,7 +21,7 @@ def circuit():
         Line(c_mid + DOWN * gap + LEFT * plate / 2, c_mid + DOWN * gap + RIGHT * plate / 2),
     )
     right = VGroup(Line(tr, c_mid + UP * gap), plates, Line(c_mid + DOWN * gap, br))
-    c_label = MathTex("C", font_size=28).next_to(plates, RIGHT, buff=0.15)
+    c_label = MathTex("C", font_size=24).next_to(plates, RIGHT, buff=0.15)
 
     # battery: long and short plates in the left edge
     b_mid = LEFT * w / 2
@@ -30,7 +30,7 @@ def circuit():
         Line(b_mid + DOWN * 0.1 + LEFT * 0.12, b_mid + DOWN * 0.1 + RIGHT * 0.12),
     )
     left = VGroup(Line(bl, b_mid + DOWN * 0.1), batt, Line(b_mid + UP * 0.1, tl))
-    v_label = MathTex("V_0", font_size=28).next_to(batt, LEFT, buff=0.15)
+    v_label = MathTex("V_0", font_size=24).next_to(batt, LEFT, buff=0.15)
 
     bottom = Line(br, bl)
     loop = VGroup(top, right, bottom, left, r_label, c_label, v_label)
@@ -43,9 +43,9 @@ class Main(ShortScene):
         V = lambda t: 1 - np.exp(-t)
 
         with self.say(0) as d:
-            title = fit(Text("Charging a Capacitor", font_size=40, color=ACCENT))
+            title = fit(Text("Charging a Capacitor", font_size=32, color=ACCENT))
             title.move_to(UP * 3.1)
-            sub = Text("the RC circuit", font_size=24, color=MUTED)
+            sub = Text("the RC circuit", font_size=22, color=MUTED)
             sub.next_to(title, DOWN, buff=0.25)
             self.play(Write(title), run_time=d * 0.5)
             self.play(FadeIn(sub, shift=UP * 0.2), run_time=d * 0.3)
@@ -57,9 +57,9 @@ class Main(ShortScene):
             self.play(Create(circ), run_time=d * 0.7)
 
         with self.say(2) as d:
-            stores = Text("stores", font_size=22, color=ACCENT_3)
+            stores = Text("stores", font_size=20, color=ACCENT_3)
             stores.next_to(circ.plates, DOWN, buff=0.18)
-            throttles = Text("throttles", font_size=22, color=ACCENT_2)
+            throttles = Text("throttles", font_size=20, color=ACCENT_2)
             throttles.next_to(circ.rbox, LEFT, buff=0.25)
             self.play(Indicate(circ.plates, color=ACCENT_3), FadeIn(stores),
                       run_time=d * 0.4)
@@ -85,9 +85,9 @@ class Main(ShortScene):
 
         with self.say(5) as d:
             v0_line = DashedLine(axes.c2p(0, 1), axes.c2p(5.5, 1), color=MUTED)
-            v0_label = MathTex("V_0", font_size=24, color=MUTED)
+            v0_label = MathTex("V_0", font_size=22, color=MUTED)
             v0_label.next_to(axes.c2p(5.5, 1), UP, buff=0.1).shift(LEFT * 0.2)
-            i_eq = MathTex(r"I = \frac{V_0 - V_C}{R}", font_size=36)
+            i_eq = MathTex(r"I = \frac{V_0 - V_C}{R}", font_size=30)
             i_eq.move_to(DOWN * 1.6)
             self.play(Create(v0_line), FadeIn(v0_label), run_time=d * 0.35)
             self.play(Write(i_eq), run_time=d * 0.5)
@@ -108,7 +108,7 @@ class Main(ShortScene):
 
         with self.say(8) as d:
             v_eq = fit(MathTex(r"V(t) = V_0\left(1 - e^{-t/RC}\right)",
-                               font_size=36))
+                               font_size=30))
             v_eq.move_to(DOWN * 1.6)
             self.play(FadeOut(gap), ReplacementTransform(i_eq, v_eq),
                       run_time=d * 0.6)
@@ -117,11 +117,11 @@ class Main(ShortScene):
             v_tau = V(1)
             tau_line = DashedLine(axes.c2p(1, 0), axes.c2p(1, v_tau),
                                   color=ACCENT_2)
-            tau_label = MathTex(r"\tau", font_size=28, color=ACCENT_2)
+            tau_label = MathTex(r"\tau", font_size=24, color=ACCENT_2)
             tau_label.next_to(axes.c2p(1, 0), DOWN, buff=0.1)
             pct_line = DashedLine(axes.c2p(0, v_tau), axes.c2p(1, v_tau),
                                   color=ACCENT_3)
-            pct = MathTex(r"63\%", font_size=24, color=ACCENT_3)
+            pct = MathTex(r"63\%", font_size=22, color=ACCENT_3)
             pct.next_to(axes.c2p(0, v_tau), LEFT, buff=0.1)
             self.play(Create(tau_line), FadeIn(tau_label), run_time=d * 0.4)
             self.play(Create(pct_line), FadeIn(pct), run_time=d * 0.4)
@@ -130,7 +130,7 @@ class Main(ShortScene):
             marks = VGroup()
             for t_m, lbl in [(2, "86\\%"), (3, "95\\%")]:
                 dot = Dot(axes.c2p(t_m, V(t_m)), color=ACCENT_2, radius=0.05)
-                tag = MathTex(lbl, font_size=22, color=MUTED)
+                tag = MathTex(lbl, font_size=20, color=MUTED)
                 tag.next_to(dot, UP, buff=0.12)
                 marks.add(VGroup(dot, tag))
             self.play(FadeIn(marks[0]), run_time=d * 0.3)
@@ -138,7 +138,7 @@ class Main(ShortScene):
 
         with self.say(11) as d:
             end = Dot(axes.c2p(5, V(5)), color=ACCENT_3, radius=0.07)
-            payoff = fit(Text("tau = RC sets the wait", font_size=28,
+            payoff = fit(Text("tau = RC sets the wait", font_size=24,
                               color=ACCENT_3))
             payoff.move_to(DOWN * 1.6)
             self.play(FadeIn(end, scale=2), run_time=d * 0.2)

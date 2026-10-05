@@ -42,6 +42,11 @@ class ShortScene(Scene):
    its centre.
 5. Colours: only ACCENT, ACCENT_2, ACCENT_3, MUTED, WHITE.
 6. Math goes in `MathTex` with raw strings; prose goes in `Text`. Never put LaTeX in `Text`.
+6b. FONT SIZES (hard ceilings — the frame is only 4.5 units wide):
+    title 32–36, equations 28–32, body text 22–26, small labels 18–22.
+    Nothing ever exceeds font_size=36. When in doubt, go smaller and `fit()` it.
+6c. A box around text is ALWAYS `SurroundingRectangle(the_text, buff=0.15)` —
+    never a fixed-size `Rectangle` with text placed inside it (the text will not fit).
 7. Plots: `Axes` with explicit small ranges (e.g. `x_range=[0, 5, 1]`), then `axes.plot(...)`. Keep them simple and `fit()` them.
 8. No 3D, no external files, no images, no network access, no randomness without a fixed seed, and no imports beyond shorts_base, numpy and math.
 9. At most 3 to 4 elements on screen at once. When a segment starts a new layout,

@@ -10,18 +10,18 @@ class Main(ShortScene):
     def construct(self):
         # Matrix used throughout: A = [[2, 1], [1, 2]]
         with self.say(0) as d:
-            title = Text("Eigenvectors", font_size=44, color=ACCENT)
+            title = Text("Eigenvectors", font_size=36, color=ACCENT)
             title.move_to(UP * 3.1)
-            hook = Text("the vectors behind PageRank", font_size=24, color=MUTED)
+            hook = Text("the vectors behind PageRank", font_size=22, color=MUTED)
             hook.next_to(title, DOWN, buff=0.25)
             self.play(Write(title), run_time=d * 0.5)
             self.play(FadeIn(hook, shift=UP * 0.2), run_time=d * 0.3)
 
         with self.say(1) as d:
             box = Rectangle(width=1.0, height=0.8, color=ACCENT)
-            box_a = MathTex("A", font_size=40).move_to(box)
-            v_in = MathTex(r"\vec{v}", font_size=32, color=MUTED)
-            v_out = MathTex(r"A\vec{v}", font_size=32, color=ACCENT_2)
+            box_a = MathTex("A", font_size=32).move_to(box)
+            v_in = MathTex(r"\vec{v}", font_size=28, color=MUTED)
+            v_out = MathTex(r"A\vec{v}", font_size=28, color=ACCENT_2)
             a_in = Arrow(LEFT * 1.9, box.get_left(), buff=0.1, color=MUTED)
             a_out = Arrow(box.get_right(), RIGHT * 1.9, buff=0.1, color=ACCENT_2)
             v_in.next_to(a_in, UP, buff=0.15)
@@ -32,7 +32,7 @@ class Main(ShortScene):
 
         with self.say(2) as d:
             mat = fit(MathTex(r"A = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}",
-                              font_size=34))
+                              font_size=30))
             mat.move_to(UP * 2.3)
             plane = NumberPlane(
                 x_range=[-2, 2, 1], y_range=[-2, 2, 1],
@@ -71,7 +71,7 @@ class Main(ShortScene):
             self.play(Transform(ev, vec(plane, 1.8, 1.8, ACCENT)), run_time=d * 0.4)
 
         with self.say(6) as d:
-            tag = Text("eigenvector", font_size=28, color=ACCENT)
+            tag = Text("eigenvector", font_size=24, color=ACCENT)
             tag.move_to(DOWN * 1.6)
             self.play(Write(tag), run_time=d * 0.5)
 
@@ -84,12 +84,12 @@ class Main(ShortScene):
             self.play(FadeOut(push), run_time=d * 0.3)
 
         with self.say(8) as d:
-            eq = MathTex(r"A\vec{v} = \lambda\,\vec{v}", font_size=40)
+            eq = MathTex(r"A\vec{v} = \lambda\,\vec{v}", font_size=32)
             eq.move_to(DOWN * 1.6)
             self.play(ReplacementTransform(tag, eq), run_time=d * 0.5)
 
         with self.say(9) as d:
-            eq3 = MathTex(r"A\vec{v} = 3\,\vec{v}", font_size=40, color=ACCENT_2)
+            eq3 = MathTex(r"A\vec{v} = 3\,\vec{v}", font_size=32, color=ACCENT_2)
             eq3.move_to(DOWN * 1.6)
             self.play(Transform(eq, eq3), run_time=d * 0.4)
             self.play(Indicate(ev, color=ACCENT), run_time=d * 0.4)
@@ -105,13 +105,13 @@ class Main(ShortScene):
                       run_time=d * 0.3)
 
         with self.say(11) as d:
-            eqs = MathTex(r"\lambda_1 = 3,\quad \lambda_2 = 1", font_size=38)
+            eqs = MathTex(r"\lambda_1 = 3,\quad \lambda_2 = 1", font_size=32)
             eqs.move_to(DOWN * 1.6)
             self.play(Transform(eq, eqs), run_time=d * 0.5)
 
         with self.say(12) as d:
             payoff = fit(Text("the directions a matrix only scales",
-                              font_size=28, color=ACCENT_3))
+                              font_size=24, color=ACCENT_3))
             payoff.move_to(UP * 0.3)
             self.sweep(title, run_time=d * 0.3)
             self.play(Write(payoff), run_time=d * 0.5)

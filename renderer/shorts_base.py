@@ -66,7 +66,7 @@ def _caption_chunks(seg):
 
 
 def _caption(text):
-    cap = Text(text, font_size=26, weight=BOLD, color=WHITE)
+    cap = Text(text, font_size=24, weight=BOLD, color=WHITE)
     cap.set_stroke(BLACK, width=5, background=True)
     fit(cap)
     return cap.move_to(UP * CAPTION_Y)
@@ -101,7 +101,9 @@ class ShortScene(Scene):
         """Record any mobject outside the content area; the renderer fails the
         job on violations so the repair loop gets a precise, fixable error."""
         for m in self.mobjects:
-            if getattr(m, "_is_caption", False) or not m.has_points():
+            # has_points() is False for containers (Text, MathTex, VGroup) whose
+            # points live in submobjects — check the whole family instead.
+            if getattr(m, "_is_caption", False) or not m.family_members_with_points():
                 continue
             try:
                 left, right = m.get_left()[0], m.get_right()[0]
