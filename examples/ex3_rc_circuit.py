@@ -122,7 +122,7 @@ class Main(ShortScene):
             pct_line = DashedLine(axes.c2p(0, v_tau), axes.c2p(1, v_tau),
                                   color=ACCENT_3)
             pct = MathTex(r"63\%", font_size=22, color=ACCENT_3)
-            pct.next_to(axes.c2p(0, v_tau), LEFT, buff=0.1)
+            pct.next_to(pct_line, UP, buff=0.08)
             self.play(Create(tau_line), FadeIn(tau_label), run_time=d * 0.4)
             self.play(Create(pct_line), FadeIn(pct), run_time=d * 0.4)
 
