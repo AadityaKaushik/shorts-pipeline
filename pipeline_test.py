@@ -139,13 +139,16 @@ def chat_call(provider, model, prompt):
     label = f"{provider}:{model}"
     # Free endpoints sometimes return HTTP 200 with an error payload instead of
     # "choices" — treat that as retryable, not a crash.
+    body = {"model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            # reasoning models spend output tokens thinking before the code;
+            # too small a budget truncates with finish_reason "length"
+            "max_tokens": 16000}
+    if provider == "openrouter":
+        body["reasoning"] = {"effort": "low"}
     for attempt in range(3):
         data = llm_call(
-            url, {"Authorization": f"Bearer {ENV[key_name]}"},
-            {"model": model,
-             "messages": [{"role": "user", "content": prompt}],
-             "max_tokens": 8000},
-            label)
+            url, {"Authorization": f"Bearer {ENV[key_name]}"}, body, label)
         if data.get("choices"):
             content = data["choices"][0].get("message", {}).get("content")
             if content and content.strip():
