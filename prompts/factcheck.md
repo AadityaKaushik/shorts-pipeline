@@ -21,6 +21,7 @@ Do NOT flag style, pacing or word choice. Do NOT flag acceptable simplifications
 
 - If everything is accurate: ok is true, issues is empty, and segments is the input unchanged.
 - If there are small fixable problems: ok is true, list the issues, and return the segments with minimal corrections. Keep each narration 8 to 20 spoken words, no symbols or LaTeX, and keep the same number of segments.
+- Every narration you return is read aloud VERBATIM by a text-to-speech voice, so each corrected segment must be fluent, grammatical spoken English — complete sentences, no dropped words. Never degrade the wording of a segment you aren't correcting.
 - If the script is fundamentally wrong (the core idea itself is incorrect): ok is false, and issues explains why.
 
 ## Output
