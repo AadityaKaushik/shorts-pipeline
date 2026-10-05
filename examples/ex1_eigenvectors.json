@@ -1,0 +1,33 @@
+{
+  "topic": "Eigenvectors: the directions a matrix only stretches",
+  "segments": [
+    {
+      "narration": "What if a matrix could move every vector, except a special few?",
+      "visual": "Title 'Eigenvectors' with the subtitle 'the arrows a matrix can't turn'"
+    },
+    {
+      "narration": "This matrix transforms the whole plane. Apply it, and every vector gets pushed somewhere new.",
+      "visual": "The matrix A = [[2,1],[1,2]] above a small coordinate grid"
+    },
+    {
+      "narration": "Watch these two arrows: they swing around to point in completely new directions.",
+      "visual": "Two grey arrows on the grid rotate to their transformed positions"
+    },
+    {
+      "narration": "But this arrow never turns. The matrix only stretches it along its own line.",
+      "visual": "A blue arrow on the diagonal stretches to three times its length along a dashed line"
+    },
+    {
+      "narration": "Any vector like this is called an eigenvector: A times v equals lambda times v.",
+      "visual": "The equation A v = lambda v appears below the grid"
+    },
+    {
+      "narration": "Lambda is the eigenvalue, the stretch factor. Here the arrow tripled, so lambda is three.",
+      "visual": "The equation becomes A v = 3 v and the blue arrow flashes"
+    },
+    {
+      "narration": "Eigenvectors are the directions a matrix treats as its own: it scales them, and does nothing more.",
+      "visual": "Everything fades except the payoff line 'the directions a matrix only scales'"
+    }
+  ]
+}

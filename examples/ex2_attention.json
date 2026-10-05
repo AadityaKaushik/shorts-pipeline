@@ -1,0 +1,33 @@
+{
+  "topic": "How attention weights are computed",
+  "segments": [
+    {
+      "narration": "How does an AI model decide which words to pay attention to?",
+      "visual": "Title 'Attention' with subtitle 'how transformers decide what matters'"
+    },
+    {
+      "narration": "Every word becomes a vector of numbers. To understand one word, the model compares it with all the others.",
+      "visual": "Three word boxes 'the', 'cat', 'sat' in a row, each with a small column vector beneath"
+    },
+    {
+      "narration": "Each comparison is a dot product: multiply the two vectors entry by entry, and add.",
+      "visual": "Arrows from the middle word to its neighbours, and the equation score = q dot k"
+    },
+    {
+      "narration": "That gives a score for every pair of words. Bigger score, stronger connection.",
+      "visual": "A 3 by 3 matrix of scores labelled 'scores'"
+    },
+    {
+      "narration": "But raw scores can be any size, so softmax squashes each row into weights that sum to one.",
+      "visual": "The row [2, 1, 0] transforms under softmax into [0.67, 0.24, 0.09]"
+    },
+    {
+      "narration": "Now each word rebuilds itself as a weighted average of all the others.",
+      "visual": "Three bars under the word boxes with heights 0.67, 0.24 and 0.09"
+    },
+    {
+      "narration": "Those weights are attention. The model literally learns where to look, one dot product at a time.",
+      "visual": "The bars flash and the payoff line 'attention = learned weights' appears"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+You wrote Manim code for a short video and it failed. Fix it. The template (`shorts_base`) and all rules are unchanged — restated below.
+
+## The error
+
+```
+{{ERROR}}
+```
+
+## The failing code
+
+```python
+{{CODE}}
+```
+
+## The segments it must cover
+
+{{SEGMENTS_JSON}}
+
+## Rules (unchanged)
+
+1. Start with `from shorts_base import *`. Define exactly `class Main(ShortScene)` with `construct(self)`.
+2. One `with self.say(i) as d:` block per segment, in order, each index exactly once, covering every segment.
+3. Sum of `run_time`s inside each block at most 0.9 * d, expressed as fractions of d.
+4. Everything inside CONTENT_BOTTOM <= y <= CONTENT_TOP and within SAFE_WIDTH (use `fit()`). Never draw captions.
+5. Colours: only ACCENT, ACCENT_2, ACCENT_3, MUTED, WHITE.
+6. Math in `MathTex` (raw strings), prose in `Text`, never LaTeX in `Text`.
+7. Plots: `Axes` with explicit small ranges, then `axes.plot(...)`.
+8. No 3D, external files, images, network, unseeded randomness, or imports beyond shorts_base, numpy and math.
+9. At most 3 to 4 elements on screen at once; `FadeOut` before a new layout.
+
+## How to fix
+
+- Find the cause of the error and fix it properly; do not just delete the feature unless it breaks a rule.
+- If the error is about a Manim API (wrong argument, missing method), use a simpler, more standard call.
+- If the error points at a fragile construct (complex updaters, unusual mobjects), replace it with a simpler visual that still matches the segment.
+- Return the COMPLETE corrected file, not a diff.
+
+Reply with ONLY one fenced Python code block containing the complete corrected scene. No explanation.

@@ -1,0 +1,33 @@
+{
+  "topic": "How a capacitor charges through a resistor (the RC time constant)",
+  "segments": [
+    {
+      "narration": "Why does a camera flash need a moment before it fires?",
+      "visual": "Title 'Charging a Capacitor' with subtitle 'the RC circuit'"
+    },
+    {
+      "narration": "Inside is a capacitor charging through a resistor. Connect a battery, and current begins to flow into the capacitor.",
+      "visual": "A simple circuit loop: battery V0 on the left, resistor R on top, capacitor C on the right"
+    },
+    {
+      "narration": "The capacitor's voltage climbs quickly at first, then slows down as it fills up.",
+      "visual": "Axes below the circuit, with the charging curve drawn from left to right"
+    },
+    {
+      "narration": "The curve is V naught times one minus e to the minus t over R C.",
+      "visual": "The equation V(t) = V0 (1 - e^(-t/RC)) below the axes"
+    },
+    {
+      "narration": "R times C is called tau, the time constant, measured in seconds.",
+      "visual": "A dashed vertical line at t = tau on the axes, labelled tau = RC"
+    },
+    {
+      "narration": "After one tau, the capacitor sits at about sixty three percent of full charge.",
+      "visual": "A dashed horizontal line at 63 percent meeting the curve at tau"
+    },
+    {
+      "narration": "By five tau it is essentially full. A bigger resistor or capacitor stretches the curve, charging slower.",
+      "visual": "A dot at five tau near the top of the curve, and the payoff 'tau = RC sets the speed'"
+    }
+  ]
+}
