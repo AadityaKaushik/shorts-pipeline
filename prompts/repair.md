@@ -25,7 +25,10 @@ You wrote Manim code for a short video and it failed. Fix it. The template (`sho
 5. Colours: only ACCENT, ACCENT_2, ACCENT_3, MUTED, WHITE.
 6. Math in `MathTex` (raw strings), prose in `Text`, never LaTeX in `Text`.
    Font ceilings: title 32–36, equations 28–32, body 22–26, labels 18–22; never above 36.
-   A box around text is always `SurroundingRectangle(text, buff=0.15)`, never a fixed-size Rectangle.
+   Text first, then `SurroundingRectangle(text, buff=0.15)` — text never goes inside a
+   pre-sized Rectangle; label plain shapes beside them with `next_to`.
+   Axis titles sit outside the plotted area (below the x-axis, left of the y-axis),
+   never where a curve passes.
 7. Plots: `Axes` with explicit small ranges, then `axes.plot(...)`.
 8. No 3D, external files, images, network, unseeded randomness, or imports beyond shorts_base, numpy and math.
 9. At most 3 to 4 elements on screen at once. Start a segment that lays out new

@@ -45,8 +45,13 @@ class ShortScene(Scene):
 6b. FONT SIZES (hard ceilings — the frame is only 4.5 units wide):
     title 32–36, equations 28–32, body text 22–26, small labels 18–22.
     Nothing ever exceeds font_size=36. When in doubt, go smaller and `fit()` it.
-6c. A box around text is ALWAYS `SurroundingRectangle(the_text, buff=0.15)` —
-    never a fixed-size `Rectangle` with text placed inside it (the text will not fit).
+6c. Text NEVER goes inside a pre-sized shape. Order of operations: create the
+    text first, then wrap it with `SurroundingRectangle(the_text, buff=0.15)`.
+    A `Rectangle(width=..., height=...)` must never contain text — to label a
+    plain shape, put the label beside it with `next_to`.
+6d. Axis titles and tick labels live OUTSIDE the plotted area: x-axis title below
+    the axis (`next_to(axes.get_x_axis(), DOWN)`), y-axis title left of it. Never
+    place any label where a curve or bars will pass through it.
 7. Plots: `Axes` with explicit small ranges (e.g. `x_range=[0, 5, 1]`), then `axes.plot(...)`. Keep them simple and `fit()` them.
 8. No 3D, no external files, no images, no network access, no randomness without a fixed seed, and no imports beyond shorts_base, numpy and math.
 9. At most 3 to 4 elements on screen at once. When a segment starts a new layout,
