@@ -267,7 +267,7 @@ def step_topic(history, forced_topic, forced_category):
     prompt = fill("topic", HISTORY=hist_text, RECENT_CATEGORIES=", ".join(recent))
     if forced_category:
         prompt += f"\n\nFor this run, the category MUST be: {forced_category}\n"
-    return parse_json_reply(llm("topic", prompt))
+    return json_step("topic", prompt)
 
 
 def step_script(topic):
@@ -285,7 +285,7 @@ def step_script(topic):
 def step_factcheck(topic, script):
     prompt = fill("factcheck", TOPIC_JSON=json.dumps(topic, indent=2),
                   SCRIPT_JSON=json.dumps(script, indent=2))
-    return parse_json_reply(llm("factcheck", prompt))
+    return json_step("factcheck", prompt)
 
 
 def render(job_id, code, segments):
@@ -298,7 +298,17 @@ def step_metadata(topic, segments):
     narration = " ".join(s["narration"] for s in segments)
     prompt = fill("metadata", TOPIC_JSON=json.dumps(topic, indent=2),
                   NARRATION_TEXT=narration)
-    return parse_json_reply(llm("metadata", prompt))
+    return json_step("metadata", prompt)
+
+
+def json_step(step, prompt, model=None):
+    """LLM call + JSON parse with re-ask retries, for every JSON-output step."""
+    for attempt in range(3):
+        try:
+            return parse_json_reply(llm(step, prompt, model=model))
+        except ValueError as e:  # includes JSONDecodeError
+            print(f"    {step} reply unparsable ({str(e)[:80]}), retrying")
+    raise RuntimeError(f"{step}: no valid JSON after 3 tries")
 
 
 def slugify(text):
