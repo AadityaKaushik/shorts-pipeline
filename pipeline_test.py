@@ -302,12 +302,20 @@ def step_metadata(topic, segments):
 
 
 def json_step(step, prompt, model=None):
-    """LLM call + JSON parse with re-ask retries, for every JSON-output step."""
+    """LLM call + JSON parse with re-ask retries, for every JSON-output step.
+    A model that keeps emitting unparsable JSON is as failed as an unreachable
+    one, so the last attempt switches to the step's fallback model."""
     for attempt in range(3):
+        use = model
+        if attempt == 2 and model is None:
+            use = FALLBACK_MODELS.get(step)
+            if use:
+                print(f"    [{step}] switching to fallback {use} for last try")
         try:
-            return parse_json_reply(llm(step, prompt, model=model))
+            return parse_json_reply(llm(step, prompt, model=use))
         except ValueError as e:  # includes JSONDecodeError
             print(f"    {step} reply unparsable ({str(e)[:80]}), retrying")
+            time.sleep(15)  # don't hammer per-minute rate limits with re-asks
     raise RuntimeError(f"{step}: no valid JSON after 3 tries")
 
 
