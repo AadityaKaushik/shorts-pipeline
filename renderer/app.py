@@ -1,4 +1,5 @@
-import base64, hashlib, json, os, re, shutil, subprocess, urllib.request, uuid
+import ast, base64, hashlib, json, os, re, shutil, subprocess, urllib.request, uuid
+from datetime import date
 from pathlib import Path
 from typing import List, Optional
 
@@ -6,6 +7,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 ROOT = Path("/files/renders")
+QUEUE = Path("/files/queue")
+STATE = Path("/files/state")
+PROMPTS = Path("/prompts")      # mounted read-only from ./prompts
+EXAMPLES = Path("/examples")    # mounted read-only from ./examples
 TIMEOUT = int(os.getenv("RENDER_TIMEOUT", "900"))
 DEFAULT_VOICE = os.getenv("TTS_VOICE", "af_heart")
 TTS_URL = os.getenv("TTS_URL", "http://tts:8001")
@@ -20,6 +25,23 @@ class Job(BaseModel):
     job_id: Optional[str] = None
     segments: List[str] = []
     voice: Optional[str] = None
+
+
+class ValidateJob(BaseModel):
+    code: str
+    segments_count: int
+
+
+class PromptFill(BaseModel):
+    vars: dict = {}
+
+
+class PackageJob(BaseModel):
+    job_id: str
+    topic: dict
+    script: dict
+    metadata: dict
+    attempts: list = []
 
 
 def clean_error(text, limit=4000):
@@ -72,6 +94,130 @@ def video_duration(path):
 @app.get("/health")
 def health():
     return {"ok": True}
+
+
+# ---------------- Phase 5 endpoints: n8n orchestrates, logic lives here ------
+
+ALLOWED_IMPORTS = {"shorts_base", "numpy", "math"}
+BANNED = re.compile(r"\bopen\s*\(|\bexec\s*\(|\beval\s*\(|__import__|subprocess|\bos\s*\.")
+
+
+def static_check(code, n_segments):
+    """The cheap pre-render checks from HANDOVER 11.4."""
+    errors = []
+    try:
+        tree = ast.parse(code)
+    except SyntaxError as e:
+        return [f"SyntaxError: {e}"]
+    if not any(isinstance(n, ast.ClassDef) and n.name == "Main" for n in tree.body):
+        errors.append("no `class Main` found")
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for a in node.names:
+                if a.name.split(".")[0] not in ALLOWED_IMPORTS:
+                    errors.append(f"import not allowed: {a.name}")
+        elif isinstance(node, ast.ImportFrom):
+            if (node.module or "").split(".")[0] not in ALLOWED_IMPORTS:
+                errors.append(f"import not allowed: from {node.module}")
+    say_indices = []
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "say" and node.args
+                and isinstance(node.args[0], ast.Constant)):
+            say_indices.append(node.args[0].value)
+    if sorted(say_indices) != list(range(n_segments)):
+        errors.append(f"say() indices {sorted(say_indices)} != expected "
+                      f"0..{n_segments - 1}, each once")
+    m = BANNED.search(code)
+    if m:
+        errors.append(f"banned construct: {m.group(0)!r}")
+    return errors
+
+
+def examples_block():
+    parts = []
+    for i, py in enumerate(sorted(EXAMPLES.glob("ex*.py")), 1):
+        spec = json.loads(py.with_suffix(".json").read_text(encoding="utf-8"))
+        parts.append(
+            f"### Example {i} — segments\n\n```json\n"
+            + json.dumps(spec["segments"], indent=2)
+            + f"\n```\n\n### Example {i} — scene\n\n```python\n"
+            + py.read_text(encoding="utf-8") + "```\n")
+    return "\n".join(parts)
+
+
+def slugify(text):
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:40]
+
+
+@app.post("/validate")
+def validate(job: ValidateJob):
+    errors = static_check(job.code, job.segments_count)
+    return {"ok": not errors, "errors": errors}
+
+
+@app.post("/prompt/{name}")
+def fill_prompt(name: str, body: PromptFill):
+    """Return the prompt template with {{VARS}} filled. The code/repair prompts
+    get {{EXAMPLES}} injected automatically, so n8n never assembles text."""
+    if not re.fullmatch(r"[a-z_]+", name) or not (PROMPTS / f"{name}.md").exists():
+        return {"ok": False, "error": f"unknown prompt {name!r}"}
+    text = (PROMPTS / f"{name}.md").read_text(encoding="utf-8")
+    vars_ = dict(body.vars)
+    if "{{EXAMPLES}}" in text and "EXAMPLES" not in vars_:
+        vars_["EXAMPLES"] = examples_block()
+    for k, v in vars_.items():
+        text = text.replace("{{" + k + "}}",
+                            v if isinstance(v, str) else json.dumps(v, indent=2))
+    return {"ok": True, "prompt": text}
+
+
+@app.get("/queue/status")
+def queue_status():
+    QUEUE.mkdir(parents=True, exist_ok=True)
+    folders = sorted(p.name for p in QUEUE.iterdir() if p.is_dir())
+    return {"count": len(folders), "folders": folders}
+
+
+@app.get("/history")
+def history():
+    f = STATE / "history.json"
+    data = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {"topics": []}
+    recent = [t.get("category") for t in data["topics"][-2:]] or ["none yet"]
+    listing = "\n".join(f"- {t['topic']} ({t.get('category')})"
+                        for t in data["topics"]) or "(none yet)"
+    return {"topics": data["topics"], "history_text": listing,
+            "recent_categories": ", ".join(recent)}
+
+
+@app.post("/package")
+def package(job: PackageJob):
+    src = ROOT / job.job_id
+    video = src / "final.mp4"
+    if not video.exists():
+        return {"ok": False, "error": f"no final.mp4 in renders/{job.job_id}"}
+    folder = QUEUE / f"{date.today().isoformat()}_{slugify(job.topic.get('topic', job.job_id))}"
+    folder.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(video, folder / "video.mp4")
+    (folder / "metadata.json").write_text(json.dumps(job.metadata, indent=2),
+                                          encoding="utf-8")
+    (folder / "topic.json").write_text(json.dumps(job.topic, indent=2),
+                                       encoding="utf-8")
+    (folder / "script.json").write_text(json.dumps(job.script, indent=2),
+                                        encoding="utf-8")
+    scene = src / "scene.py"
+    if scene.exists():
+        shutil.copy2(scene, folder / "scene.py")
+    (folder / "render.log").write_text(json.dumps(job.attempts, indent=2),
+                                       encoding="utf-8")
+    STATE.mkdir(parents=True, exist_ok=True)
+    hfile = STATE / "history.json"
+    data = json.loads(hfile.read_text(encoding="utf-8")) if hfile.exists() else {"topics": []}
+    data["topics"].append({"topic": job.topic.get("topic"),
+                           "category": job.topic.get("category"),
+                           "date": date.today().isoformat()})
+    hfile.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    return {"ok": True, "folder": str(folder)}
 
 
 @app.post("/render")
