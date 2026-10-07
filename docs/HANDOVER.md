@@ -1203,6 +1203,32 @@ in three layers:
 Note: the renderer image must be rebuilt for template changes; the example
 renders double as a regression test of the bounds checker (they must pass it).
 
+### 11.13 Layout hardening round 2 + code-model verdict (5–7 Oct 2026)
+
+The first bounds checker had a blind spot: it skipped containers (`Text`,
+`MathTex`, `VGroup` report no points of their own), so text leaked unchecked —
+cause of the rejected CLT video. Fixed with `family_members_with_points()`.
+Further hardening from the owner's review: caption font 26→24; hard font
+ceilings in prompts (title ≤36, equations 28–32, body 22–26, labels 18–22);
+boxes around text must be `SurroundingRectangle`, never fixed-size rectangles;
+the script prompt locks visuals to a literal primitive vocabulary (no "icons" —
+a coin is a circle labelled H) described as layout instructions; example fonts
+rescaled; ex3's 63% label moved inside the axes (caught by the fixed checker).
+
+**Code-model verdict (tested on the same fact-checked CLT script):**
+`gemini-3.8-flash` succeeded **first try with zero repairs** under all the new
+rules; the free OpenRouter models (nemotron ultra/super) needed many calls and
+kept failing on endpoint flakiness (truncation via `finish_reason: length`,
+IncompleteRead, overload) even with a 16k token budget and low reasoning effort.
+Decision (owner: no paid APIs): **Gemini 3.8-flash is the code/repair model;
+OpenRouter free models are the fallback** for saturated days. Research context:
+published Manim-generation work reaches ~94% render success using exactly this
+architecture (constrained API + static checks + renderer-in-the-loop repair), so
+the ≥85% Phase 4 exit target is realistic.
+
+Testing economics: `--reuse <experiment job dir>` replays a saved script, so a
+code-prompt iteration costs exactly 1 code call against the 20/day Gemini cap.
+
 ---
 
 ## 12. Phase 5: Generation workflow (n8n)
