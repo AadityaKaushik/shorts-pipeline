@@ -175,11 +175,11 @@ Planned additions: `data/state/` (Phase 5), `data/experiments/` (Phase 4), `prom
 | 2 | Infrastructure (WSL2, Docker, n8n, renderer, YouTube OAuth) | ✅ Done |
 | 3 | Render template (TTS, sync, captions) | ✅ Done |
 | 4 | Prompts, tested in a Python harness | 🔄 In progress (see 11.9) |
-| 5 | Generation workflow in n8n | Planned |
-| 6 | Publishing workflow | Planned |
+| 5 | Generation workflow — **moved from n8n to GitHub Actions** (owner's decision, 7 Oct 2026, to avoid keeping the PC on) | ✅ Built and cloud-tested; **schedules deliberately disabled** pending launch (see 12.9) |
+| 6 | Publishing workflow | ✅ Built (`scripts/publish_daily.py`, dry-run tested); never posted yet |
 | 7 | Alerts | Planned |
-| 8 | Dry run, go live, submit the YouTube audit | Planned |
-| 9 | Switch to the native YouTube node after the audit | Planned |
+| 8 | Pre-launch: intro/outro/music, seed queue, enable schedules, go live | ⏸ **Waiting on owner (exams)** — see 12.9 |
+| 9 | YouTube API audit, then native uploads | Planned |
 
 ---
 
@@ -1231,7 +1231,51 @@ code-prompt iteration costs exactly 1 code call against the 20/day Gemini cap.
 
 ---
 
-## 12. Phase 5: Generation workflow (n8n)
+## 12.9 Phase 5 as actually built (GitHub Actions), and the launch checklist
+
+**Architecture decision (7 Oct 2026):** production runs on GitHub Actions, not
+n8n, so the owner's PC never needs to be on. The n8n container remains for local
+experimentation only. Repo: **private**, `github.com/AadityaKaushik/shorts-pipeline`
+(`gh` CLI authenticated in WSL). Secrets: one Actions secret `DOTENV` (the `.env`
+minus the n8n key). The **queue lives in GitHub Releases** (`queue-<name>` tags,
+oldest-first by tag sort); `data/state/history.json` and `publish_log.json` are
+committed back by the workflows (`git add -f`, since `data/` is gitignored).
+
+- `.github/workflows/daily.yml` — 07:00 IST (01:30 UTC): publish oldest queue
+  release via `scripts/publish_daily.py`, delete the release, then generate one
+  video (containers built in the runner) and upload it as a new release.
+- `.github/workflows/topup.yml` — 13:00 IST: generate only if queue < 5.
+- `docker-compose.ci.yml` — CI overrides: 2-CPU/low-RAM limits (private-repo
+  runners have 2 vCPU / 7 GB), TTS model cache bind-mounted for actions/cache.
+- CI gotchas fixed: runner uid is 1001 vs container's 1000 → `chmod -R a+rwX
+  data ci-cache` before compose up; failure steps dump container logs.
+- `scripts/generate_daily.py` — production generation (queue-cap → pipeline →
+  `/package`). `scripts/publish_daily.py` — oldest-from-queue, monthly routing
+  (1–10 Upload-Post, 11–30 bundle.social, then hold), `--dry` mode, failures
+  keep the video queued. bundle.social still needs `BUNDLE_SOCIAL_TEAM_ID` in `.env`.
+- Cloud test status: third manual run passed container startup and was then
+  deliberately cancelled; **both workflows are disabled** (`gh workflow disable`)
+  and **nothing has ever been posted**.
+
+**Launch checklist (owner returns after exams, ~mid-Oct 2026):**
+
+1. Owner drops `assets/intro.mp4` (4–5s), `assets/outro.mp4` (4–5s), and
+   `assets/music.mp3` into the project — same files for every video.
+2. Build the post-processing step (ffmpeg in the renderer image): normalize
+   intro/outro to 1080×1920@30, concat intro+video+outro, mix music low under
+   narration with end fade-out; skip silently when assets are missing.
+3. Re-process the 5 chosen starter videos through it: ex1 eigenvectors,
+   ex2 attention, ex3 RC circuit, Fourier, convolution (owner-approved picks).
+4. Generate `metadata.json` for the 3 examples (flash-lite), owner reviews titles.
+5. Seed 5 queue releases; verify `UPLOAD_POST_PROFILE` matches the dashboard
+   profile name (currently `default` — confirm).
+6. Re-enable workflows (`gh workflow enable daily.yml topup.yml`), watch the
+   first scheduled cycle, confirm the first post appears PUBLIC on the channel.
+7. Then: Phase 7 alerts, handover cleanup, repo public after a fresh secret scan.
+
+---
+
+## 12. Phase 5: Generation workflow (n8n) — SUPERSEDED by 12.9; kept for reference
 
 **Principle:** n8n handles scheduling, LLM HTTP calls and branching. **Logic-heavy steps live in Python endpoints** (validate, render, package): they're easier to test, and they put real code in the repo.
 
