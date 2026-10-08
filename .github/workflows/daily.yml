@@ -1,0 +1,133 @@
+# Morning slot (07:00 IST = 01:30 UTC): post the oldest queued video, then
+# generate one new video for the back of the queue.
+# The queue lives in GitHub Releases: one release per video, tags "queue-<name>",
+# oldest tag sorts first. State files are committed back to the repo.
+name: daily
+
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+    inputs:
+      skip_publish:
+        description: "skip the publish step (generation only)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ !inputs.skip_publish }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write .env from secrets
+        run: printf '%s' "$DOTENV" > .env
+        env:
+          DOTENV: ${{ secrets.DOTENV }}
+
+      - name: Pull oldest queued video from Releases
+        id: pull
+        run: |
+          tag=$(gh release list --limit 100 --json tagName -q '.[].tagName' | grep '^queue-' | sort | head -1 || true)
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if [ -z "$tag" ]; then
+            echo "queue empty — nothing to publish"
+            exit 0
+          fi
+          folder="data/queue/${tag#queue-}"
+          mkdir -p "$folder"
+          gh release download "$tag" --dir "$folder"
+          ls -la "$folder"
+
+      - name: Publish
+        if: steps.pull.outputs.tag != ''
+        run: python3 scripts/publish_daily.py
+
+      - name: Remove published video from Releases
+        if: steps.pull.outputs.tag != ''
+        run: gh release delete "${{ steps.pull.outputs.tag }}" --cleanup-tag -y
+
+      - name: Commit state
+        run: |
+          git config user.name "pipeline-bot"
+          git config user.email "pipeline@users.noreply.github.com"
+          git add -f data/state/publish_log.json data/state/history.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "state: publish $(date -u +%F)"
+          git pull --rebase && git push
+
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: publish
+    if: always()
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Queue-cap check (releases are the real queue)
+        id: cap
+        run: |
+          count=$(gh release list --limit 100 --json tagName -q '.[].tagName' | grep -c '^queue-' || true)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "queue holds $count video(s)"
+
+      - name: Stop if queue full
+        if: steps.cap.outputs.count >= 5
+        run: echo "queue full, nothing to do"
+
+      - name: Write .env from secrets
+        if: steps.cap.outputs.count < 5
+        run: printf '%s' "$DOTENV" > .env
+        env:
+          DOTENV: ${{ secrets.DOTENV }}
+
+      - name: Cache TTS model
+        if: steps.cap.outputs.count < 5
+        uses: actions/cache@v4
+        with:
+          path: ci-cache
+          key: kokoro-model-v1
+
+      - name: Start renderer and TTS
+        if: steps.cap.outputs.count < 5
+        run: |
+          mkdir -p ci-cache data/renders data/queue data/experiments
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build renderer tts
+          until curl -s http://localhost:8000/health > /dev/null; do sleep 2; done
+          until curl -s http://localhost:8001/health > /dev/null; do sleep 2; done
+          echo healthy
+
+      - name: Generate one video
+        if: steps.cap.outputs.count < 5
+        run: python3 -u scripts/generate_daily.py
+
+      - name: Upload new video to Releases
+        if: steps.cap.outputs.count < 5
+        run: |
+          folder=$(ls -d data/queue/*/ | head -1)
+          name=$(basename "$folder")
+          gh release create "queue-$name" "$folder"/* \
+            --title "queued: $name" --notes "waiting to publish" --latest=false
+
+      - name: Commit state
+        if: steps.cap.outputs.count < 5
+        run: |
+          git config user.name "pipeline-bot"
+          git config user.email "pipeline@users.noreply.github.com"
+          git add -f data/state/history.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "state: generate $(date -u +%F)"
+          git pull --rebase && git push

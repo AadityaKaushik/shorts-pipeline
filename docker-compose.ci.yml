@@ -1,0 +1,7 @@
+# CI override: bind-mount the TTS model cache to a host dir so GitHub Actions
+# can cache it between runs (the named volume can't be cached).
+# Usage: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d renderer tts
+services:
+  tts:
+    volumes:
+      - ./ci-cache:/cache
