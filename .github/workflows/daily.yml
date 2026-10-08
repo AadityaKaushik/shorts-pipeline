@@ -105,7 +105,8 @@ jobs:
       - name: Start renderer and TTS
         if: steps.cap.outputs.count < 5
         run: |
-          mkdir -p ci-cache data/renders data/queue data/experiments
+          mkdir -p ci-cache data/renders data/queue data/experiments data/state
+          chmod -R a+rwX data ci-cache
           docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build renderer tts
           until curl -s http://localhost:8000/health > /dev/null; do sleep 2; done
           until curl -s http://localhost:8001/health > /dev/null; do sleep 2; done
@@ -114,6 +115,10 @@ jobs:
       - name: Generate one video
         if: steps.cap.outputs.count < 5
         run: python3 -u scripts/generate_daily.py
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: docker compose logs renderer --tail 60; docker compose logs tts --tail 20
 
       - name: Upload new video to Releases
         if: steps.cap.outputs.count < 5
