@@ -381,6 +381,7 @@ def run_one(run_dir, history, args, idx):
     code = extract_code(reply)
 
     result = None
+    attempt_log = []
     for attempt in range(1 + MAX_REPAIRS):
         row["attempts"] = attempt + 1
         (jdir / f"scene_attempt{attempt + 1}.py").write_text(code, encoding="utf-8")
@@ -395,6 +396,9 @@ def run_one(run_dir, history, args, idx):
                 print("    tts failed, retrying once")
                 result = render(f"{job_id}-a{attempt + 1}", code, segments)
         save(f"render_attempt{attempt + 1}.json", result)
+        attempt_log.append({"attempt": attempt + 1, "ok": result.get("ok", False),
+                            "stage": result.get("stage"),
+                            "error": str(result.get("error", ""))[:500]})
 
         if result.get("ok"):
             row["first_try"] = attempt == 0
@@ -425,6 +429,15 @@ def run_one(run_dir, history, args, idx):
     meta = step_metadata(topic, segments)
     save("metadata.json", meta)
     print(f"    OK: {result['video_path']} ({result.get('duration')}s)")
+
+    # everything a caller needs to hand this job to the renderer's /package
+    row["package_info"] = {
+        "job_id": f"{job_id}-a{row['attempts']}",
+        "topic": topic,
+        "script": {"topic": topic.get("topic"), "segments": segments},
+        "metadata": meta,
+        "attempts": attempt_log,
+    }
 
     if args.commit:
         history.setdefault("topics", []).append(
