@@ -1,7 +1,20 @@
-# CI override: bind-mount the TTS model cache to a host dir so GitHub Actions
-# can cache it between runs (the named volume can't be cached).
+# CI override for GitHub Actions runners (private repo: 2 vCPU, 7 GB RAM):
+# - bind-mount the TTS model cache to a host dir so actions/cache can keep it
+# - shrink the resource limits to fit the runner (the local compose file asks
+#   for 3 CPUs / 9 GB combined, which the runner physically lacks)
 # Usage: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d renderer tts
 services:
+  renderer:
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4g
   tts:
     volumes:
       - ./ci-cache:/cache
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2.5g
