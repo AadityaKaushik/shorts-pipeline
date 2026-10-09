@@ -120,6 +120,12 @@ FALLBACK_MODELS = {
     "script": "groq:openai/gpt-oss-20b",
     "factcheck": "groq:openai/gpt-oss-120b",
     "metadata": "groq:openai/gpt-oss-20b",
+    # Production availability beats metric purity: when Gemini is saturated,
+    # code/repair fall back to the free OpenRouter coder. Quality is still
+    # gated by static checks, the bounds checker and the repair loop. The
+    # fallback never fires when --code-model was passed explicitly (A/B runs).
+    "code": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+    "repair": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
 }
 
 
@@ -372,8 +378,9 @@ def run_one(run_dir, history, args, idx):
             row["wall"] = round(time.time() - t0, 1)
             return row
 
-    # code -> static checks -> render -> repair loop
-    code_model = args.code_model or MODELS["code"]
+    # code -> static checks -> render -> repair loop. code_model stays None
+    # unless --code-model was given, so llm() can apply the saturation fallback.
+    code_model = args.code_model
     seg_json = json.dumps(segments, indent=2)
     reply = llm("code", fill("code", EXAMPLES=examples_block(),
                              SEGMENTS_JSON=seg_json),

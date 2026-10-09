@@ -4,6 +4,21 @@
       "topic": "Why image blur is a convolution",
       "category": "cs_algorithms",
       "date": "2026-10-08"
+    },
+    {
+      "topic": "Central Limit Theorem",
+      "category": "math",
+      "date": "2026-10-09"
+    },
+    {
+      "topic": "Fourier Transform: Audio Frequency Decomposition",
+      "category": "math",
+      "date": "2026-10-09"
+    },
+    {
+      "topic": "RC circuit charging exponential",
+      "category": "electrical",
+      "date": "2026-10-09"
     }
   ]
 }
