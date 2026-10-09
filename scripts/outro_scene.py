@@ -1,6 +1,10 @@
-"""The channel outro: a ~4.8s end card rendered once and stitched onto every
-video. Plain Scene (not ShortScene): no narration, pure black background so the
-logo's own black square blends in. Render via scripts/render_outro.py."""
+"""The channel outro: a ~5.5s end card rendered once and stitched onto every
+video. Plain Scene (not ShortScene — no captions wanted): voiceover comes from
+voice.wav in the job dir (made by render_outro.py), pure black background so
+the logo's own black square blends in. Render via scripts/render_outro.py."""
+import json as _json
+from pathlib import Path as _Path
+
 from manim import *
 
 config.frame_height = 8
@@ -42,16 +46,28 @@ class Outro(Scene):
         buttons = VGroup(like_btn, sub_btn).arrange(RIGHT, buff=0.35)
         buttons.move_to(DOWN * 1.8)
 
-        # 0.0-0.7  logo lands
+        # Voiceover: "Liked this one? Keep learning with The Compute Club —
+        # hit like and subscribe!" Beats below are timed to that read.
+        voice_dur = 5.0
+        meta = _Path("voice.json")
+        if meta.exists():
+            voice_dur = _json.loads(meta.read_text())["duration"]
+        if _Path("voice.wav").exists():
+            self.add_sound("voice.wav")
+
+        # 0.0-0.6  logo lands
         self.play(FadeIn(logo, scale=1.4), run_time=0.6, rate_func=smooth)
-        # 0.6-1.4  the question
+        # 0.6-1.3  "Liked this one?" writes while the voice asks it
         self.play(Write(hook), run_time=0.7)
-        # 1.3-2.0  channel name
-        self.play(FadeIn(channel, shift=UP * 0.25), run_time=0.6)
-        # 2.0-2.6  buttons pop in
+        # 1.4-2.2  channel name during "keep learning with The Compute Club"
+        self.wait(0.15)
+        self.play(FadeIn(channel, shift=UP * 0.25), run_time=0.75)
+        # 2.6-3.2  buttons pop in
+        self.wait(0.35)
         self.play(GrowFromCenter(like_btn), GrowFromCenter(sub_btn),
-                  run_time=0.55)
-        # 2.7-3.4  the "click": ripple + pulse on SUBSCRIBE
+                  run_time=0.6)
+        # 3.4-4.1  the "click" lands on "hit like and subscribe"
+        self.wait(0.2)
         ring = Circle(radius=0.2, color=YT_RED, stroke_width=5)
         ring.move_to(sub_btn)
         self.play(
@@ -60,8 +76,9 @@ class Outro(Scene):
             run_time=0.7,
         )
         self.remove(ring)
-        # 3.4-3.9  LIKE flashes too
+        # 4.1-4.6  LIKE flashes too
         self.play(like_pill.animate(rate_func=there_and_back)
                   .set_fill(BRAND_BLUE, opacity=1), run_time=0.5)
-        # hold to ~4.8s
-        self.wait(0.9)
+        # hold until the voice finishes, plus a beat
+        elapsed = 4.6
+        self.wait(max(voice_dur - elapsed, 0) + 0.4)
