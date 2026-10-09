@@ -29,6 +29,7 @@ services:
       - ./data:/files
       - ./prompts:/prompts:ro
       - ./examples:/examples:ro
+      - ./assets:/assets:ro
     depends_on:
       - tts
     deploy:
