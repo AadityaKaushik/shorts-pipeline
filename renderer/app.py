@@ -108,6 +108,13 @@ def post_process(d: Path):
     final = d / "final.mp4"
     if not OUTRO_FILE.exists():
         return None  # no assets configured: leave the video as rendered
+    # Keep the raw render so post-processing is repeatable (e.g. volume tweaks):
+    # first run saves it, later runs start over from it.
+    raw = d / "final_raw.mp4"
+    if raw.exists():
+        shutil.copy2(raw, final)
+    else:
+        shutil.copy2(final, raw)
     tmp_concat = d / "tmp_concat.mp4"
     tmp_mix = d / "tmp_mix.mp4"
 
