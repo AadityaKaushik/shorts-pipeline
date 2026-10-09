@@ -6,7 +6,7 @@ found=0
 if git log --all -p | grep -nE 'AIza[0-9A-Za-z_-]{20,}|hf_[A-Za-z0-9]{20,}|gsk_[A-Za-z0-9]{20,}|sk-or-[A-Za-z0-9_-]{20,}' | head -20 | grep .; then
     found=1
 fi
-if git ls-files | grep -iE '(^|/)\.env$|secret|credential' | grep .; then
+if git ls-files | grep -iE '(^|/)\.env$|secret|credential' | grep -v 'scripts/secret_scan.sh' | grep .; then
     found=1
 fi
 if [ "$found" = 0 ]; then
