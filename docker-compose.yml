@@ -25,6 +25,9 @@ services:
       - RENDER_TIMEOUT=900
       - TTS_URL=http://tts:8001
       - TTS_VOICE=af_heart
+      - OUTRO_FILE=/assets/outro.mp4
+      - BGM_FILE=/assets/bgm/the_mountain-brain-science-136923.mp3
+      - BGM_VOLUME=0.09
     volumes:
       - ./data:/files
       - ./prompts:/prompts:ro

@@ -19,12 +19,22 @@ BOX_CHARS = re.compile(r"[\u2500-\u257f\u2771]")
 app = FastAPI()
 
 
+OUTRO_FILE = Path(os.getenv("OUTRO_FILE", "/assets/outro.mp4"))
+BGM_FILE = Path(os.getenv("BGM_FILE", ""))
+BGM_VOLUME = float(os.getenv("BGM_VOLUME", "0.09"))
+
+
 class Job(BaseModel):
     code: str
     scene: str = "Main"
     job_id: Optional[str] = None
     segments: List[str] = []
     voice: Optional[str] = None
+    post: bool = True   # append outro + mix bgm; the outro itself renders with False
+
+
+class PostJob(BaseModel):
+    job_id: str
 
 
 class ValidateJob(BaseModel):
@@ -91,9 +101,76 @@ def video_duration(path):
         return None
 
 
+def post_process(d: Path):
+    """Append the channel outro, then mix background music under the whole
+    thing (subtle: BGM_VOLUME, fade in, fade out at the end). Replaces
+    final.mp4 in place. Returns None on success or an error string."""
+    final = d / "final.mp4"
+    if not OUTRO_FILE.exists():
+        return None  # no assets configured: leave the video as rendered
+    tmp_concat = d / "tmp_concat.mp4"
+    tmp_mix = d / "tmp_mix.mp4"
+
+    def run(cmd):
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        if p.returncode != 0:
+            return (p.stderr or p.stdout)[-1500:]
+        return None
+
+    err = run([
+        "ffmpeg", "-y", "-i", str(final), "-i", str(OUTRO_FILE),
+        "-filter_complex",
+        "[0:a]aformat=sample_rates=44100:channel_layouts=stereo[a0];"
+        "[1:a]aformat=sample_rates=44100:channel_layouts=stereo[a1];"
+        "[0:v][a0][1:v][a1]concat=n=2:v=1:a=1[v][a]",
+        "-map", "[v]", "-map", "[a]",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+        "-c:a", "aac", "-r", "30", str(tmp_concat),
+    ])
+    if err:
+        return f"outro concat failed: {err}"
+
+    if BGM_FILE and BGM_FILE.exists():
+        total = video_duration(tmp_concat) or 0
+        fade_start = max(total - 2.5, 0)
+        err = run([
+            "ffmpeg", "-y", "-i", str(tmp_concat),
+            "-stream_loop", "-1", "-i", str(BGM_FILE),
+            "-filter_complex",
+            f"[1:a]atrim=0:{total:.2f},aformat=sample_rates=44100:channel_layouts=stereo,"
+            f"volume={BGM_VOLUME},afade=t=in:d=1.5,"
+            f"afade=t=out:st={fade_start:.2f}:d=2.5[m];"
+            "[0:a]aformat=sample_rates=44100:channel_layouts=stereo[a0];"
+            "[a0][m]amix=inputs=2:duration=first:normalize=0[a]",
+            "-map", "0:v", "-map", "[a]",
+            "-c:v", "copy", "-c:a", "aac", str(tmp_mix),
+        ])
+        if err:
+            tmp_concat.unlink(missing_ok=True)
+            return f"bgm mix failed: {err}"
+        shutil.move(str(tmp_mix), final)
+        tmp_concat.unlink(missing_ok=True)
+    else:
+        shutil.move(str(tmp_concat), final)
+    return None
+
+
 @app.get("/health")
 def health():
     return {"ok": True}
+
+
+@app.post("/postprocess")
+def postprocess(job: PostJob):
+    """Apply outro + bgm to an already-rendered job's final.mp4."""
+    d = ROOT / job.job_id
+    if not (d / "final.mp4").exists():
+        return {"ok": False, "error": f"no final.mp4 in renders/{job.job_id}"}
+    err = post_process(d)
+    if err:
+        return {"ok": False, "job_id": job.job_id, "error": err}
+    return {"ok": True, "job_id": job.job_id,
+            "duration": video_duration(d / "final.mp4")}
 
 
 # ---------------- Phase 5 endpoints: n8n orchestrates, logic lives here ------
@@ -271,6 +348,12 @@ def render(job: Job):
 
     final = d / "final.mp4"
     shutil.move(str(out), final)
+
+    if job.post:
+        perr = post_process(d)
+        if perr:
+            return {"ok": False, "job_id": jid, "stage": "post", "error": perr}
+
     return {
         "ok": True,
         "job_id": jid,

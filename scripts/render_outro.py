@@ -35,7 +35,8 @@ print(f"voice: {tts['duration']:.2f}s")
 code = (ROOT / "scripts" / "outro_scene.py").read_text(encoding="utf-8")
 start = time.time()
 result = post("http://localhost:8000/render",
-              {"code": code, "scene": "Outro", "job_id": "outro", "segments": []},
+              {"code": code, "scene": "Outro", "job_id": "outro",
+               "segments": [], "post": False},   # never outro the outro
               timeout=900)
 print(json.dumps(result, indent=2))
 if result.get("ok"):

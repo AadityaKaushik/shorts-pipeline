@@ -403,8 +403,9 @@ def run_one(run_dir, history, args, idx):
         if result.get("ok"):
             row["first_try"] = attempt == 0
             break
-        if result.get("stage") == "tts":
-            row["fail_stage"] = "tts"
+        if result.get("stage") in ("tts", "post"):
+            # infrastructure failures, not code failures — no LLM repair
+            row["fail_stage"] = result["stage"]
             row["wall"] = round(time.time() - t0, 1)
             return row
         print(f"    attempt {attempt + 1} failed ({result.get('stage')}): "
@@ -498,7 +499,7 @@ def main():
         "first_try_success": sum(1 for r in rows if r["first_try"]),
         "avg_attempts": round(sum(r["attempts"] for r in rows) / len(rows), 2) if rows else 0,
         "durations": [r["duration"] for r in ok],
-        "in_65_90s": sum(1 for r in ok if r["duration"] and 65 <= r["duration"] <= 90),
+        "in_70_95s": sum(1 for r in ok if r["duration"] and 70 <= r["duration"] <= 95),
         "model_calls": call_counts,
         "code_model": args.code_model or MODELS["code"],
         "rows": rows,
