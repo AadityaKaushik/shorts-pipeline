@@ -1203,6 +1203,16 @@ in three layers:
 Note: the renderer image must be rebuilt for template changes; the example
 renders double as a regression test of the bounds checker (they must pass it).
 
+### 11.12b Scheduling postscript (10–11 Oct 2026): GitHub cron fired 6.4h late
+on launch day (and double-posted, since the owner had already dispatched
+manually). Fixes: (1) `publish_daily.py` posted-today guard — one successful
+post per calendar day no matter how many triggers; (2) native `schedule:`
+removed from both workflows; (3) **cron-job.org** (owner's account) now fires
+`workflow_dispatch` via the GitHub API with a fine-grained PAT (repo-only,
+Actions RW, expires Oct 2027 — renew!) at **09:27 IST (daily)** and **12:52 IST
+(topup)**. Dispatch path verified end-to-end. Launch day published:
+convolution + CLT (double), and two videos were generated fully in the cloud.
+
 ### 11.13 Layout hardening round 2 + code-model verdict (5–7 Oct 2026)
 
 The first bounds checker had a blind spot: it skipped containers (`Text`,
