@@ -1213,6 +1213,34 @@ Actions RW, expires Oct 2027 — renew!) at **09:27 IST (daily)** and **12:52 IS
 (topup)**. Dispatch path verified end-to-end. Launch day published:
 convolution + CLT (double), and two videos were generated fully in the cloud.
 
+### 11.14 Quality system v2 (11 Oct 2026) — owner's content review built in
+
+After reviewing live output, the owner asked for: beginner-followable pacing, a
+real-world hook as a hard requirement, visuals that teach (not decorate), zero
+element overlaps, captions removed, and the concept space fixed to his 21
+college subjects. Built, calibrated on the three examples, and verified by a
+cold E2E run (Nyquist–Shannon, 78.1s, vision loop fired and fixed):
+
+- **Subjects**: `SUBJECTS` list in pipeline_test.py; code picks
+  `SUBJECTS[len(history) % 21]`, the LLM picks a concept within it.
+- **Hook gate**: factcheck rejects scripts whose segments 0–1 aren't a concrete
+  scenario; jargon-before-definition is an issue.
+- **Pacing**: 170–195 words, one idea per segment + anchor segments,
+  `ShortScene.pad` 0.25→0.5s. Videos now ~78–90s incl. outro.
+- **Storyboard step** (`prompts/storyboard.md`, gpt-oss-120b): picks dry_run /
+  mechanism / diagram_evolution, running example with consistent numbers, per-
+  segment "teaches" justification, hold beats. Non-fatal fallback to script visuals.
+- **Overlap enforcement** (`shorts_base._check_overlaps`): other elements'
+  drawn points may not enter a text's padded box (pad 0.04); faint elements
+  (stroke+fill opacity <0.5) exempt. Render fails with the text named.
+  Calibration caught REAL overlaps in previously approved examples.
+- **Captions removed**; CONTENT_BOTTOM −2.1→−2.6; lower band now −1.5..−2.4.
+  Kokoro word timestamps no longer load-bearing → TTS engine is swappable
+  (future voice test: Kokoro am_adam, Groq Orpheus).
+- **Vision critique** (`prompts/vision.md`, flash-lite multimodal via
+  `/frames`): one frame per segment, flags decoration/mismatch/unreadable/empty;
+  at most one corrective repair; a working video is never discarded.
+
 ### 11.13 Layout hardening round 2 + code-model verdict (5–7 Oct 2026)
 
 The first bounds checker had a blind spot: it skipped containers (`Text`,
