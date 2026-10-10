@@ -24,6 +24,11 @@
       "topic": "Lever Amplifies Force via Torque Balance",
       "category": "mechanical",
       "date": "2026-10-09"
+    },
+    {
+      "topic": "Binary Search",
+      "category": "cs_algorithms",
+      "date": "2026-10-10"
     }
   ]
 }
