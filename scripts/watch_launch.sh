@@ -4,7 +4,7 @@
 cd "$(dirname "$0")/.."
 echo "waiting for the scheduled 'daily' run to appear..."
 run_id=""
-for i in $(seq 1 120); do
+for i in $(seq 1 ${WATCH_LOOPS:-120}); do
     run_id=$(gh run list --workflow daily.yml --event schedule --limit 1 \
              --json databaseId,createdAt \
              --jq '.[0].databaseId // empty' 2>/dev/null)

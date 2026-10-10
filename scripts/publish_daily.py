@@ -141,6 +141,14 @@ def main():
     args = ap.parse_args()
     env = load_env()
 
+    # Posted-today guard: any duplicate trigger (late scheduler, manual click,
+    # retry) is harmless — one successful post per calendar day, period.
+    log_now = read_log()
+    today = date.today().isoformat()
+    if any(p.get("ok") and p.get("date") == today for p in log_now["posts"]):
+        print(f"already posted today ({today}), nothing to do")
+        return 0
+
     QUEUE.mkdir(parents=True, exist_ok=True)
     folders = sorted(p for p in QUEUE.iterdir() if p.is_dir())
     if not folders:

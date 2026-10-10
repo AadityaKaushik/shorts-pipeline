@@ -1,13 +1,13 @@
-# Morning slot (09:27 IST = 03:57 UTC — odd minute on purpose: GitHub's cron
-# queues jam at :00/:30, odd minutes fire with far less delay): post the oldest
-# queued video, then generate one new video for the back of the queue.
+# Morning slot: post the oldest queued video, then generate one new video for
+# the back of the queue. TRIGGERED EXTERNALLY by cron-job.org at 09:27 IST via
+# the workflow_dispatch API — GitHub's native cron proved hours-late/no-show
+# (6.4h drift on day one), so it is deliberately not used here.
 # The queue lives in GitHub Releases: one release per video, tags "queue-<name>",
 # oldest tag sorts first. State files are committed back to the repo.
+# publish_daily.py has a posted-today guard, so duplicate triggers are harmless.
 name: daily
 
 on:
-  schedule:
-    - cron: "57 3 * * *"
   workflow_dispatch:
     inputs:
       skip_publish:

@@ -1,11 +1,10 @@
-# Top-up slot (13:00 IST = 07:30 UTC): if the queue is short (a morning
-# generation failed recently), generate one more video under fresh conditions.
-# Normally exits within seconds at the queue-cap check.
+# Top-up slot: if the queue is short (a morning generation failed recently),
+# generate one more video under fresh conditions. Normally exits within seconds
+# at the queue-cap check. TRIGGERED EXTERNALLY by cron-job.org at 12:52 IST via
+# the workflow_dispatch API (GitHub's native cron is unreliable).
 name: topup
 
 on:
-  schedule:
-    - cron: "30 7 * * *"
   workflow_dispatch: {}
 
 concurrency:
