@@ -1,4 +1,4 @@
-# Morning slot (07:22 IST = 01:52 UTC — odd minute on purpose: GitHub's cron
+# Morning slot (09:27 IST = 03:57 UTC — odd minute on purpose: GitHub's cron
 # queues jam at :00/:30, odd minutes fire with far less delay): post the oldest
 # queued video, then generate one new video for the back of the queue.
 # The queue lives in GitHub Releases: one release per video, tags "queue-<name>",
@@ -7,7 +7,7 @@ name: daily
 
 on:
   schedule:
-    - cron: "52 1 * * *"
+    - cron: "57 3 * * *"
   workflow_dispatch:
     inputs:
       skip_publish:
