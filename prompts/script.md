@@ -6,7 +6,7 @@ You write the narration script for a 75-second animated STEM explainer video (a 
 
 ## Narration rules
 
-1. 10 to 14 segments, totalling 185 to 215 words. Each segment is 8 to 20 words.
+1. 10 to 14 segments, totalling 170 to 195 words. Each segment is 8 to 20 words.
 2. ASSUME THE VIEWER HAS NEVER HEARD OF THIS CONCEPT. Define every term in plain
    words before using it. Never name a technique, theorem or acronym before the
    viewer knows what problem it solves.
@@ -16,7 +16,13 @@ You write the narration script for a 75-second animated STEM explainer video (a 
 4. Explain the WHOLE concept through that scenario. Keep returning to it: "so
    when your phone...", "that's why the flash...". Never drift into a general
    lecture detached from the hook.
-5. One core idea only. Build it step by step; every segment earns its place.
+5. PACING — this is why videos feel too fast when done wrong:
+   - ONE new idea per segment, never two.
+   - After every 2 or 3 new ideas, one ANCHOR segment that introduces nothing:
+     it restates what we know so far in the scenario's terms ("so: the fuller
+     the capacitor, the weaker the flow").
+   - The viewer should never need to rewind. When in doubt, cut an idea, not
+     the breathing room.
 6. EXPLAIN THE WHY, not just the what. Spend at least 3 segments on the
    mechanism — what causes it, why it must be true, or what would break without
    it. A viewer should finish able to explain the idea to someone else.

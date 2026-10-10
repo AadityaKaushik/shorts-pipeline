@@ -44,7 +44,7 @@ class Main(ShortScene):
 
         with self.say(0) as d:
             title = fit(Text("Charging a Capacitor", font_size=32, color=ACCENT))
-            title.move_to(UP * 3.1)
+            title.move_to(UP * 3.2)
             sub = Text("the RC circuit", font_size=22, color=MUTED)
             sub.next_to(title, DOWN, buff=0.25)
             self.play(Write(title), run_time=d * 0.5)
@@ -52,15 +52,16 @@ class Main(ShortScene):
 
         with self.say(1) as d:
             circ = fit(circuit())
-            circ.move_to(UP * 2.15)
+            circ.move_to(UP * 2.0)
             self.play(FadeOut(sub), run_time=d * 0.15)
             self.play(Create(circ), run_time=d * 0.7)
 
         with self.say(2) as d:
+            # labels clear of every wire AND of each other
             stores = Text("stores", font_size=20, color=ACCENT_3)
-            stores.next_to(circ.plates, DOWN, buff=0.18)
+            stores.next_to(circ, DOWN, buff=0.15).align_to(circ.plates, RIGHT)
             throttles = Text("throttles", font_size=20, color=ACCENT_2)
-            throttles.next_to(circ.rbox, LEFT, buff=0.25)
+            throttles.next_to(circ.rbox, DOWN, buff=0.15)
             self.play(Indicate(circ.plates, color=ACCENT_3), FadeIn(stores),
                       run_time=d * 0.4)
             self.play(Indicate(circ.rbox, color=ACCENT_2), FadeIn(throttles),
@@ -73,7 +74,7 @@ class Main(ShortScene):
                 tips=False,
                 axis_config={"stroke_color": MUTED, "font_size": 20},
             )
-            axes.move_to(UP * 0.2)
+            axes.move_to(UP * 0.1)
             curve1 = axes.plot(V, x_range=[0, 1.2], color=ACCENT)
             self.play(FadeOut(stores), FadeOut(throttles), Create(axes),
                       run_time=d * 0.4)
@@ -88,7 +89,7 @@ class Main(ShortScene):
             v0_label = MathTex("V_0", font_size=22, color=MUTED)
             v0_label.next_to(axes.c2p(5.5, 1), UP, buff=0.1).shift(LEFT * 0.2)
             i_eq = MathTex(r"I = \frac{V_0 - V_C}{R}", font_size=30)
-            i_eq.move_to(DOWN * 1.6)
+            i_eq.move_to(DOWN * 1.95)
             self.play(Create(v0_line), FadeIn(v0_label), run_time=d * 0.35)
             self.play(Write(i_eq), run_time=d * 0.5)
 
@@ -109,7 +110,7 @@ class Main(ShortScene):
         with self.say(8) as d:
             v_eq = fit(MathTex(r"V(t) = V_0\left(1 - e^{-t/RC}\right)",
                                font_size=30))
-            v_eq.move_to(DOWN * 1.6)
+            v_eq.move_to(DOWN * 1.95)
             self.play(FadeOut(gap), ReplacementTransform(i_eq, v_eq),
                       run_time=d * 0.6)
 
@@ -118,7 +119,7 @@ class Main(ShortScene):
             tau_line = DashedLine(axes.c2p(1, 0), axes.c2p(1, v_tau),
                                   color=ACCENT_2)
             tau_label = MathTex(r"\tau", font_size=24, color=ACCENT_2)
-            tau_label.next_to(axes.c2p(1, 0), DOWN, buff=0.1)
+            tau_label.next_to(axes.c2p(1, 0), DOWN, buff=0.2)
             pct_line = DashedLine(axes.c2p(0, v_tau), axes.c2p(1, v_tau),
                                   color=ACCENT_3)
             pct = MathTex(r"63\%", font_size=22, color=ACCENT_3)
@@ -131,7 +132,7 @@ class Main(ShortScene):
             for t_m, lbl in [(2, "86\\%"), (3, "95\\%")]:
                 dot = Dot(axes.c2p(t_m, V(t_m)), color=ACCENT_2, radius=0.05)
                 tag = MathTex(lbl, font_size=20, color=MUTED)
-                tag.next_to(dot, UP, buff=0.12)
+                tag.next_to(dot, DOWN, buff=0.15)  # above would pierce the V0 dashed line
                 marks.add(VGroup(dot, tag))
             self.play(FadeIn(marks[0]), run_time=d * 0.3)
             self.play(FadeIn(marks[1]), run_time=d * 0.3)
@@ -140,6 +141,6 @@ class Main(ShortScene):
             end = Dot(axes.c2p(5, V(5)), color=ACCENT_3, radius=0.07)
             payoff = fit(Text("tau = RC sets the wait", font_size=24,
                               color=ACCENT_3))
-            payoff.move_to(DOWN * 1.6)
+            payoff.move_to(DOWN * 1.95)
             self.play(FadeIn(end, scale=2), run_time=d * 0.2)
             self.play(ReplacementTransform(v_eq, payoff), run_time=d * 0.5)

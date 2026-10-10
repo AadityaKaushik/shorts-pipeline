@@ -21,7 +21,11 @@ You wrote Manim code for a short video and it failed. Fix it. The template (`sho
 1. Start with `from shorts_base import *`. Define exactly `class Main(ShortScene)` with `construct(self)`.
 2. One `with self.say(i) as d:` block per segment, in order, each index exactly once, covering every segment.
 3. Sum of `run_time`s inside each block at most 0.9 * d, expressed as fractions of d.
-4. Everything inside CONTENT_BOTTOM (-2.1) <= y <= CONTENT_TOP (3.4) and within SAFE_WIDTH (use `fit()`). Never draw captions.
+4. Everything inside CONTENT_BOTTOM (-2.6) <= y <= CONTENT_TOP (3.4) and within
+   SAFE_WIDTH (use `fit()`). Never draw captions or subtitles.
+   The render also FAILS if any element's drawn points intrude into a text's
+   box (curve through a label, text on text) — the error names the text; move
+   the text or the element so they are clearly separated.
 5. Colours: only ACCENT, ACCENT_2, ACCENT_3, MUTED, WHITE.
 6. Math in `MathTex` (raw strings), prose in `Text`, never LaTeX in `Text`.
    Font ceilings: title 32–36, equations 28–32, body 22–26, labels 18–22; never above 36.

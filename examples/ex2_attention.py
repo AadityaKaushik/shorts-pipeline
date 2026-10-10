@@ -48,9 +48,9 @@ class Main(ShortScene):
 
         with self.say(5) as d:
             big = MathTex("2.0", font_size=26, color=ACCENT_3)
-            big.next_to(qa.get_end(), RIGHT, buff=0.2)
+            big.next_to(qa.get_end(), UP, buff=0.25)  # clear of ka's tip to the right
             small = MathTex("0.1", font_size=26, color=MUTED)
-            small.next_to(stray.get_end(), DOWN, buff=0.15)
+            small.next_to(stray.get_end(), DOWN, buff=0.3)
             self.play(FadeIn(big), run_time=d * 0.3)
             self.play(FadeIn(small), run_time=d * 0.3)
 

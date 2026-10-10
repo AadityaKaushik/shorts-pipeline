@@ -36,13 +36,29 @@ RENDER_URL = "http://localhost:8000/render"
 # tier (1,000 req/day) since two of the five Gemini keys are denied; code and
 # repair stay on Gemini 3.8-flash (20 req/day free, enough for production).
 # Free alternative for code: --code-model "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free"
+# The channel cycles deterministically through the owner's college subjects —
+# code picks the subject (immune to LLM textbook bias), the LLM picks a concept
+# within it. Order is a fixed interleave so adjacent days differ in flavour.
+SUBJECTS = [
+    "data structures and algorithms", "electromagnetic theory", "machine learning",
+    "database management systems", "calculus", "computer networks",
+    "digital logic and computer organization", "signals and systems",
+    "generative AI", "electronic circuits", "discrete mathematics",
+    "software engineering", "communication systems", "linear algebra",
+    "deep learning", "embedded hardware design", "programming fundamentals",
+    "economics", "compiler design", "digital communication",
+    "computer systems programming",
+]
+
 MODELS = {
     "topic": "groq:openai/gpt-oss-20b",
     "script": "groq:openai/gpt-oss-120b",
     "factcheck": "groq:qwen/qwen3.8-27b",   # different family from the script writer
+    "storyboard": "groq:openai/gpt-oss-120b",
     "code": "gemini-3.8-flash",             # --code-model overrides
     "repair": "gemini-3.8-flash",           # follows --code-model
     "metadata": "gemini-3.5-flash-lite",
+    "vision": "gemini-3.5-flash-lite",      # frame critique (multimodal)
 }
 PROVIDERS = {
     "groq": ("https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY"),
@@ -55,6 +71,7 @@ KEY_NAMES = {
     "code": "GEMINI_API_KEY_CODE",
     "repair": "GEMINI_API_KEY_REPAIR",
     "metadata": "GEMINI_API_KEY_METADATA",
+    "vision": "GEMINI_API_KEY_METADATA",
 }
 
 MAX_REPAIRS = 3
@@ -119,6 +136,7 @@ FALLBACK_MODELS = {
     "topic": "groq:qwen/qwen3.8-27b",
     "script": "groq:openai/gpt-oss-20b",
     "factcheck": "groq:openai/gpt-oss-120b",
+    "storyboard": "groq:qwen/qwen3.8-27b",
     "metadata": "groq:openai/gpt-oss-20b",
     # Production availability beats metric purity: when Gemini is saturated,
     # code/repair fall back to the free OpenRouter coder. Quality is still
@@ -129,9 +147,12 @@ FALLBACK_MODELS = {
 }
 
 
-def gemini_call(step, model, prompt, want_json):
+def gemini_call(step, model, prompt, want_json, images_b64=None):
     key = ENV[KEY_NAMES[step]]
-    body = {"contents": [{"parts": [{"text": prompt}]}]}
+    parts = [{"text": prompt}]
+    for b64 in images_b64 or []:
+        parts.append({"inline_data": {"mime_type": "image/jpeg", "data": b64}})
+    body = {"contents": [{"parts": parts}]}
     if want_json:
         body["generationConfig"] = {"responseMimeType": "application/json"}
     data = llm_call(
@@ -268,12 +289,12 @@ def step_topic(history, forced_topic, forced_category):
         return {"category": forced_category or "unknown", "level": "university",
                 "topic": forced_topic, "key_idea": "", "hook": ""}
     topics = history.get("topics", [])
-    recent = [t["category"] for t in topics[-2:]] or ["none yet"]
+    subject = forced_category or SUBJECTS[len(topics) % len(SUBJECTS)]
     hist_text = "\n".join(f"- {t['topic']} ({t['category']})" for t in topics) or "(none yet)"
-    prompt = fill("topic", HISTORY=hist_text, RECENT_CATEGORIES=", ".join(recent))
-    if forced_category:
-        prompt += f"\n\nFor this run, the category MUST be: {forced_category}\n"
-    return json_step("topic", prompt)
+    prompt = fill("topic", HISTORY=hist_text, SUBJECT=subject)
+    out = json_step("topic", prompt)
+    out["category"] = subject
+    return out
 
 
 def step_script(topic):
@@ -292,6 +313,62 @@ def step_factcheck(topic, script):
     prompt = fill("factcheck", TOPIC_JSON=json.dumps(topic, indent=2),
                   SCRIPT_JSON=json.dumps(script, indent=2))
     return json_step("factcheck", prompt)
+
+
+def step_storyboard(topic, segments):
+    """Visual direction pass: replaces each segment's one-line visual with a
+    literal, teaching-justified layout instruction. Non-fatal: any problem
+    falls back to the script's own visuals."""
+    prompt = fill("storyboard", TOPIC_JSON=json.dumps(topic, indent=2),
+                  SEGMENTS_JSON=json.dumps(segments, indent=2))
+    try:
+        sb = json_step("storyboard", prompt)
+        out = sb.get("segments") or []
+        if len(out) != len(segments):
+            print(f"    storyboard length {len(out)} != {len(segments)}, using script visuals")
+            return segments, None
+        merged = []
+        for orig, s in zip(segments, out):
+            visual = s.get("visual") or orig.get("visual", "")
+            teaches = s.get("teaches", "")
+            if teaches and teaches.lower() != "hold":
+                visual = f"{visual} (this must visibly teach: {teaches})"
+            elif teaches.lower() == "hold":
+                visual = f"HOLD the previous visual. {visual}"
+            merged.append({"narration": orig["narration"], "visual": visual})
+        return merged, sb
+    except Exception as e:
+        print(f"    storyboard failed ({type(e).__name__}), using script visuals")
+        return segments, None
+
+
+def step_vision(render_job_id, segments):
+    """Frame critique: one frame per segment -> multimodal Gemini verdict.
+    Returns (ok, issues_text or None). Non-fatal by design."""
+    try:
+        fr = post_json(RENDER_URL.replace("/render", "/frames"), {},
+                       {"job_id": render_job_id}, timeout=300)
+        if not fr.get("ok") or not fr.get("frames"):
+            return True, None
+        narr = [{"segment": i, "narration": s["narration"]}
+                for i, s in enumerate(segments)]
+        prompt = fill("vision", SEGMENTS_JSON=json.dumps(narr, indent=2))
+        call_counts["gemini-vision"] = call_counts.get("gemini-vision", 0) + 1
+        reply = gemini_call("vision", MODELS["vision"], prompt, True,
+                            images_b64=fr["frames"])
+        verdict = parse_json_reply(reply)
+        issues = verdict.get("issues") or []
+        if verdict.get("ok", True) or not issues:
+            if issues:
+                print(f"    vision: {len(issues)} minor note(s), accepting")
+            return True, None
+        text = "visual review found these teaching failures (frames checked "\
+               "against narration):\n" + "\n".join(
+                   f"segment {i.get('segment')}: {i.get('problem')}" for i in issues)
+        return False, text
+    except Exception as e:
+        print(f"    vision check skipped ({type(e).__name__})")
+        return True, None
 
 
 def render(job_id, code, segments):
@@ -378,6 +455,13 @@ def run_one(run_dir, history, args, idx):
             row["wall"] = round(time.time() - t0, 1)
             return row
 
+    # visual direction pass (storyboard) before any code is written
+    segments, sb = step_storyboard(topic, segments)
+    if sb is not None:
+        save("storyboard.json", sb)
+        print(f"    storyboard: {sb.get('strategy')}"
+              + (f" — {sb.get('running_example')}" if sb.get("running_example") else ""))
+
     # code -> static checks -> render -> repair loop. code_model stays None
     # unless --code-model was given, so llm() can apply the saturation fallback.
     code_model = args.code_model
@@ -428,6 +512,33 @@ def run_one(run_dir, history, args, idx):
         row["fail_stage"] = result.get("stage", "render")
         row["wall"] = round(time.time() - t0, 1)
         return row
+
+    # vision critique: does each frame teach its narration line? One
+    # best-effort corrective round; the original success is never discarded.
+    v_ok, v_text = step_vision(f"{job_id}-a{row['attempts']}", segments)
+    row["vision"] = "clean"
+    if not v_ok:
+        row["vision"] = "flagged"
+        print("    vision flagged teaching issues; one corrective round")
+        reply = llm("repair", fill("repair", ERROR=v_text, CODE=code,
+                                   SEGMENTS_JSON=seg_json),
+                    model=code_model, want_json=False)
+        new_code = extract_code(reply)
+        if not static_check(new_code, len(segments)):
+            n = row["attempts"] + 1
+            (jdir / f"scene_attempt{n}.py").write_text(new_code, encoding="utf-8")
+            r2 = render(f"{job_id}-a{n}", new_code, segments)
+            save(f"render_attempt{n}.json", r2)
+            attempt_log.append({"attempt": n, "ok": r2.get("ok", False),
+                                "stage": "vision-fix",
+                                "error": str(r2.get("error", ""))[:500]})
+            if r2.get("ok"):
+                code, result = new_code, r2
+                row["attempts"] = n
+                row["vision"] = "fixed"
+                print("    vision fix rendered clean")
+            else:
+                print("    vision fix failed to render; keeping the original video")
 
     row["ok"] = True
     row["duration"] = result.get("duration")

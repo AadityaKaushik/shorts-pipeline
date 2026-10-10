@@ -16,7 +16,7 @@ MUTED     # grey: secondary text
 # Layout bounds — all content must stay inside:
 SAFE_WIDTH = 4.0        # max width of anything
 CONTENT_TOP = 3.4       # max y
-CONTENT_BOTTOM = -2.1   # min y (captions live below; NEVER draw there)
+CONTENT_BOTTOM = -2.6   # min y
 
 fit(mob, max_width=SAFE_WIDTH)  # shrinks a mobject to fit the width; returns it
 
@@ -36,10 +36,12 @@ class ShortScene(Scene):
 2. Use one `with self.say(i) as d:` block per segment, in order (0, 1, 2, ...), each index exactly once, covering every segment.
 3. Inside each block the sum of `run_time`s must be at most 0.9 * d. Always express run times as fractions of d, e.g. `run_time=d * 0.4`.
 4. Keep every object inside CONTENT_BOTTOM <= y <= CONTENT_TOP and within SAFE_WIDTH
-   (use `fit()`). Never draw captions or subtitles — the template does that.
+   (use `fit()`). Never draw captions or subtitles — the narration carries the words.
    THE RENDER FAILS AUTOMATICALLY if any object's bounding box leaves this area,
-   so position deliberately: check where each object's edges end up, not just
-   its centre.
+   AND if any element's drawn points intrude into a text's box (a curve through
+   a label, text on text, a label on bars). Position deliberately: check where
+   each object's edges end up, not just its centre, and keep labels clear of
+   the paths of curves and arrows.
 5. Colours: only ACCENT, ACCENT_2, ACCENT_3, MUTED, WHITE.
 6. Math goes in `MathTex` with raw strings; prose goes in `Text`. Never put LaTeX in `Text`.
 6b. FONT SIZES (hard ceilings — the frame is only 4.5 units wide):
@@ -62,7 +64,7 @@ class ShortScene(Scene):
     - title band: y ≈ 3.1 (the title may stay for the whole video)
     - upper band: y ≈ 1.8 to 2.6 (a persistent reference: the matrix, the circuit, word boxes)
     - main band: y ≈ -0.8 to 1.5 (the working visual: plane, axes, diagrams)
-    - lower band: y ≈ -1.3 to -2.0 (equations, labels, the payoff line)
+    - lower band: y ≈ -1.5 to -2.4 (equations, labels, the payoff line)
 12. NEVER place two visible objects in the same band at the same time unless they
     were laid out together (e.g. with `VGroup(...).arrange()` or `next_to`). Before
     writing into an occupied band, `FadeOut` or `Transform` what is there. Labels

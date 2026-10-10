@@ -11,7 +11,7 @@ class Main(ShortScene):
         # Matrix used throughout: A = [[2, 1], [1, 2]]
         with self.say(0) as d:
             title = Text("Eigenvectors", font_size=36, color=ACCENT)
-            title.move_to(UP * 3.1)
+            title.move_to(UP * 3.15)
             hook = Text("the vectors behind PageRank", font_size=22, color=MUTED)
             hook.next_to(title, DOWN, buff=0.25)
             self.play(Write(title), run_time=d * 0.5)
@@ -32,8 +32,8 @@ class Main(ShortScene):
 
         with self.say(2) as d:
             mat = fit(MathTex(r"A = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}",
-                              font_size=30))
-            mat.move_to(UP * 2.3)
+                              font_size=26))
+            mat.move_to(UP * 2.45)
             plane = NumberPlane(
                 x_range=[-2, 2, 1], y_range=[-2, 2, 1],
                 x_length=3.2, y_length=3.2,

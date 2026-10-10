@@ -54,6 +54,10 @@ class PackageJob(BaseModel):
     attempts: list = []
 
 
+class FramesJob(BaseModel):
+    job_id: str
+
+
 def clean_error(text, limit=4000):
     lines = []
     for line in BOX_CHARS.sub("", text).splitlines():
@@ -165,6 +169,43 @@ def post_process(d: Path):
 @app.get("/health")
 def health():
     return {"ok": True}
+
+
+@app.post("/frames")
+def frames(job: FramesJob):
+    """One JPEG frame (base64) from the midpoint of each narration segment of
+    the RAW render (pre-outro), for the vision critique step."""
+    d = ROOT / job.job_id
+    video = d / "final_raw.mp4"
+    if not video.exists():
+        video = d / "final.mp4"
+    narr = d / "narration.json"
+    if not (video.exists() and narr.exists()):
+        return {"ok": False, "error": f"missing video or narration for {job.job_id}"}
+    segs = json.loads(narr.read_text(encoding="utf-8"))["segments"]
+    pad = 0.5
+    mids, t = [], 0.0
+    for s in segs:
+        mids.append(t + s["duration"] / 2)
+        t += s["duration"] + pad
+
+    import io
+
+    import av
+    out = []
+    with av.open(str(video)) as c:
+        want = iter(mids)
+        target = next(want, None)
+        for frame in c.decode(video=0):
+            if target is None:
+                break
+            if frame.time >= target:
+                img = frame.to_image().resize((270, 480))
+                buf = io.BytesIO()
+                img.save(buf, format="JPEG", quality=70)
+                out.append(base64.b64encode(buf.getvalue()).decode())
+                target = next(want, None)
+    return {"ok": True, "frames": out}
 
 
 @app.post("/postprocess")
