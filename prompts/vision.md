@@ -15,7 +15,11 @@ whether the visuals genuinely teach what is being said.
 3. UNREADABLE: text too small to read on a phone, elements crowded together,
    overlapping elements, or content cut off by the frame edge.
 4. EMPTY: the screen is (nearly) blank while the narration makes a substantive
-   point that needed showing.
+   point that needed showing, or a single small element floats in a mostly
+   empty frame.
+5. DISCONNECTED: elements that should visibly align or touch do not — dots
+   that should sit on a curve floating beside it, a "connecting" line missing
+   its points, a reconstruction that ignores its samples.
 
 Do NOT flag: style, colors, beauty, minor spacing, a "hold" frame that
 deliberately keeps the previous visual while the narration restates.

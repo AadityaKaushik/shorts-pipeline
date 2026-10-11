@@ -59,6 +59,18 @@ For each narration segment, specify:
    respect this.
 6. Numbers in dry runs must be real and consistent: if segment 3 searches
    index 4 of [2,5,8,11,14,17,20], segment 4 continues from exactly that state.
+7. SHOW THE MATHEMATICS (in moderation): if the concept has a governing
+   formula or a quantitative statement, it belongs ON SCREEN in the lower
+   band — introduced when the narration earns it, ideally built up term by
+   term across segments (the narration speaks plain words; the screen shows
+   the symbols). One or two real equations per video; never a wall of math.
+8. FULL COMPOSITIONS: the frame has three usable bands (persistent reference
+   up top, large working visual in the middle, equation/state line at the
+   bottom). Storyboard most segments to have 2–3 bands occupied. A single
+   small element floating in an empty frame is a defect.
+9. When elements represent the same data (samples of a curve, a line through
+   points), say so explicitly — the animator must derive them from the same
+   numbers so they visibly connect.
 
 ## Output
 

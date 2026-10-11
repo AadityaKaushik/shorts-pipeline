@@ -56,6 +56,13 @@ class ShortScene(Scene):
     place any label where a curve or bars will pass through it.
 7. Plots: `Axes` with explicit small ranges (e.g. `x_range=[0, 5, 1]`), then `axes.plot(...)`. Keep them simple and `fit()` them.
 8. No 3D, no external files, no images, no network access, no randomness without a fixed seed, and no imports beyond shorts_base, numpy and math.
+8b. GEOMETRIC CONSISTENCY: elements representing the same data must be computed
+    from the same source, never eyeballed. A dot "on" a curve is placed with
+    `axes.c2p(x, f(x))` using the same f; a line "connecting" points runs
+    exactly through those points' coordinates (`axes.c2p` for each); a
+    reconstruction built from samples is plotted THROUGH the sample positions
+    (e.g. interpolate between the same c2p points). If two things should
+    visibly touch, derive one from the other.
 9. At most 3 to 4 elements on screen at once. When a segment starts a new layout,
    begin its block with `self.sweep(<things to keep>, run_time=d * 0.15)` so stale
    elements never linger under new ones.
@@ -65,6 +72,13 @@ class ShortScene(Scene):
     - upper band: y ≈ 1.8 to 2.6 (a persistent reference: the matrix, the circuit, word boxes)
     - main band: y ≈ -0.8 to 1.5 (the working visual: plane, axes, diagrams)
     - lower band: y ≈ -1.5 to -2.4 (equations, labels, the payoff line)
+    FILL THE BANDS — an empty-feeling frame is a defect. Size the working
+    visual generously (Axes x_length 3.6–4.0, y_length 2.4–3.0; planes and
+    diagrams similarly large). The title or a persistent reference should
+    occupy the upper region for most of the video, and the lower band should
+    rarely be empty: keep the governing equation or the current state line
+    there while the main visual works. Three well-sized elements in three
+    bands beats one small drawing floating in darkness.
 12. NEVER place two visible objects in the same band at the same time unless they
     were laid out together (e.g. with `VGroup(...).arrange()` or `next_to`). Before
     writing into an occupied band, `FadeOut` or `Transform` what is there. Labels
