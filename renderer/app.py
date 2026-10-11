@@ -200,9 +200,9 @@ def frames(job: FramesJob):
             if target is None:
                 break
             if frame.time >= target:
-                img = frame.to_image().resize((270, 480))
+                img = frame.to_image().resize((405, 720))
                 buf = io.BytesIO()
-                img.save(buf, format="JPEG", quality=70)
+                img.save(buf, format="JPEG", quality=78)
                 out.append(base64.b64encode(buf.getvalue()).decode())
                 target = next(want, None)
     return {"ok": True, "frames": out}

@@ -19,7 +19,10 @@ whether the visuals genuinely teach what is being said.
    empty frame.
 5. DISCONNECTED: elements that should visibly align or touch do not — dots
    that should sit on a curve floating beside it, a "connecting" line missing
-   its points, a reconstruction that ignores its samples.
+   its points, a reconstruction or alias curve that misses even ONE of its
+   sample points. Inspect these pixel-closely: a curve that "explains" points
+   must pass through all of them, and a near-miss is a SERIOUS issue (it
+   teaches a factual misconception), never a minor note.
 
 Do NOT flag: style, colors, beauty, minor spacing, a "hold" frame that
 deliberately keeps the previous visual while the narration restates.

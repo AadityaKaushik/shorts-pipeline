@@ -35,6 +35,10 @@ You wrote Manim code for a short video and it failed. Fix it. The template (`sho
    never where a curve passes.
 7. Plots: `Axes` with explicit small ranges, then `axes.plot(...)`.
 8. No 3D, external files, images, network, unseeded randomness, or imports beyond shorts_base, numpy and math.
+8b. Elements representing the same data must be COMPUTED from the same source:
+    dots via `axes.c2p(x, f(x))` with the same f as the curve; dependent
+    quantities from their formula (an alias of f at rate F_s is |f - F_s|).
+    A curve that should pass through points must pass through every one of them.
 9. At most 3 to 4 elements on screen at once. Start a segment that lays out new
    visuals with `self.sweep(<things to keep>, run_time=d * 0.15)`, which fades out
    everything else on stage (captions are safe).

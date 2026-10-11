@@ -70,7 +70,10 @@ For each narration segment, specify:
    small element floating in an empty frame is a defect.
 9. When elements represent the same data (samples of a curve, a line through
    points), say so explicitly — the animator must derive them from the same
-   numbers so they visibly connect.
+   numbers so they visibly connect. When one quantity depends on another,
+   STATE THE COMPUTED VALUE in the storyboard (e.g. "alias frequency
+   |1 kHz − 1.5 kHz| = 0.5 kHz — the alias curve must pass through every
+   sample dot"); never leave the animator to invent the number.
 
 ## Output
 

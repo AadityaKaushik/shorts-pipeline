@@ -60,9 +60,14 @@ class ShortScene(Scene):
     from the same source, never eyeballed. A dot "on" a curve is placed with
     `axes.c2p(x, f(x))` using the same f; a line "connecting" points runs
     exactly through those points' coordinates (`axes.c2p` for each); a
-    reconstruction built from samples is plotted THROUGH the sample positions
-    (e.g. interpolate between the same c2p points). If two things should
-    visibly touch, derive one from the other.
+    reconstruction built from samples is plotted THROUGH the sample positions.
+    When one quantity DEPENDS on another, COMPUTE it from the formula instead
+    of choosing it: an alias of f sampled at F_s is |f - F_s| (so the alias
+    curve passes through EVERY sample by construction — verify mentally that
+    g(t_i) == f(t_i) at each sample time before drawing); a resonance peak sits
+    at the computed frequency; a complexity curve uses the actual n log n
+    values. If the "explaining" curve misses even one of its points, the video
+    teaches a falsehood — this is the worst defect the scene can have.
 9. At most 3 to 4 elements on screen at once. When a segment starts a new layout,
    begin its block with `self.sweep(<things to keep>, run_time=d * 0.15)` so stale
    elements never linger under new ones.
