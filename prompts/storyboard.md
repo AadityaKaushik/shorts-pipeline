@@ -64,10 +64,12 @@ For each narration segment, specify:
    band — introduced when the narration earns it, ideally built up term by
    term across segments (the narration speaks plain words; the screen shows
    the symbols). One or two real equations per video; never a wall of math.
-8. FULL COMPOSITIONS: the frame has three usable bands (persistent reference
-   up top, large working visual in the middle, equation/state line at the
-   bottom). Storyboard most segments to have 2–3 bands occupied. A single
-   small element floating in an empty frame is a defect.
+8. FULL COMPOSITIONS, but breathable: a LARGE working visual in the middle
+   band plus one line (equation or state) in the lower band is the target for
+   most segments; a persistent reference up top is optional. A single small
+   element floating in an empty frame is a defect — but so is a crowded frame
+   where labels have nowhere safe to sit. When a band gets busy, clear it
+   before adding more.
 9. When elements represent the same data (samples of a curve, a line through
    points), say so explicitly — the animator must derive them from the same
    numbers so they visibly connect. When one quantity depends on another,

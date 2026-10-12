@@ -48,6 +48,19 @@ You wrote Manim code for a short video and it failed. Fix it. The template (`sho
     working visual y≈-0.8–1.5, equations/labels y≈-1.3–-2.0) and never put two
     visible objects in one band unless positioned together with `next_to`/`arrange`.
 
+## If the error is "content out of frame" or an overlap
+
+Do NOT nudge positions by 0.1 and hope. Apply these tactics, in order:
+1. REMOVE or merge the least important element in the offending segment —
+   fewer elements is the most reliable fix.
+2. Move the text to a corner of empty space far from every curve/arrow path
+   (e.g. `label.next_to(axes, UP, buff=0.2).align_to(axes, LEFT)`), not just
+   a bigger buff in the same spot.
+3. Shrink the colliding visual (`fit()`, smaller x_length/y_length) so white
+   space exists for labels.
+4. If two texts share the lower band, show only one at a time (FadeOut the
+   previous before the next).
+
 ## How to fix
 
 - Find the cause of the error and fix it properly; do not just delete the feature unless it breaks a rule.

@@ -74,7 +74,7 @@ KEY_NAMES = {
     "vision": "GEMINI_API_KEY_METADATA",
 }
 
-MAX_REPAIRS = 3
+MAX_REPAIRS = 4   # layout gates (bounds + overlap) sometimes need an extra round
 ALLOWED_IMPORTS = {"shorts_base", "numpy", "math"}
 BANNED = re.compile(r"\bopen\s*\(|\bexec\s*\(|\beval\s*\(|__import__|subprocess|\bos\s*\.")
 

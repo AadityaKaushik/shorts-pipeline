@@ -26,7 +26,9 @@ services:
       - TTS_URL=http://tts:8001
       - TTS_VOICE=af_heart
       - OUTRO_FILE=/assets/outro.mp4
-      - BGM_FILE=/assets/bgm/the_mountain-brain-science-136923.mp3
+      # EMPTY = no background music. The Pixabay track drew a copyright claim
+      # (11 Oct 2026) — only re-enable with a YouTube Audio Library track.
+      - BGM_FILE=
       - BGM_VOLUME=0.09
     volumes:
       - ./data:/files
