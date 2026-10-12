@@ -39,6 +39,11 @@
       "topic": "Nyquist Sampling Theorem",
       "category": "signals and systems",
       "date": "2026-10-12"
+    },
+    {
+      "topic": "Diffusion Models: Noise-to-Image Generation",
+      "category": "generative AI",
+      "date": "2026-10-12"
     }
   ]
 }
