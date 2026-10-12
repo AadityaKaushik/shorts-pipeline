@@ -51,7 +51,8 @@ You wrote Manim code for a short video and it failed. Fix it. The template (`sho
 ## If the error names a zone, an overlap, or "out of frame"
 
 The template has zones: "title" (y 2.95..3.4), "top" (1.7..2.75),
-"main" (-1.2..1.6), "low" (-2.5..-1.4). Place top-level content ONLY with
+"main" (-1.2..1.6), "low" (-2.2..-1.4); below -2.2 is the template's caption
+strip — nothing may go there. Place top-level content ONLY with
 `self.show(zone, mob, run_time=...)` (auto-fits to fill the zone and
 cross-fades the previous occupant) or `fit_zone(mob, zone)`.
 

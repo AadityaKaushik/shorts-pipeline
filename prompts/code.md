@@ -14,10 +14,13 @@ ACCENT_3  # green: results / "correct"
 MUTED     # grey: secondary text
 
 # Layout is ZONE-BASED. Four named screen regions:
-#   "title" (y 2.95..3.4)  — the title line
+#   "title" (y 2.95..3.4)  — the title line: create it in segment 0 and KEEP
+#                            IT ON SCREEN for the entire video (never sweep it)
 #   "top"   (y 1.7..2.75)  — persistent reference (matrix, circuit, array)
 #   "main"  (y -1.2..1.6)  — the BIG working visual
-#   "low"   (y -2.5..-1.4) — equations, state lines, the payoff
+#   "low"   (y -2.2..-1.4) — equations, state lines, the payoff
+# Below y=-2.2 is the CAPTION STRIP: the template draws word-timed captions
+# there automatically. Never place anything below -2.2, never draw captions.
 #
 # Place top-level content ONLY with these (never move_to with raw coordinates):
 fit_zone(mob, "main")        # scales mob UP or down to FILL the zone, centres it

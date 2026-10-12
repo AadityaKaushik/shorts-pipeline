@@ -25,16 +25,24 @@ MUTED = "#9e9e9e"     # grey: secondary text
 # freed strip extends the content area downward.)
 SAFE_WIDTH = 4.0
 CONTENT_TOP = 3.4
-CONTENT_BOTTOM = -2.6
+CONTENT_BOTTOM = -2.2   # the strip below is reserved for captions
+
+# Captions: template-drawn in a FIXED strip no zone can touch. Content lives
+# strictly above CONTENT_BOTTOM; the bounds check enforces the separation, so
+# captions and content can never merge.
+CAPTION_Y = -2.6
+CAPTION_FONT = 20
+MAX_CAPTION_CHARS = 22
+MAX_CAPTION_WORDS = 4
 
 # Named screen zones (y_min, y_max); x always spans the safe width. Placing
 # content with fit_zone/show guarantees it fills its region and never strays
 # into a neighbour — layout by construction, not by eyeballing coordinates.
 ZONES = {
-    "title": (2.95, 3.4),   # the video's title line
+    "title": (2.95, 3.4),   # the video's title line (persists all video)
     "top":   (1.7, 2.75),   # persistent reference: matrix, circuit, array
     "main":  (-1.2, 1.6),   # the big working visual
-    "low":   (-2.5, -1.4),  # equations, state lines, payoff
+    "low":   (-2.2, -1.4),  # equations, state lines, payoff
 }
 
 
@@ -61,6 +69,73 @@ def fit(mob, max_width=SAFE_WIDTH):
     if mob.width > max_width:
         mob.scale_to_fit_width(max_width)
     return mob
+
+
+# ---------------------------------------------------------------- captions
+# Design: the DISPLAYED text comes from the script (ground truth — every word
+# is guaranteed to appear); the TIMING comes from mapping character positions
+# onto the TTS token timeline. Token quirks (merged contractions, mangled
+# numbers, missing stamps) can only nudge timing, never drop a word.
+
+def _char_time_anchors(seg):
+    """(char_position, time) anchors over the token stream, plus total chars."""
+    anchors = [(0.0, 0.0)]
+    pos = 0
+    for w in seg.get("words") or []:
+        t = w.get("s")
+        if t is not None and t >= anchors[-1][1]:
+            anchors.append((float(pos), float(t)))
+        pos += len(w.get("w", "")) + 1
+    total = float(max(pos - 1, 1))
+    anchors.append((total, float(seg["duration"])))
+    return anchors, total
+
+
+def _time_at(anchors, x):
+    for (x0, t0), (x1, t1) in zip(anchors, anchors[1:]):
+        if x <= x1:
+            return t1 if x1 <= x0 else t0 + (t1 - t0) * (x - x0) / (x1 - x0)
+    return anchors[-1][1]
+
+
+def _caption_chunks(seg):
+    """Chunk the SCRIPT text into short caption lines with aligned start
+    times: [(text, start_time), ...]. Every script word appears exactly once."""
+    script_words = seg["text"].split()
+    if not script_words:
+        return [("", 0.0)]
+    anchors, token_total = _char_time_anchors(seg)
+    script_total = max(len(seg["text"]), 1)
+
+    chunks, cur, cur_start_char, pos = [], [], 0, 0
+    for w in script_words:
+        candidate = " ".join(cur + [w])
+        if cur and (len(candidate) > MAX_CAPTION_CHARS
+                    or len(cur) >= MAX_CAPTION_WORDS):
+            chunks.append((" ".join(cur), cur_start_char))
+            cur, cur_start_char = [], pos
+        cur.append(w)
+        pos += len(w) + 1
+        if w[-1] in ".,!?;:" and cur:
+            chunks.append((" ".join(cur), cur_start_char))
+            cur, cur_start_char = [], pos
+    if cur:
+        chunks.append((" ".join(cur), cur_start_char))
+
+    out = []
+    for text, char0 in chunks:
+        x = char0 / script_total * token_total
+        out.append((text, _time_at(anchors, x)))
+    return out
+
+
+def _caption(text):
+    cap = Text(text, font_size=CAPTION_FONT, weight=BOLD, color=WHITE)
+    cap.set_stroke(BLACK, width=4, background=True)
+    fit(cap)
+    cap.move_to([0, CAPTION_Y, 0])
+    cap._is_caption = True
+    return cap
 
 
 def cell(label, width=0.7, height=0.7, color=WHITE, text_color=WHITE,
@@ -104,7 +179,8 @@ class ShortScene(Scene):
         elements never linger under new ones.
         """
         keep_set = set(keep)
-        doomed = [m for m in self.mobjects if m not in keep_set]
+        doomed = [m for m in self.mobjects
+                  if m not in keep_set and not getattr(m, "_is_caption", False)]
         if doomed:
             self.play(*[FadeOut(m) for m in doomed], run_time=run_time)
             for m in doomed:
@@ -276,15 +352,43 @@ class ShortScene(Scene):
 
     @contextmanager
     def say(self, i):
-        """Play narration segment i. Yields its duration in seconds."""
+        """Play narration segment i with aligned captions. Yields duration."""
         seg = self.segments[i]
         dur = seg["duration"]
         start = self.renderer.time
         self.add_sound(seg["audio"])
+
+        # captions: all created up front, inactive ones parked off-screen
+        # (mobjects must never be added/removed mid-play — see gotcha 9.4)
+        chunks = _caption_chunks(seg)
+        starts = [s for _, s in chunks]
+        off_screen = UP * 50
+        caps = [_caption(text) for text, _ in chunks]
+        for c in caps[1:]:
+            c.move_to(off_screen)
+        state = {"idx": 0}
+        holder = VGroup(*caps)
+        holder._is_caption = True
+
+        def update(_):
+            t = self.renderer.time - start
+            idx = 0
+            for k, s in enumerate(starts):
+                if s <= t:
+                    idx = k
+            if idx != state["idx"]:
+                caps[state["idx"]].move_to(off_screen)
+                caps[idx].move_to([0, CAPTION_Y, 0])
+                state["idx"] = idx
+
+        holder.add_updater(update)
+        self.add(holder)
         try:
             yield dur
         finally:
             remaining = dur + self.pad - (self.renderer.time - start)
             if remaining > 0.02:
                 self.wait(remaining)
+            holder.clear_updaters()
+            self.remove(holder)
             self._run_checks(i)

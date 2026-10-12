@@ -25,7 +25,9 @@ whether the visuals genuinely teach what is being said.
    teaches a factual misconception), never a minor note.
 
 Do NOT flag: style, colors, beauty, minor spacing, a "hold" frame that
-deliberately keeps the previous visual while the narration restates.
+deliberately keeps the previous visual while the narration restates, the
+persistent title at the top, or the caption line at the bottom (both are
+template furniture, present by design).
 
 ## Output
 

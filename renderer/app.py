@@ -357,6 +357,9 @@ def render(job: Job):
     d.mkdir(parents=True, exist_ok=True)
     shutil.rmtree(d / "media", ignore_errors=True)
     (d / "final.mp4").unlink(missing_ok=True)
+    # a fresh render invalidates the kept raw — otherwise post_process would
+    # resurrect the previous video over the new one
+    (d / "final_raw.mp4").unlink(missing_ok=True)
     (d / "bounds_violations.json").unlink(missing_ok=True)
     (d / "scene.py").write_text(job.code, encoding="utf-8")
 
