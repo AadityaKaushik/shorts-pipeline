@@ -13,12 +13,21 @@ ACCENT_2  # orange: second item / contrast
 ACCENT_3  # green: results / "correct"
 MUTED     # grey: secondary text
 
-# Layout bounds — all content must stay inside:
-SAFE_WIDTH = 4.0        # max width of anything
-CONTENT_TOP = 3.4       # max y
-CONTENT_BOTTOM = -2.6   # min y
+# Layout is ZONE-BASED. Four named screen regions:
+#   "title" (y 2.95..3.4)  — the title line
+#   "top"   (y 1.7..2.75)  — persistent reference (matrix, circuit, array)
+#   "main"  (y -1.2..1.6)  — the BIG working visual
+#   "low"   (y -2.5..-1.4) — equations, state lines, the payoff
+#
+# Place top-level content ONLY with these (never move_to with raw coordinates):
+fit_zone(mob, "main")        # scales mob UP or down to FILL the zone, centres it
+self.show("main", mob, run_time=d*0.4)   # fit_zone + cross-fades out whatever
+                                         # occupied the zone before; returns mob
+self.clear_zone("low", run_time=d*0.2)   # empty a zone
+# Build each segment's visual as one VGroup (arrange children with next_to /
+# .arrange relative to each other), then show() the group in its zone.
 
-fit(mob, max_width=SAFE_WIDTH)  # shrinks a mobject to fit the width; returns it
+fit(mob, max_width=4.0)  # width-only shrink, for text lines inside a zone
 
 class ShortScene(Scene):
     # context manager: plays narration segment i with captions, yields duration
@@ -72,23 +81,20 @@ class ShortScene(Scene):
    begin its block with `self.sweep(<things to keep>, run_time=d * 0.15)` so stale
    elements never linger under new ones.
 10. The visual for each segment should match its "visual" description, simplified if needed to stay reliable.
-11. USE THE FULL FRAME, in vertical bands, so elements never overlap:
-    - title band: y ≈ 3.1 (the title may stay for the whole video)
-    - upper band: y ≈ 1.8 to 2.6 (a persistent reference: the matrix, the circuit, word boxes)
-    - main band: y ≈ -0.8 to 1.5 (the working visual: plane, axes, diagrams)
-    - lower band: y ≈ -1.5 to -2.4 (equations, labels, the payoff line)
-    FILL THE BANDS — an empty-feeling frame is a defect. Size the working
-    visual generously (Axes x_length 3.6–4.0, y_length 2.4–3.0; planes and
-    diagrams similarly large). The title or a persistent reference should
-    occupy the upper region for most of the video, and the lower band should
-    rarely be empty: keep the governing equation or the current state line
-    there while the main visual works. Three well-sized elements in three
-    bands beats one small drawing floating in darkness.
-12. NEVER place two visible objects in the same band at the same time unless they
-    were laid out together (e.g. with `VGroup(...).arrange()` or `next_to`). Before
-    writing into an occupied band, `FadeOut` or `Transform` what is there. Labels
-    that belong to a plot go inside the plot's own band, positioned with `next_to`
-    against the thing they label.
+11. ZONES ARE THE LAW: every top-level element lives in exactly one zone,
+    placed via `self.show(zone, ...)` or `fit_zone`. THE RENDER FAILS if the
+    "main" zone is empty or its visual is small — so from segment 1 onward the
+    main zone always holds a big working visual (keep it there across
+    segments; evolve it rather than clearing it). The "low" zone should hold
+    the current equation or state line for most of the video.
+12. One object per zone at a time — `show()` enforces this by cross-fading the
+    previous occupant, which is why things never pile up or merge. To COMBINE
+    elements (a curve plus its label, an array plus pointers), build ONE
+    VGroup first, arrange its children with `next_to`/`.arrange` (buff >= 0.25,
+    labels clear of curve and arrow paths), and show the group. To EVOLVE a
+    visual across segments (axes gaining curves and markers), keep the same
+    shown group and add children to it with Create/FadeIn — children placed
+    with axes.c2p stay correct inside the fitted group.
 
 ## Examples of correct scenes
 

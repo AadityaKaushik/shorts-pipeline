@@ -43,18 +43,17 @@ class Main(ShortScene):
         V = lambda t: 1 - np.exp(-t)
 
         with self.say(0) as d:
-            title = fit(Text("Charging a Capacitor", font_size=32, color=ACCENT))
-            title.move_to(UP * 3.2)
+            title = Text("Charging a Capacitor", font_size=32, color=ACCENT)
+            self.show("title", title, run_time=d * 0.5, anim=Write(title))
             sub = Text("the RC circuit", font_size=22, color=MUTED)
-            sub.next_to(title, DOWN, buff=0.25)
-            self.play(Write(title), run_time=d * 0.5)
-            self.play(FadeIn(sub, shift=UP * 0.2), run_time=d * 0.3)
+            self.show("top", sub, run_time=d * 0.3)
 
         with self.say(1) as d:
-            circ = fit(circuit())
-            circ.move_to(UP * 2.0)
-            self.play(FadeOut(sub), run_time=d * 0.15)
-            self.play(Create(circ), run_time=d * 0.7)
+            self.clear_zone("top", run_time=d * 0.15)
+            # the circuit debuts BIG in the main zone; it shrinks into the top
+            # zone later, when the graph takes over the main stage
+            circ = circuit()
+            self.show("main", circ, run_time=d * 0.7, anim=Create(circ))
 
         with self.say(2) as d:
             # labels clear of every wire AND of each other
@@ -68,17 +67,20 @@ class Main(ShortScene):
                       run_time=d * 0.4)
 
         with self.say(3) as d:
+            self.play(FadeOut(stores), FadeOut(throttles), run_time=d * 0.15)
+            # circuit shrinks into the top zone; the graph takes the main stage
+            self.show("top", circ, run_time=d * 0.2)
             axes = Axes(
                 x_range=[0, 5.5, 1], y_range=[0, 1.25, 0.5],
                 x_length=3.6, y_length=2.4,
                 tips=False,
                 axis_config={"stroke_color": MUTED, "font_size": 20},
             )
-            axes.move_to(UP * 0.1)
+            stage = VGroup(axes)
+            self.show("main", stage, run_time=d * 0.25, anim=Create(axes))
             curve1 = axes.plot(V, x_range=[0, 1.2], color=ACCENT)
-            self.play(FadeOut(stores), FadeOut(throttles), Create(axes),
-                      run_time=d * 0.4)
-            self.play(Create(curve1), run_time=d * 0.4, rate_func=linear)
+            stage.add(curve1)
+            self.play(Create(curve1), run_time=d * 0.3, rate_func=linear)
 
         with self.say(4) as d:
             curve2 = axes.plot(V, x_range=[1.2, 5.5], color=ACCENT)
@@ -89,9 +91,9 @@ class Main(ShortScene):
             v0_label = MathTex("V_0", font_size=22, color=MUTED)
             v0_label.next_to(axes.c2p(5.5, 1), UP, buff=0.1).shift(LEFT * 0.2)
             i_eq = MathTex(r"I = \frac{V_0 - V_C}{R}", font_size=30)
-            i_eq.move_to(DOWN * 1.95)
+            stage.add(v0_line, v0_label)
             self.play(Create(v0_line), FadeIn(v0_label), run_time=d * 0.35)
-            self.play(Write(i_eq), run_time=d * 0.5)
+            self.show("low", i_eq, run_time=d * 0.5, anim=Write(i_eq))
 
         with self.say(6) as d:
             t = 0.35
@@ -108,11 +110,10 @@ class Main(ShortScene):
             self.play(Transform(gap, gap2), run_time=d * 0.7)
 
         with self.say(8) as d:
-            v_eq = fit(MathTex(r"V(t) = V_0\left(1 - e^{-t/RC}\right)",
-                               font_size=30))
-            v_eq.move_to(DOWN * 1.95)
-            self.play(FadeOut(gap), ReplacementTransform(i_eq, v_eq),
-                      run_time=d * 0.6)
+            v_eq = MathTex(r"V(t) = V_0\left(1 - e^{-t/RC}\right)",
+                           font_size=30)
+            self.play(FadeOut(gap), run_time=d * 0.2)
+            self.show("low", v_eq, run_time=d * 0.5)  # replaces the current eq
 
         with self.say(9) as d:
             v_tau = V(1)
@@ -139,8 +140,7 @@ class Main(ShortScene):
 
         with self.say(11) as d:
             end = Dot(axes.c2p(5, V(5)), color=ACCENT_3, radius=0.07)
-            payoff = fit(Text("tau = RC sets the wait", font_size=24,
-                              color=ACCENT_3))
-            payoff.move_to(DOWN * 1.95)
+            payoff = Text("tau = RC sets the wait", font_size=24,
+                          color=ACCENT_3)
             self.play(FadeIn(end, scale=2), run_time=d * 0.2)
-            self.play(ReplacementTransform(v_eq, payoff), run_time=d * 0.5)
+            self.show("low", payoff, run_time=d * 0.5, anim=Write(payoff))

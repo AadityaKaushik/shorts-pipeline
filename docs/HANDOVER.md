@@ -1213,6 +1213,32 @@ Actions RW, expires Oct 2027 — renew!) at **09:27 IST (daily)** and **12:52 IS
 (topup)**. Dispatch path verified end-to-end. Launch day published:
 convolution + CLT (double), and two videos were generated fully in the cloud.
 
+### 11.15 Zone layout system (12 Oct 2026) — layout taken away from the LLM
+
+Owner review of v2 output: frames too empty, residual slight overlaps, one
+decorative visual. Root cause: prompt rules can't make an LLM solve 2D layout;
+every tweak traded emptiness against collisions. Fix: layout by construction.
+
+- `shorts_base.ZONES` = title/top/main/low regions. `fit_zone(mob, zone,
+  fill=0.9, max_up=1.5)` scales content UP or down to fill its region;
+  `self.show(zone, mob, ...)` auto-fits and CROSS-FADES the zone's previous
+  occupant (no more piling/merging); `clear_zone`. Mobjects moving between
+  zones hand their records off (e.g. ex3's circuit debuts big in main, then
+  shrinks into top when the graph arrives).
+- `_check_fullness`: render FAILS if the main zone is empty (segment 1+) or
+  its union bbox stays undersized in 2+ segments (one sparse build-up beat is
+  tolerated). Union, not largest-single, because content enters as siblings.
+- `_check_overlaps` now finds Text/MathTex at ANY nesting depth (a one-level
+  scan missed a deep label clipping a box in testing).
+- All 3 examples converted to the zone API (the model imitates examples) and
+  pass all gates. Vision gate tightened: ANY serious issue triggers the fix
+  round. Music: YouTube Audio Library (Asher Fulero) at /assets/bgm/bgm_yt_audio
+  — structurally Content-ID-proof; both Pixabay disputes still pending.
+- Cold E2E proof: "Diffusion Models" (generative AI subject), storyboard chose
+  dry_run with real pixel values, layout gates passed first try, vision forced
+  one teaching fix, 81.1s. Grouped-label pattern: labels join the group BEFORE
+  fit_zone (opacity 0, revealed later) so everything scales together.
+
 ### 11.14 Quality system v2 (11 Oct 2026) — owner's content review built in
 
 After reviewing live output, the owner asked for: beginner-followable pacing, a

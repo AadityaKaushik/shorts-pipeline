@@ -48,18 +48,19 @@ You wrote Manim code for a short video and it failed. Fix it. The template (`sho
     working visual y≈-0.8–1.5, equations/labels y≈-1.3–-2.0) and never put two
     visible objects in one band unless positioned together with `next_to`/`arrange`.
 
-## If the error is "content out of frame" or an overlap
+## If the error names a zone, an overlap, or "out of frame"
 
-Do NOT nudge positions by 0.1 and hope. Apply these tactics, in order:
-1. REMOVE or merge the least important element in the offending segment —
-   fewer elements is the most reliable fix.
-2. Move the text to a corner of empty space far from every curve/arrow path
-   (e.g. `label.next_to(axes, UP, buff=0.2).align_to(axes, LEFT)`), not just
-   a bigger buff in the same spot.
-3. Shrink the colliding visual (`fit()`, smaller x_length/y_length) so white
-   space exists for labels.
-4. If two texts share the lower band, show only one at a time (FadeOut the
-   previous before the next).
+The template has zones: "title" (y 2.95..3.4), "top" (1.7..2.75),
+"main" (-1.2..1.6), "low" (-2.5..-1.4). Place top-level content ONLY with
+`self.show(zone, mob, run_time=...)` (auto-fits to fill the zone and
+cross-fades the previous occupant) or `fit_zone(mob, zone)`.
+
+- "MAIN zone is empty" / "visual too small": put the segment's working visual
+  there with show()/fit_zone — it scales content UP to fill the zone.
+- Overlap: do NOT nudge by 0.1. (1) remove the least important element;
+  (2) move the label to empty space far from every curve/arrow path, buff >=
+  0.25; (3) if two texts share the low zone, show one at a time.
+- Out of frame: the element bypassed the zones — place it with show()/fit_zone.
 
 ## How to fix
 

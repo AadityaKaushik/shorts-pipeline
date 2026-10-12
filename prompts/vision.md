@@ -38,5 +38,6 @@ Reply with ONLY a JSON object, no markdown fence:
   ]
 }
 
-Set ok to false only if there are 2 or more serious issues (decoration,
-mismatch, or unreadable text). A single minor issue: ok true, still list it.
+Set ok to false if there is ANY serious issue (decoration, mismatch,
+disconnection, unreadable text, or an empty/undersized frame). Only purely
+cosmetic nitpicks leave ok true.

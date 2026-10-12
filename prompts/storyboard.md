@@ -32,9 +32,12 @@ Pick the ONE strategy that fits this concept best (or a named combination):
 For each narration segment, specify:
 
 - "visual": a LITERAL layout instruction the animator can follow exactly —
-  what elements, where (top band y≈1.8–2.6 for the persistent reference,
-  main band y≈-0.8–1.5 for the working visual, lower band y≈-1.5–-2.4 for
-  equations/labels), and what CHANGES this segment (one change at a time).
+  what elements, in which ZONE ("title" = the title line; "top" = persistent
+  reference like the matrix/circuit/array; "main" = the BIG working visual,
+  auto-scaled to fill the region; "low" = equations and state lines), and
+  what CHANGES this segment (one change at a time). The main zone must hold
+  a substantial visual in every segment after the first — the render fails
+  otherwise.
 - "teaches": what the viewer understands from SEEING this that the narration
   alone cannot give. If your honest answer is "nothing", REDESIGN the visual —
   or mark it "hold" (see below). Never submit a visual that exists for its own sake.

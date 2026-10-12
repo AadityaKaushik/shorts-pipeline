@@ -26,10 +26,9 @@ services:
       - TTS_URL=http://tts:8001
       - TTS_VOICE=af_heart
       - OUTRO_FILE=/assets/outro.mp4
-      # MUSIC OFF (12 Oct 2026): both Pixabay tracks (same artist) got videos
-      # blocked by Content ID within minutes. Disputes filed. Do not re-enable
-      # until a structurally safe source is chosen.
-      - BGM_FILE=
+      # YouTube Audio Library track (12 Oct 2026) — structurally Content-ID
+      # safe. Alternatives in /assets/bgm/bgm_yt_audio/. Empty = music off.
+      - BGM_FILE=/assets/bgm/bgm_yt_audio/The Palace Gardens - Asher Fulero.mp3
       - BGM_VOLUME=0.09
     volumes:
       - ./data:/files

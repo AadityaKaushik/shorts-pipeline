@@ -27,6 +27,34 @@ SAFE_WIDTH = 4.0
 CONTENT_TOP = 3.4
 CONTENT_BOTTOM = -2.6
 
+# Named screen zones (y_min, y_max); x always spans the safe width. Placing
+# content with fit_zone/show guarantees it fills its region and never strays
+# into a neighbour — layout by construction, not by eyeballing coordinates.
+ZONES = {
+    "title": (2.95, 3.4),   # the video's title line
+    "top":   (1.7, 2.75),   # persistent reference: matrix, circuit, array
+    "main":  (-1.2, 1.6),   # the big working visual
+    "low":   (-2.5, -1.4),  # equations, state lines, payoff
+}
+
+
+def zone_box(name):
+    y0, y1 = ZONES[name]
+    return (0.0, (y0 + y1) / 2, SAFE_WIDTH, y1 - y0)
+
+
+def fit_zone(mob, name, fill=0.9, max_up=1.5):
+    """Scale mob (up to `max_up`x, or down as needed) to fill `fill` of the
+    zone and centre it there. The cure for both spillover and
+    tiny-floating-element emptiness, without ballooning single text lines."""
+    cx, cy, w, h = zone_box(name)
+    scale = min(w * 0.94 / max(mob.width, 1e-6),
+                h * fill / max(mob.height, 1e-6),
+                max_up)
+    mob.scale(scale)
+    mob.move_to([cx, cy, 0])
+    return mob
+
 
 def fit(mob, max_width=SAFE_WIDTH):
     """Shrink a mobject to fit the safe width. Returns it for chaining."""
@@ -61,6 +89,34 @@ class ShortScene(Scene):
         doomed = [m for m in self.mobjects if m not in keep_set]
         if doomed:
             self.play(*[FadeOut(m) for m in doomed], run_time=run_time)
+            for m in doomed:
+                for z, occ in list(getattr(self, "_zone_occupants", {}).items()):
+                    if occ is m:
+                        self._zone_occupants.pop(z, None)
+
+    def show(self, zone, mob, run_time=0.8, anim=None):
+        """Place mob in a zone: auto-fit to fill it, and cross-fade out
+        whatever occupied the zone before — replacement is managed, so old
+        and new content can never pile up or 'merge'. Returns mob."""
+        if not hasattr(self, "_zone_occupants"):
+            self._zone_occupants = {}
+        # a mobject moving between zones leaves its old zone's record
+        for z, occ in list(self._zone_occupants.items()):
+            if occ is mob:
+                self._zone_occupants.pop(z)
+        fit_zone(mob, zone)
+        old = self._zone_occupants.get(zone)
+        anims = [anim if anim is not None else FadeIn(mob)]
+        if old is not None and old is not mob:
+            anims.append(FadeOut(old))
+        self.play(*anims, run_time=run_time)
+        self._zone_occupants[zone] = mob
+        return mob
+
+    def clear_zone(self, zone, run_time=0.4):
+        old = getattr(self, "_zone_occupants", {}).pop(zone, None)
+        if old is not None:
+            self.play(FadeOut(old), run_time=run_time)
 
     # ------------------------------------------------------------- checks
 
@@ -97,29 +153,32 @@ class ShortScene(Scene):
         return f" {s[:30]!r}" if s else ""
 
     def _text_mobjects(self):
-        """Top-level texts, plus texts nested one level down in groups (a
-        common pattern: VGroup(box, label))."""
+        """Every Text/MathTex/Tex in the scene, at ANY nesting depth —
+        labels buried deep inside composed groups still deserve clear space."""
         out = []
-        for m in self.mobjects:
+
+        def walk(m):
             if isinstance(m, (Text, MathTex, Tex)):
-                out.append((m, m))
-            elif isinstance(m, (VGroup, Group)):
-                for sub in m.submobjects:
-                    if isinstance(sub, (Text, MathTex, Tex)):
-                        out.append((sub, m))
+                out.append(m)
+                return  # glyph submobjects are the text itself
+            for sub in m.submobjects:
+                walk(sub)
+
+        for m in self.mobjects:
+            walk(m)
         return out
 
     def _check_overlaps(self, seg_index):
         """No other object's drawn points may intrude into a text's box.
         Catches curves through labels, text on text, labels on bars."""
         texts = self._text_mobjects()
-        for text, owner in texts:
+        for text in texts:
             if not text.family_members_with_points():
                 continue
             x0, x1 = text.get_left()[0] - self._TEXT_PAD, text.get_right()[0] + self._TEXT_PAD
             y0, y1 = text.get_bottom()[1] - self._TEXT_PAD, text.get_top()[1] + self._TEXT_PAD
             for other in self.mobjects:
-                if other is owner or other is text:
+                if other is text:
                     continue
                 text_family = set(id(t) for t in text.family_members_with_points())
                 for member in other.family_members_with_points():
@@ -149,9 +208,49 @@ class ShortScene(Scene):
                     continue
                 break
 
+    def _check_fullness(self, seg_index):
+        """The main zone must hold a substantial visual (segment 1 onward).
+        An empty or tiny-floating-element frame fails the render."""
+        if seg_index == 0:
+            return  # the hook/title segment may be sparse
+        _, cy, zw, zh = zone_box("main")
+        y0, y1 = ZONES["main"]
+        # union bounding box of everything touching the main zone — content
+        # often enters as several siblings (arrows, dots, labels)
+        xs, ys = [], []
+        for m in self.mobjects:
+            if not m.family_members_with_points():
+                continue
+            try:
+                top, bottom = m.get_top()[1], m.get_bottom()[1]
+                left, right = m.get_left()[0], m.get_right()[0]
+            except Exception:
+                continue
+            if bottom > y1 or top < y0:
+                continue  # doesn't touch the main zone
+            xs += [left, right]
+            ys += [bottom, top]
+        best_w = (max(xs) - min(xs)) if xs else 0.0
+        best_h = (max(ys) - min(ys)) if ys else 0.0
+        if best_w == 0:
+            self._violations.append(
+                f"segment {seg_index}: the MAIN zone (y {y0} to {y1}) is empty "
+                "— the working visual must live there (use fit_zone/show)")
+        elif best_w < 0.45 * zw and best_h < 0.42 * zh:
+            # one sparse beat (a progressive reveal) is fine; a sparse VIDEO
+            # is the defect — fail only from the second undersized segment on
+            self._small_segments = getattr(self, "_small_segments", [])
+            self._small_segments.append(seg_index)
+            if len(self._small_segments) >= 2:
+                self._violations.append(
+                    f"segments {self._small_segments}: the main visual stays too "
+                    f"small ({best_w:.1f}x{best_h:.1f} in a {zw:.1f}x{zh:.1f} zone) "
+                    "— scale the working visual up with fit_zone(mob, 'main')")
+
     def _run_checks(self, seg_index):
         self._check_bounds(seg_index)
         self._check_overlaps(seg_index)
+        self._check_fullness(seg_index)
         Path("bounds_violations.json").write_text(
             json.dumps(self._violations), encoding="utf-8")
 
