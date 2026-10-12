@@ -26,10 +26,10 @@ services:
       - TTS_URL=http://tts:8001
       - TTS_VOICE=af_heart
       - OUTRO_FILE=/assets/outro.mp4
-      # Owner's choice (12 Oct 2026): new Pixabay track WITH downloaded license
-      # cert (assets/bgm/bgm_new/*-license.txt) as dispute ammunition; empty
-      # value = music off. Note: same artist as the previously claimed track.
-      - BGM_FILE=/assets/bgm/bgm_new/the_mountain-dark-610131.mp3
+      # MUSIC OFF (12 Oct 2026): both Pixabay tracks (same artist) got videos
+      # blocked by Content ID within minutes. Disputes filed. Do not re-enable
+      # until a structurally safe source is chosen.
+      - BGM_FILE=
       - BGM_VOLUME=0.09
     volumes:
       - ./data:/files
