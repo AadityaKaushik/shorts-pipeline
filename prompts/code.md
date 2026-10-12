@@ -29,6 +29,13 @@ self.clear_zone("low", run_time=d*0.2)   # empty a zone
 
 fit(mob, max_width=4.0)  # width-only shrink, for text lines inside a zone
 
+# The building block for dry runs — arrays, tables, staircases, grids:
+cell("13", width=0.7, height=0.7, color=WHITE, fill_color=ACCENT)
+# returns a box with the value centred inside, sized so they can never
+# collide. Build rows/stacks of cells with VGroup(...).arrange(RIGHT/UP,
+# buff=0.12) and show() the group in a zone. NEVER hand-draw a Rectangle
+# and place a number on it — use cell().
+
 class ShortScene(Scene):
     # context manager: plays narration segment i with captions, yields duration
     with self.say(i) as d:

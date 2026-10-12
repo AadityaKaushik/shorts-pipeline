@@ -63,6 +63,24 @@ def fit(mob, max_width=SAFE_WIDTH):
     return mob
 
 
+def cell(label, width=0.7, height=0.7, color=WHITE, text_color=WHITE,
+         font_size=24, fill_color=None):
+    """A box with a value inside, sized so they can never collide — the
+    building block for arrays, tables, staircases and grids in dry runs.
+    `label` may be a string (rendered as MathTex) or a ready mobject."""
+    txt = label if isinstance(label, Mobject) else MathTex(str(label),
+                                                           font_size=font_size)
+    txt.set_color(text_color)
+    max_w, max_h = width - 0.2, height - 0.2
+    if txt.width > max_w or txt.height > max_h:
+        txt.scale(min(max_w / txt.width, max_h / txt.height))
+    box = Rectangle(width=width, height=height, color=color, stroke_width=2)
+    if fill_color is not None:
+        box.set_fill(fill_color, opacity=0.25)
+    txt.move_to(box)
+    return VGroup(box, txt)
+
+
 class ShortScene(Scene):
     pad = 0.5  # breathing pause after each segment, in seconds
 

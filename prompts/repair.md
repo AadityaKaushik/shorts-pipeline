@@ -62,6 +62,14 @@ cross-fades the previous occupant) or `fit_zone(mob, zone)`.
   0.25; (3) if two texts share the low zone, show one at a time.
 - Out of frame: the element bypassed the zones — place it with show()/fit_zone.
 
+## SURGICAL REPAIRS ONLY
+
+The error names specific segments. Change ONLY the code inside those segments'
+`with self.say(i)` blocks (and, if needed, where their objects are first
+created). Every other block must be copied through BYTE-IDENTICAL — rewriting
+working segments is how repairs loop forever: each rewrite breaks something
+that already passed.
+
 ## How to fix
 
 - Find the cause of the error and fix it properly; do not just delete the feature unless it breaks a rule.
