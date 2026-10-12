@@ -11,6 +11,9 @@ import tempfile
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import pipeline_test as p
+
 REPO = "AadityaKaushik/shorts-pipeline"
 
 
@@ -46,8 +49,23 @@ for tag in sorted(tags):
         segments = [s["narration"] for s in script["segments"]]
         job = f"scrub-{name[:40]}"
         r = render(code, segments, job)
+        # Old scenes may fail the new overlap/bounds gates: repair with the LLM
+        # (same loop production uses), up to 3 rounds.
+        rounds = 0
+        while not r.get("ok") and r.get("stage") == "render" and rounds < 3:
+            rounds += 1
+            print(f"   quality gate: {str(r.get('error'))[:120]}...")
+            print(f"   repair round {rounds}")
+            seg_json = json.dumps(script["segments"], indent=2)
+            reply = p.llm("repair", p.fill("repair", ERROR=str(r.get("error")),
+                                           CODE=code, SEGMENTS_JSON=seg_json),
+                          want_json=False)
+            code = p.extract_code(reply)
+            if p.static_check(code, len(segments)):
+                continue
+            r = render(code, segments, job)
         if not r.get("ok"):
-            print(f"   RENDER FAILED: {str(r.get('error'))[:200]}")
+            print(f"   STILL FAILING: {str(r.get('error'))[:150]}")
             failed.append(name)
             continue
         src = Path("data/renders") / job / "final.mp4"

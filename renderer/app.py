@@ -20,7 +20,8 @@ app = FastAPI()
 
 
 OUTRO_FILE = Path(os.getenv("OUTRO_FILE", "/assets/outro.mp4"))
-BGM_FILE = Path(os.getenv("BGM_FILE", ""))
+_BGM_RAW = os.getenv("BGM_FILE", "").strip()
+BGM_FILE = Path(_BGM_RAW) if _BGM_RAW else None  # Path("") would mean "."!
 BGM_VOLUME = float(os.getenv("BGM_VOLUME", "0.09"))
 
 
