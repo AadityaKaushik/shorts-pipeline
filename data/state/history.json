@@ -34,6 +34,11 @@
       "topic": "Light Diffraction Through a Single Slit",
       "category": "physics",
       "date": "2026-10-10"
+    },
+    {
+      "topic": "Nyquist Sampling Theorem",
+      "category": "signals and systems",
+      "date": "2026-10-12"
     }
   ]
 }
