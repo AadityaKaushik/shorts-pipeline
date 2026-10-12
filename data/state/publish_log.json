@@ -128,6 +128,49 @@
           "status": "completed"
         }
       }
+    },
+    {
+      "date": "2026-10-12",
+      "time": "2026-10-12T04:55:04",
+      "provider": "upload_post",
+      "folder": "2026-10-09_lever-amplifies-force-via-torque-balance",
+      "title": "How a Lever Uses Torque Balance to Amplify Force",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "results": {
+            "youtube": {
+              "success": true,
+              "post_id": "JIkF8LRrwLk",
+              "url": "https://www.youtube.com/watch?v=JIkF8LRrwLk",
+              "youtube_upload_status": "uploaded",
+              "youtube_processing_status": "processing",
+              "video_was_transcoded": false,
+              "changes": [],
+              "prevalidation_metadata": {
+                "width": 1080,
+                "height": 1920,
+                "fps": 30.0,
+                "duration": 77.9,
+                "container": "mov,mp4,m4a,3gp,3g2,mj2",
+                "video_codec": "h264",
+                "audio_codec": "aac"
+              },
+              "status": "completed",
+              "attempts": 1
+            }
+          },
+          "usage": {
+            "count": 4,
+            "limit": 10,
+            "last_reset": "2026-10-05T01:43:27.857710"
+          },
+          "request_id": "208ba6154c5947c5b9bf190a21a6051a",
+          "job_id": "cc8715353d9541a2aa9f6b690de7862a",
+          "status": "completed"
+        }
+      }
     }
   ]
 }
