@@ -28,5 +28,10 @@
     "date": "2026-10-13",
     "topic": "Claude AI's accidental police tip",
     "title": "Anthropic's Claude AI submitted false murder tip to Philadelphia police"
+  },
+  {
+    "date": "2026-10-13",
+    "topic": "AI models can hide arbitrary capabilities",
+    "title": "AI models can provably hide arbitrary capabilities"
   }
 ]

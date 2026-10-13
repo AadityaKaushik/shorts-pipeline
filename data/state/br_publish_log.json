@@ -1,0 +1,21 @@
+{
+  "posts": [
+    {
+      "date": "2026-10-13",
+      "time": "2026-10-13T11:06:13",
+      "provider": "upload_post",
+      "job": "2026-10-13_ai-models-can-hide-arbitrary-capabilitie",
+      "title": "AI models can hide arbitrary capabilities, researchers warn",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "message": "Upload initiated successfully in background. Your synchronous request was taking too long and has been durably handed off to the upload worker. Check its status with GET /api/uploadposts/status?request_id=4f3d9f9cb5d0407fb6364b7bf7cb4644. Docs: https://docs.upload-post.com/api/upload-status",
+          "request_id": "4f3d9f9cb5d0407fb6364b7bf7cb4644",
+          "total_platforms": 1,
+          "job_id": "1c8e21ef09b94054b6525db01549f4c5"
+        }
+      }
+    }
+  ]
+}
