@@ -75,6 +75,9 @@ jobs:
         run: |
           git config user.name "pipeline-bot"
           git config user.email "pipeline@users.noreply.github.com"
-          git add -f data/state/brainrot_covered.json data/state/br_publish_log.json 2>/dev/null || true
+          git config core.fileMode false
+          for f in data/state/brainrot_covered.json data/state/br_publish_log.json; do
+            [ -f "$f" ] && git add -f "$f"
+          done
           git diff --cached --quiet || git commit -m "state: trevor $(date -u +%F)"
-          git pull --rebase && git push
+          git pull --rebase --autostash && git push

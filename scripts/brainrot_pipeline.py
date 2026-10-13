@@ -80,7 +80,8 @@ def sanitize(text):
         text = text.replace(a, b)
     text = re.sub("[" + re.escape("\"`()[]{}*_#@<>|~^") + "]", "", text)
     text = text.encode("ascii", "ignore").decode()  # captions + TTS are ASCII
-    return re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+", " ", text).strip()
+    return text[:1].upper() + text[1:]
 
 
 def slugify(title):
