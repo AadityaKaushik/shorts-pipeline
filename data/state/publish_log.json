@@ -171,6 +171,49 @@
           "status": "completed"
         }
       }
+    },
+    {
+      "date": "2026-10-13",
+      "time": "2026-10-13T03:57:24",
+      "provider": "upload_post",
+      "folder": "2026-10-12_capacitor-power-supply-smoothing",
+      "title": "How Capacitor Power Supply Smoothing Stops Screen Flicker",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "results": {
+            "youtube": {
+              "success": true,
+              "post_id": "I2VaUKXkH0g",
+              "url": "https://www.youtube.com/watch?v=I2VaUKXkH0g",
+              "youtube_upload_status": "uploaded",
+              "youtube_processing_status": "processing",
+              "video_was_transcoded": false,
+              "changes": [],
+              "prevalidation_metadata": {
+                "width": 1080,
+                "height": 1920,
+                "fps": 30.0,
+                "duration": 81.767,
+                "container": "mov,mp4,m4a,3gp,3g2,mj2",
+                "video_codec": "h264",
+                "audio_codec": "aac"
+              },
+              "status": "completed",
+              "attempts": 1
+            }
+          },
+          "usage": {
+            "count": 5,
+            "limit": 10,
+            "last_reset": "2026-10-05T01:43:27.857710"
+          },
+          "request_id": "40ba5ab1cead4a1b8f8e76aa44d379ad",
+          "job_id": "f30d4fa6928e4cc5a4867963b7919fc5",
+          "status": "completed"
+        }
+      }
     }
   ]
 }
