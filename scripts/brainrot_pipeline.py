@@ -19,8 +19,10 @@ import brainrot_render
 
 p.MODELS["br_pick"] = "groq:openai/gpt-oss-120b"
 p.MODELS["br_script"] = "groq:openai/gpt-oss-120b"
+p.MODELS["br_check"] = "groq:qwen/qwen3.8-27b"   # different family from writer
 p.FALLBACK_MODELS["br_pick"] = "groq:qwen/qwen3.8-27b"
 p.FALLBACK_MODELS["br_script"] = "groq:qwen/qwen3.8-27b"
+p.FALLBACK_MODELS["br_check"] = "groq:openai/gpt-oss-120b"
 
 STATE = ROOT / "data" / "state" / "brainrot_covered.json"
 
@@ -113,33 +115,57 @@ def run(dry=False):
     print(f"   when={when!r}")
 
     print("== writing script")
-    prompt = p.fill(
+    source_json = json.dumps(src or {"mode": "evergreen"}, indent=1)
+    base_prompt = p.fill(
         "brainrot_script",
         MODE=mode,
         TOPIC=str(pick.get("topic", "")),
         ANGLE=str(pick.get("angle", "")),
         WHEN=when,
-        SOURCE_JSON=json.dumps(src or {"mode": "evergreen"}, indent=1))
-    for attempt in range(3):
-        meta = p.json_step("br_script", prompt)
-        hook = sanitize(str(meta.get("hook", "")))
-        body = sanitize(str(meta.get("body", "")))
-        kicker = sanitize(str(meta.get("kicker", "")))
-        script = " ".join(x for x in [hook, INTRO, body, CTA, kicker] if x)
-        n_words = len(script.split())
-        problem = None
-        if not hook or not body:
-            problem = f"reply missing hook/body keys: {sorted(meta)}"
-        elif when and when.lower() not in body.lower():
-            problem = f"body is missing the required date phrase {when!r}"
-        elif not 90 <= n_words <= 175:
-            problem = f"assembled script is {n_words} words (need 90-175)"
-        if problem is None:
+        SOURCE_JSON=source_json)
+
+    corrections = ""
+    for round_no in range(3):
+        prompt = base_prompt + corrections
+        for attempt in range(3):
+            meta = p.json_step("br_script", prompt)
+            hook = sanitize(str(meta.get("hook", "")))
+            body = sanitize(str(meta.get("body", "")))
+            kicker = sanitize(str(meta.get("kicker", "")))
+            script = " ".join(x for x in [hook, INTRO, body, CTA, kicker] if x)
+            n_words = len(script.split())
+            problem = None
+            if not hook or not body:
+                problem = f"reply missing hook/body keys: {sorted(meta)}"
+            elif when and when.lower() not in body.lower():
+                problem = f"body is missing the required date phrase {when!r}"
+            elif not 90 <= n_words <= 175:
+                problem = f"assembled script is {n_words} words (need 90-175)"
+            if problem is None:
+                break
+            print(f"   retry {attempt + 1}: {problem}")
+        else:
+            raise RuntimeError(f"script kept failing checks: {problem}")
+        print(f"   {n_words} words: {hook[:70]}...")
+
+        if mode != "news":
+            break  # evergreen has no source to check against
+        print("== factcheck")
+        check = p.json_step("br_check", p.fill(
+            "brainrot_check", SOURCE_JSON=source_json, WHEN=when,
+            HOOK=hook, BODY=body, KICKER=kicker))
+        if check.get("ok"):
+            print("   ok")
             break
-        print(f"   retry {attempt + 1}: {problem}")
+        problems = [str(x) for x in check.get("problems", [])][:6]
+        for pr in problems:
+            print(f"   flagged: {pr[:110]}")
+        corrections = ("\n\n## Corrections required\nA factchecker rejected "
+                       "the previous draft for these reasons — fix every one "
+                       "while keeping the same structure and humour:\n- "
+                       + "\n- ".join(problems))
     else:
-        raise RuntimeError(f"script kept failing checks: {problem}")
-    print(f"   {n_words} words: {hook[:70]}...")
+        raise RuntimeError("factcheck kept rejecting the script")
 
     today = datetime.date.today().isoformat()
     job_id = f"{today}_{slugify(meta['title'])}"
