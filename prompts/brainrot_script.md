@@ -25,17 +25,22 @@ Source material (this is ALL you factually know — never invent beyond it):
    fact, stated plainly. Never open with "Imagine", "So", "Did you know", or a
    question. Open with the thing itself: "Hackers just defrosted every
    supermarket fridge in Denmark."
-2. body: 65 to 100 words telling the story SO ANYONE CAN FOLLOW IT. Assume the
-   viewer is smart but NOT a developer: whenever a technical thing appears
-   (a daemon, a CLI, an exploit, a model release), spend a short plain-words
-   sentence on what it actually means for a normal person ("a program that
-   quietly keeps running in the background") before joking about it. Prefer
-   everyday words over insider terms; never use a term the body does not
-   explain. If "When it happened" above is non-empty, weave that EXACT phrase
-   naturally into the body (usually the first sentence, e.g. "Just yesterday,
-   attackers flipped..."). If it is empty, do not mention when it happened at
-   all — no dates, no "recently", no "this week". The body must not repeat the
-   hook sentence.
+2. body: 65 to 100 words telling the story. The viewer is tech-curious — NEVER
+   define everyday terms like AI, code, app, or hackers; that is patronising.
+   Only when a genuinely obscure concept is load-bearing (a daemon, a supply
+   chain attack, quantization) give it a quick plain-words gloss in passing —
+   a phrase, not a lecture. Never recite part numbers, chip names, or spec
+   strings from the source — keep at most ONE impressive number and translate
+   everything else into what it means for the viewer. If "When it happened" above is non-empty, weave
+   that EXACT phrase naturally into the body (usually the first sentence,
+   e.g. "Just yesterday, attackers flipped..."). If it is empty, do not
+   mention when it happened at all — no dates, no "recently", no "this week".
+   The body must not repeat the hook sentence.
+2b. HUMOUR LIVES IN THE BODY, not just the kicker: weave in 2 or 3 funny
+   beats — a sarcastic aside, a dry comparison, calling out the absurdity —
+   spread across the body, never two in a row, and never at the cost of a
+   fact. Between the jokes, play it straight; the contrast is what makes it
+   land. Punching up at companies and situations is fine; never at victims.
 3. kicker: ONE short dry closing line, max 12 words — a deadpan conclusion or
    sign-off like "Anyway, back to my unsaved work." No like/subscribe talk.
 4. Short punchy sentences. One idea each. Spoken English — contractions fine,

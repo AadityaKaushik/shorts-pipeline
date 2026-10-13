@@ -122,13 +122,15 @@ def run(dry=False):
         SOURCE_JSON=json.dumps(src or {"mode": "evergreen"}, indent=1))
     for attempt in range(3):
         meta = p.json_step("br_script", prompt)
-        hook = sanitize(meta["hook"])
-        body = sanitize(meta["body"])
-        kicker = sanitize(meta.get("kicker", ""))
+        hook = sanitize(str(meta.get("hook", "")))
+        body = sanitize(str(meta.get("body", "")))
+        kicker = sanitize(str(meta.get("kicker", "")))
         script = " ".join(x for x in [hook, INTRO, body, CTA, kicker] if x)
         n_words = len(script.split())
         problem = None
-        if when and when.lower() not in body.lower():
+        if not hook or not body:
+            problem = f"reply missing hook/body keys: {sorted(meta)}"
+        elif when and when.lower() not in body.lower():
             problem = f"body is missing the required date phrase {when!r}"
         elif not 90 <= n_words <= 175:
             problem = f"assembled script is {n_words} words (need 90-175)"
