@@ -25,10 +25,8 @@ p.FALLBACK_MODELS["br_script"] = "groq:qwen/qwen3.8-27b"
 STATE = ROOT / "data" / "state" / "brainrot_covered.json"
 
 # Fixed persona lines — injected verbatim so the wording can never drift.
-INTRO = ("Hey guys, it's Trevor and I'm here again in your feed to bring you "
-         "your latest AI and Tech briefing.")
-CTA = ("Wanna hear more AI or tech news and learn more concepts? "
-       "Like this video and subscribe to The Compute Club.")
+INTRO = "Hey guys, it's Trevor, back with your daily AI and tech briefing."
+CTA = "Wanna hear more tech news? Like and subscribe to The Compute Club."
 
 
 def _ordinal(n):
