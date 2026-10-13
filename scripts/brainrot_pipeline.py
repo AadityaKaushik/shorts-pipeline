@@ -28,7 +28,7 @@ STATE = ROOT / "data" / "state" / "brainrot_covered.json"
 
 # Fixed persona lines — injected verbatim so the wording can never drift.
 INTRO = "Hey guys, it's Trevor, back with your daily AI and tech briefing."
-CTA = "Wanna hear more tech news? Like and subscribe to The Compute Club."
+CTA = f"Wanna hear more tech news? Like and follow {brainrot_render.HANDLE_SPOKEN}."
 
 
 def _ordinal(n):

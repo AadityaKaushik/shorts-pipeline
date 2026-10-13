@@ -28,12 +28,18 @@ MASCOT_DIR = ROOT / "assets" / "mascot_trevor"
 # Pose order = narrative order: hook, intro, body x3, subscribe+kicker.
 # Matched by filename substring, so the files can be renamed freely otherwise.
 POSES = ["Shrugging", "Waving", "Pointing", "Idea", "Thoughtful", "Thumbs-Up"]
-# Mascot: 40% of frame height, bottom-left. Source PNGs carry ~18% transparent
-# margin on the left, hence the negative x. Captions sit at y~610-670, the
-# mascot's hair starts ~10px below MASCOT_Y, so they never touch.
-MASCOT_H = 512
-MASCOT_X = -40
-MASCOT_Y = 778
+# Mascot: 55% of frame height, bottom-left. Source PNGs carry ~18% transparent
+# margin on the left, hence the negative x. Captions are top-anchored at
+# CAPTION_TOP (text spans ~420-500); the mascot's hair starts ~10px below
+# MASCOT_Y (~597), so they never touch.
+MASCOT_H = 704
+MASCOT_X = -60
+MASCOT_Y = 1280 - MASCOT_H + 10
+CAPTION_TOP = 420
+
+# The account handle: spoken as words, captioned as the exact searchable handle.
+HANDLE_SPOKEN = "Daily Trevor dot AI"
+HANDLE_SHOWN = "@daily_trevor.ai"
 POP_PX, POP_S = 60, 0.18
 BOB_PX, BOB_HZ = 4, 1.4
 
@@ -50,7 +56,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Brain,Archivo Black,68,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,6,2,5,20,20,0,1
+Style: Brain,Archivo Black,68,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,6,2,8,20,20,{caption_top},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -127,8 +133,24 @@ def _ts(t):
     return f"{int(h)}:{int(m):02}:{s:05.2f}"
 
 
+def show_handle(aligned):
+    """Merge the spoken handle words into one caption word showing the real handle."""
+    spoken = [_norm(w) for w in HANDLE_SPOKEN.split()]
+    n, out, i = len(spoken), [], 0
+    while i < len(aligned):
+        window = aligned[i:i + n]
+        if len(window) == n and [_norm(w) for w, _, _ in window] == spoken:
+            tail = re.sub(r"^.*?([.!?,]*)$", r"\1", window[-1][0])
+            out.append((HANDLE_SHOWN + tail, window[0][1], window[-1][2]))
+            i += n
+        else:
+            out.append(aligned[i])
+            i += 1
+    return out
+
+
 def build_ass(chunks, total):
-    lines = [ASS_HEADER]
+    lines = [ASS_HEADER.replace("{caption_top}", str(CAPTION_TOP))]
     for i, ch in enumerate(chunks):
         text = " ".join(w for w, _, _ in ch).upper()
         text = re.sub(r"[{}\\]", "", text)
@@ -136,8 +158,11 @@ def build_ass(chunks, total):
         end = chunks[i + 1][0][1] if i + 1 < len(chunks) else min(ch[-1][2] + 0.6, total)
         if end - start < 0.15:
             end = start + 0.15
+        # chunks are capped at MAX_CHUNK_CHARS, except a single long word (the
+        # handle, a URL) — shrink those so a no-wrap line never runs off-frame
+        size = "" if len(text) <= MAX_CHUNK_CHARS else f"\\fs{68 * MAX_CHUNK_CHARS // len(text)}"
         lines.append(f"Dialogue: 0,{_ts(start)},{_ts(end)},Brain,,0,0,0,,"
-                     f"{{\\fad(60,0)}}{text}")
+                     f"{{\\fad(60,0){size}}}{text}")
     return "\n".join(lines) + "\n"
 
 
@@ -179,8 +204,8 @@ def prepare_mascot():
         matches = [p for p in MASCOT_DIR.glob("*.png") if key.lower() in p.name.lower()]
         if len(matches) != 1:
             raise RuntimeError(f"mascot pose {key!r}: expected 1 file, found {len(matches)}")
-        dst_host = ROOT / "data" / "brainrot" / "_mascot" / f"pose{i}.png"
-        dst_ct = f"/files/brainrot/_mascot/pose{i}.png"
+        dst_host = ROOT / "data" / "brainrot" / "_mascot" / f"pose{i}_{MASCOT_H}.png"
+        dst_ct = f"/files/brainrot/_mascot/pose{i}_{MASCOT_H}.png"
         if not dst_host.exists():
             _exec(["ffmpeg", "-y", "-v", "error", "-i", f"/assets/mascot_trevor/{matches[0].name}",
                    "-vf", f"scale=-1:{MASCOT_H}:flags=lanczos", dst_ct])
@@ -228,7 +253,7 @@ def render(script_text, job_id, seed=None, sections=None):
     wav, words, duration = tts(script_text)
     (out_host / "voice.wav").write_bytes(wav)
     aligned = align(script_text, words)
-    chunks = chunk(aligned)
+    chunks = chunk(show_handle(aligned))
     (out_host / "caps.ass").write_text(build_ass(chunks, duration),
                                        encoding="utf-8")
 
