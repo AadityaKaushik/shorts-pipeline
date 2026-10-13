@@ -24,6 +24,42 @@ p.FALLBACK_MODELS["br_script"] = "groq:qwen/qwen3.8-27b"
 
 STATE = ROOT / "data" / "state" / "brainrot_covered.json"
 
+# Fixed persona lines — injected verbatim so the wording can never drift.
+INTRO = ("Hey guys, it's Trevor and I'm here again in your feed to bring you "
+         "your latest AI and Tech briefing.")
+CTA = ("Wanna hear more AI or tech news and learn more concepts? "
+       "Like this video and subscribe to The Compute Club.")
+
+
+def _ordinal(n):
+    if 10 <= n % 100 <= 20:
+        return f"{n}th"
+    return f"{n}{ {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th') }"
+
+
+def date_phrase(published):
+    """True-by-construction relative phrase for the story date; '' if unknown."""
+    if not published:
+        return ""
+    try:
+        pub = datetime.date.fromisoformat(published[:10])
+    except ValueError:
+        return ""
+    days = (datetime.date.today() - pub).days
+    if days < 0:
+        return ""
+    if days == 0:
+        return "earlier today"
+    if days == 1:
+        return "just yesterday"
+    if days <= 4:
+        return "a few days ago"
+    if days <= 10:
+        return "last week"
+    if days <= 180:
+        return f"on {_ordinal(pub.day)} {pub.strftime('%B')}"
+    return ""
+
 
 def load_covered():
     if STATE.exists():
@@ -75,18 +111,35 @@ def run(dry=False):
             src = {**src, "summary": body}
     print(f"   mode={mode} topic={pick.get('topic', '?')!r}")
 
+    when = date_phrase((src or {}).get("published", "")) if mode == "news" else ""
+    print(f"   when={when!r}")
+
     print("== writing script")
-    meta = p.json_step("br_script", p.fill(
+    prompt = p.fill(
         "brainrot_script",
         MODE=mode,
         TOPIC=str(pick.get("topic", "")),
         ANGLE=str(pick.get("angle", "")),
-        SOURCE_JSON=json.dumps(src or {"mode": "evergreen"}, indent=1)))
-    script = sanitize(meta["script"])
-    n_words = len(script.split())
-    print(f"   {n_words} words: {script[:90]}...")
-    if not 45 <= n_words <= 140:
-        raise RuntimeError(f"script length {n_words} words out of range")
+        WHEN=when,
+        SOURCE_JSON=json.dumps(src or {"mode": "evergreen"}, indent=1))
+    for attempt in range(3):
+        meta = p.json_step("br_script", prompt)
+        hook = sanitize(meta["hook"])
+        body = sanitize(meta["body"])
+        kicker = sanitize(meta.get("kicker", ""))
+        script = " ".join(x for x in [hook, INTRO, body, CTA, kicker] if x)
+        n_words = len(script.split())
+        problem = None
+        if when and when.lower() not in body.lower():
+            problem = f"body is missing the required date phrase {when!r}"
+        elif not 90 <= n_words <= 175:
+            problem = f"assembled script is {n_words} words (need 90-175)"
+        if problem is None:
+            break
+        print(f"   retry {attempt + 1}: {problem}")
+    else:
+        raise RuntimeError(f"script kept failing checks: {problem}")
+    print(f"   {n_words} words: {hook[:70]}...")
 
     today = datetime.date.today().isoformat()
     job_id = f"{today}_{slugify(meta['title'])}"

@@ -3,6 +3,7 @@
 Sources: Hacker News (Algolia API) + TechCrunch / The Verge / Ars Technica RSS.
 Every source failure is non-fatal — we return whatever we got. Stdlib only.
 """
+import email.utils
 import html
 import json
 import re
@@ -42,6 +43,7 @@ def fetch_hn(limit=12):
             "summary": "",  # HN has no summary; title + points carry the signal
             "points": hit.get("points") or 0,
             "url": hit.get("url") or f"https://news.ycombinator.com/item?id={hit.get('objectID')}",
+            "published": (hit.get("created_at") or "")[:10],
         })
     items.sort(key=lambda x: -x["points"])
     return items[:limit]
@@ -56,9 +58,15 @@ def fetch_rss(source, url, limit=8):
         title = _strip_html(item.findtext("title"))
         desc = _strip_html(item.findtext("description"))[:400]
         link = (item.findtext("link") or "").strip()
+        pub = ""
+        try:
+            pub = email.utils.parsedate_to_datetime(
+                item.findtext("pubDate") or "").date().isoformat()
+        except (TypeError, ValueError):
+            pass
         if title:
-            items.append({"source": source, "title": title,
-                          "summary": desc, "points": 0, "url": link})
+            items.append({"source": source, "title": title, "summary": desc,
+                          "points": 0, "url": link, "published": pub})
     # Atom
     if not items:
         for entry in root.iter("{http://www.w3.org/2005/Atom}entry"):
@@ -67,9 +75,11 @@ def fetch_rss(source, url, limit=8):
                                or entry.findtext("atom:content", namespaces=ns) or "")[:400]
             link_el = entry.find("atom:link", ns)
             link = link_el.get("href") if link_el is not None else ""
+            pub = (entry.findtext("atom:published", namespaces=ns)
+                   or entry.findtext("atom:updated", namespaces=ns) or "")[:10]
             if title:
-                items.append({"source": source, "title": title,
-                              "summary": desc, "points": 0, "url": link})
+                items.append({"source": source, "title": title, "summary": desc,
+                              "points": 0, "url": link, "published": pub})
     return items[:limit]
 
 
