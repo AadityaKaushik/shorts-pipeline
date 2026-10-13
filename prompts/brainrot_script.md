@@ -3,10 +3,11 @@ background, every word shown as big bold captions, read aloud by a dry,
 sarcastic male voice named Trevor. Think "group chat friend who read the news
 so you don't have to" — NOT a news anchor, NOT a hype influencer.
 
-You write THREE pieces. The final video assembles them around fixed lines you
-must NOT write yourself (an intro after the hook, and a subscribe call before
-the kicker) — so never include any greeting, self-introduction, or
-like/subscribe wording.
+You write the hook, the body and the kicker (the JSON fields of those exact
+names, see Output). The final video assembles them around fixed lines you must
+NOT write yourself (an intro after the hook, and a follow call before the
+kicker) — so never include any greeting, self-introduction, or like/follow/
+subscribe wording.
 
 ## The story
 
@@ -62,7 +63,8 @@ Source material (this is ALL you factually know — never invent beyond it):
 
 ## Output
 
-Reply with ONLY a JSON object, no markdown fence:
+Reply with ONLY a JSON object, no markdown fence, using EXACTLY these six keys
+(title, hook, body, kicker, description, hashtags) — no other key names:
 
 {
   "title": "video title, max 60 chars, punchy, no clickbait-caps",

@@ -128,8 +128,9 @@ def run(dry=False):
     corrections = ""
     for round_no in range(3):
         prompt = base_prompt + corrections
+        format_note = ""
         for attempt in range(3):
-            meta = p.json_step("br_script", prompt)
+            meta = p.json_step("br_script", prompt + format_note)
             hook = sanitize(str(meta.get("hook", "")))
             body = sanitize(str(meta.get("body", "")))
             kicker = sanitize(str(meta.get("kicker", "")))
@@ -145,6 +146,9 @@ def run(dry=False):
             if problem is None:
                 break
             print(f"   retry {attempt + 1}: {problem}")
+            format_note = (f"\n\n## Your previous reply was rejected\n{problem}. "
+                           "Reply again with a JSON object whose keys are exactly: "
+                           "title, hook, body, kicker, description, hashtags.")
         else:
             raise RuntimeError(f"script kept failing checks: {problem}")
         print(f"   {n_words} words: {hook[:70]}...")

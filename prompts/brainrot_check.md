@@ -30,7 +30,7 @@ Kicker: {{KICKER}}
 
 Do NOT flag: obvious jokes and hyperbole a viewer cannot mistake for fact
 ("my router's new hobby", "milk filed a complaint"), sarcasm, opinions,
-simplified-but-correct explanations, or the fixed intro/subscribe lines.
+simplified-but-correct explanations, or the fixed intro and follow lines.
 
 ## Output
 
