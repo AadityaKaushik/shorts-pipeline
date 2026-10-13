@@ -64,6 +64,11 @@
       "topic": "On-Off Keying Modulation",
       "category": "communication systems",
       "date": "2026-10-12"
+    },
+    {
+      "topic": "Rotation Matrix",
+      "category": "linear algebra",
+      "date": "2026-10-13"
     }
   ]
 }
