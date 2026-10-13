@@ -282,7 +282,8 @@ def render(script_text, job_id, seed=None, sections=None):
            "-filter_complex", ";".join(graph),
            "-map", "[out]", "-map", "1:a",
            "-c:v", "libx264", "-preset", "medium", "-crf", "22",
-           "-c:a", "aac", "-b:a", "128k",
+           # Instagram wants 44.1/48 kHz stereo; Kokoro emits 24 kHz mono
+           "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2",
            "-t", f"{total:.2f}", "-movflags", "+faststart",
            f"{out_ct}/final.mp4"])
     for i, s, e in schedule:  # one still per pose, mid-pose, for review
