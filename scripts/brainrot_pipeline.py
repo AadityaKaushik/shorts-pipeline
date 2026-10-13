@@ -183,7 +183,11 @@ def run(dry=False):
         return job_id
 
     print("== rendering")
-    r = brainrot_render.render(script, job_id)
+    sections = [("hook", len(hook.split())), ("intro", len(INTRO.split())),
+                ("body", len(body.split())), ("cta", len(CTA.split())),
+                ("kicker", len(kicker.split()))]
+    r = brainrot_render.render(script, job_id, sections=sections)
+    print(f"   poses: {r['poses']}")
     print(f"   {r['duration']}s, {r['words']} words, {r['chunks']} caption chunks")
 
     covered.append({"date": today, "topic": pick.get("topic", ""),

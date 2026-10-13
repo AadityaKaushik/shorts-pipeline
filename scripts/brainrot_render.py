@@ -12,6 +12,7 @@ map to /files/... in the container; assets/ maps to /assets/.
 import base64
 import difflib
 import json
+import os
 import random
 import re
 import subprocess
@@ -22,6 +23,19 @@ ROOT = Path(__file__).resolve().parent.parent
 TTS_URL = "http://localhost:8001/speak"
 VOICE = "am_adam"
 GAMEPLAY_DIR = ROOT / "assets" / "gameplay"
+MASCOT_DIR = ROOT / "assets" / "mascot_trevor"
+
+# Pose order = narrative order: hook, intro, body x3, subscribe+kicker.
+# Matched by filename substring, so the files can be renamed freely otherwise.
+POSES = ["Shrugging", "Waving", "Pointing", "Idea", "Thoughtful", "Thumbs-Up"]
+# Mascot: 40% of frame height, bottom-left. Source PNGs carry ~18% transparent
+# margin on the left, hence the negative x. Captions sit at y~610-670, the
+# mascot's hair starts ~10px below MASCOT_Y, so they never touch.
+MASCOT_H = 512
+MASCOT_X = -40
+MASCOT_Y = 778
+POP_PX, POP_S = 60, 0.18
+BOB_PX, BOB_HZ = 4, 1.4
 
 # caption chunking: a chunk is what's on screen at once
 MAX_CHUNK_CHARS = 13
@@ -150,9 +164,65 @@ def pick_gameplay(need_s, seed=None):
     return clip.name, round(start, 2)
 
 
-def render(script_text, job_id, seed=None):
-    out_host = ROOT / "data" / "brainrot" / job_id
-    out_host.mkdir(parents=True, exist_ok=True)
+def _shared_dir(path):
+    """Host-created dirs must be writable by the container's (different) uid."""
+    path.mkdir(parents=True, exist_ok=True)
+    os.chmod(path, 0o777)
+    return path
+
+
+def prepare_mascot():
+    """Scale the six poses once to MASCOT_H; returns container paths in POSES order."""
+    _shared_dir(ROOT / "data" / "brainrot" / "_mascot")
+    out = []
+    for i, key in enumerate(POSES):
+        matches = [p for p in MASCOT_DIR.glob("*.png") if key.lower() in p.name.lower()]
+        if len(matches) != 1:
+            raise RuntimeError(f"mascot pose {key!r}: expected 1 file, found {len(matches)}")
+        dst_host = ROOT / "data" / "brainrot" / "_mascot" / f"pose{i}.png"
+        dst_ct = f"/files/brainrot/_mascot/pose{i}.png"
+        if not dst_host.exists():
+            _exec(["ffmpeg", "-y", "-v", "error", "-i", f"/assets/mascot_trevor/{matches[0].name}",
+                   "-vf", f"scale=-1:{MASCOT_H}:flags=lanczos", dst_ct])
+        out.append(dst_ct)
+    return out
+
+
+def _split_body(words, n_parts=3):
+    """Split a word list into n parts, snapping cuts to nearby sentence ends."""
+    n = len(words)
+    cuts = []
+    for k in range(1, n_parts):
+        target = round(n * k / n_parts)
+        ends = [i + 1 for i, w in enumerate(words) if w[-1:] in ".!?" and 0 < i + 1 < n]
+        near = [e for e in ends if abs(e - target) <= 6 and (not cuts or e - cuts[-1] >= 3)]
+        cuts.append(min(near, key=lambda e: abs(e - target)) if near else target)
+    return cuts
+
+
+def pose_schedule(aligned, sections, total):
+    """[(pose_index, start, end)] — one pose per narrative beat, all six in order.
+
+    sections: [("hook", n), ("intro", n), ("body", n), ("cta", n), ("kicker", n)]
+    word counts that sum to len(aligned). Without sections, six equal slices."""
+    if not sections:
+        starts = [total * i / 6 for i in range(6)]
+    else:
+        idx, first = 0, {}
+        for name, n in sections:
+            first[name] = idx
+            idx += n
+        b0, bn = first["body"], dict(sections)["body"]
+        body_words = [w for w, _, _ in aligned[b0:b0 + bn]]
+        c1, c2 = _split_body(body_words)
+        word_starts = [first["hook"], first["intro"], b0, b0 + c1, b0 + c2, first["cta"]]
+        starts = [0.0] + [aligned[i][1] for i in word_starts[1:]]
+    ends = starts[1:] + [total]
+    return [(i, s, e) for i, (s, e) in enumerate(zip(starts, ends))]
+
+
+def render(script_text, job_id, seed=None, sections=None):
+    out_host = _shared_dir(ROOT / "data" / "brainrot" / job_id)
     out_ct = f"/files/brainrot/{job_id}"
 
     wav, words, duration = tts(script_text)
@@ -164,20 +234,39 @@ def render(script_text, job_id, seed=None):
 
     total = duration + 0.7  # breathing room after the last word
     clip_name, start = pick_gameplay(total, seed=seed)
-    vf = ("crop='min(iw,ih*9/16)':'min(ih,iw*16/9)',scale=720:1280,setsar=1,"
-          f"fps=30,ass={out_ct}/caps.ass:fontsdir=/assets/fonts")
-    _exec(["ffmpeg", "-y", "-v", "error",
-           "-ss", str(start), "-t", f"{total:.2f}",
-           "-i", f"/assets/gameplay/{clip_name}",
-           "-i", f"{out_ct}/voice.wav",
-           "-filter:v", vf,
-           "-map", "0:v", "-map", "1:a",
+    poses = prepare_mascot()
+    schedule = pose_schedule(aligned, sections, total)
+
+    inputs = ["-ss", str(start), "-t", f"{total:.2f}",
+              "-i", f"/assets/gameplay/{clip_name}",
+              "-i", f"{out_ct}/voice.wav"]
+    for p in poses:
+        inputs += ["-framerate", "30", "-loop", "1", "-i", p]
+
+    graph = [("[0:v]crop='min(iw,ih*9/16)':'min(ih,iw*16/9)',"
+              "scale=720:1280,setsar=1,fps=30[v0]")]
+    for k, (i, s, e) in enumerate(schedule):
+        # pop: start POP_PX lower and ease up over POP_S; bob: gentle sway
+        y = (f"{MASCOT_Y}+{BOB_PX}*sin(2*PI*{BOB_HZ}*t)"
+             f"+{POP_PX}*pow(max(0\\,1-(t-{s:.3f})/{POP_S})\\,2)")
+        graph.append(f"[v{k}][{i + 2}:v]overlay=x={MASCOT_X}:y='{y}'"
+                     f":enable='between(t\\,{s:.3f}\\,{e:.3f})'[v{k + 1}]")
+    graph.append(f"[v{len(schedule)}]ass={out_ct}/caps.ass:fontsdir=/assets/fonts[out]")
+
+    _exec(["ffmpeg", "-y", "-v", "error", *inputs,
+           "-filter_complex", ";".join(graph),
+           "-map", "[out]", "-map", "1:a",
            "-c:v", "libx264", "-preset", "medium", "-crf", "22",
            "-c:a", "aac", "-b:a", "128k",
            "-t", f"{total:.2f}", "-movflags", "+faststart",
            f"{out_ct}/final.mp4"])
+    for i, s, e in schedule:  # one still per pose, mid-pose, for review
+        _exec(["ffmpeg", "-y", "-v", "error", "-ss", f"{(s + e) / 2:.2f}",
+               "-i", f"{out_ct}/final.mp4", "-frames:v", "1", "-q:v", "4",
+               f"{out_ct}/preview_{i}.jpg"])
     return {"ok": True, "duration": round(total, 2), "clip": clip_name,
             "clip_start": start, "words": len(aligned), "chunks": len(chunks),
+            "poses": [(POSES[i], round(s, 2)) for i, s, _ in schedule],
             "path": str(out_host / "final.mp4")}
 
 

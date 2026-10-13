@@ -63,7 +63,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: trevor-video
-          path: data/brainrot/*/final.mp4
+          path: |
+            data/brainrot/*/final.mp4
+            data/brainrot/*/preview_*.jpg
+            data/brainrot/*/metadata.json
           retention-days: 7
           if-no-files-found: ignore
 
