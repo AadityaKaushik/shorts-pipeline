@@ -10,8 +10,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from scripts.verify_keys import load_env
 
 env = load_env()
-key = env.get("UPLOAD_POST_API_KEY", "")
-want = env.get("UPLOAD_POST_PROFILE", "")
+SUFFIX = sys.argv[1] if len(sys.argv) > 1 else ""
+key = env.get("UPLOAD_POST_API_KEY" + SUFFIX, "")
+want = env.get("UPLOAD_POST_PROFILE" + SUFFIX, "")
 
 for path in ["/api/uploadposts/users", "/api/uploadposts/users/list", "/api/users"]:
     req = urllib.request.Request(

@@ -8,9 +8,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from scripts.verify_keys import load_env
 
-key = load_env().get("BUNDLE_SOCIAL_API_KEY", "")
+key_name = sys.argv[1] if len(sys.argv) > 1 else "BUNDLE_SOCIAL_API_KEY"
+key = load_env().get(key_name, "")
 if not key:
-    print("BUNDLE_SOCIAL_API_KEY missing from .env")
+    print(f"{key_name} missing from .env")
     sys.exit(1)
 
 for path in ["/api/v1/organization", "/api/v1/team", "/api/v1/team/list"]:

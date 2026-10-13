@@ -189,6 +189,7 @@ def run(dry=False):
     covered.append({"date": today, "topic": pick.get("topic", ""),
                     "title": (src or {}).get("title", meta["title"])})
     save_covered(covered)
+    (ROOT / "data" / "brainrot" / "latest.txt").write_text(job_id)
     print(f"DONE {job_id}")
     return job_id
 
