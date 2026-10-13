@@ -89,8 +89,12 @@ def fetch_article(url, max_chars=1200):
         page = _get(url, timeout=15).decode("utf-8", errors="ignore")
         page = re.sub(r"(?is)<(script|style|nav|header|footer)[^>]*>.*?</\1>",
                       " ", page)
+        meta = re.findall(r'(?is)<meta[^>]+(?:name|property)=["\'](?:og:)?description["\']'
+                          r'[^>]+content=["\'](.*?)["\']', page)
+        quotes = re.findall(r"(?is)<blockquote[^>]*>(.*?)</blockquote>", page)
         paras = re.findall(r"(?is)<p[^>]*>(.*?)</p>", page)
-        text = " ".join(_strip_html(p) for p in paras)
+        parts = [_strip_html(x) for x in meta[:1] + quotes[:2] + paras]
+        text = " ".join(x for x in parts if len(x) > 40)
         return text[:max_chars]
     except Exception as e:
         print(f"  [news] article fetch failed: {type(e).__name__}")

@@ -88,33 +88,90 @@ def slugify(title):
     return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:40]
 
 
+class StoryRejected(Exception):
+    """This story can't be told well; the run should move on to another one."""
+
+
+MIN_SOURCE_CHARS = 200   # below this the factchecker has nothing to verify against
+MAX_STORIES = 3
+
+
 def run(dry=False):
     print("== fetching headlines")
     headlines = news_fetch.fetch_headlines()
     print(f"   {len(headlines)} headlines")
     covered = load_covered()
 
-    print("== picking story")
-    pick = p.json_step("br_pick", p.fill(
-        "brainrot_pick",
-        HEADLINES_JSON=json.dumps(headlines, indent=1),
-        COVERED=json.dumps([c["topic"] for c in covered[-30:]])))
-    mode = pick.get("mode", "evergreen")
-    src = None
-    if mode == "news":
+    rejected = set()
+    for story_try in range(MAX_STORIES):
+        candidates = [h for h in headlines if h["id"] not in rejected]
+        print(f"== picking story (attempt {story_try + 1})")
+        pick = p.json_step("br_pick", p.fill(
+            "brainrot_pick",
+            HEADLINES_JSON=json.dumps(candidates, indent=1),
+            COVERED=json.dumps([c["topic"] for c in covered[-30:]])))
+        mode = pick.get("mode", "evergreen")
+        src = None
+        if mode == "news":
+            by_id = {h["id"]: h for h in candidates}
+            try:
+                src = by_id[int(pick["id"])]
+            except (KeyError, TypeError, ValueError):
+                mode = "evergreen"
+        if src is not None and len(src.get("summary", "")) < MIN_SOURCE_CHARS and src.get("url"):
+            body = news_fetch.fetch_article(src["url"])
+            if len(body) > len(src.get("summary", "")):
+                src = {**src, "summary": body}
+        print(f"   mode={mode} topic={pick.get('topic', '?')!r}")
         try:
-            src = headlines[int(pick["id"])]
-        except (KeyError, TypeError, ValueError, IndexError):
-            mode = "evergreen"
-    if src is not None and len(src.get("summary", "")) < 120 and src.get("url"):
-        body = news_fetch.fetch_article(src["url"])
-        if body:
-            src = {**src, "summary": body}
-    print(f"   mode={mode} topic={pick.get('topic', '?')!r}")
+            if src is not None and len(src.get("summary", "")) < MIN_SOURCE_CHARS:
+                raise StoryRejected(f"source too thin ({len(src.get('summary', ''))} chars)")
+            when = date_phrase((src or {}).get("published", "")) if mode == "news" else ""
+            print(f"   when={when!r}")
+            meta, hook, body, kicker, script = write_script(pick, src, mode, when)
+            break
+        except StoryRejected as e:
+            print(f"   story dropped: {e}")
+            if src is None:
+                raise RuntimeError(f"evergreen script failed: {e}")
+            rejected.add(src["id"])
+    else:
+        raise RuntimeError(f"no usable story after {MAX_STORIES} attempts")
 
-    when = date_phrase((src or {}).get("published", "")) if mode == "news" else ""
-    print(f"   when={when!r}")
+    today = datetime.date.today().isoformat()
+    job_id = f"{today}_{slugify(meta['title'])}"
+    out = ROOT / "data" / "brainrot" / job_id
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "metadata.json").write_text(json.dumps({
+        "title": meta["title"], "description": meta.get("description", ""),
+        "hashtags": meta.get("hashtags", []), "script": script,
+        "mode": mode, "topic": pick.get("topic"),
+        "source": (src or {}).get("url", ""), "date": today,
+    }, indent=2), encoding="utf-8")
 
+    if dry:
+        print("== dry run, stopping before render")
+        return job_id
+
+    print("== rendering")
+    sections = [("hook", len(hook.split())), ("intro", len(INTRO.split())),
+                ("body", len(body.split())), ("cta", len(CTA.split())),
+                ("kicker", len(kicker.split()))]
+    r = brainrot_render.render(script, job_id, sections=sections)
+    print(f"   poses: {r['poses']}")
+    print(f"   {r['duration']}s, {r['words']} words, {r['chunks']} caption chunks")
+
+    covered.append({"date": today, "topic": pick.get("topic", ""),
+                    "title": (src or {}).get("title", meta["title"])})
+    save_covered(covered)
+    (ROOT / "data" / "brainrot" / "latest.txt").write_text(job_id)
+    print(f"DONE {job_id}")
+    return job_id
+
+
+def write_script(pick, src, mode, when):
+    """Write + factcheck. Returns (meta, hook, body, kicker, script) or raises
+    StoryRejected when the story can't pass."""
     print("== writing script")
     source_json = json.dumps(src or {"mode": "evergreen"}, indent=1)
     base_prompt = p.fill(
@@ -150,7 +207,7 @@ def run(dry=False):
                            "Reply again with a JSON object whose keys are exactly: "
                            "title, hook, body, kicker, description, hashtags.")
         else:
-            raise RuntimeError(f"script kept failing checks: {problem}")
+            raise StoryRejected(f"script kept failing checks: {problem}")
         print(f"   {n_words} words: {hook[:70]}...")
 
         if mode != "news":
@@ -170,37 +227,8 @@ def run(dry=False):
                        "while keeping the same structure and humour:\n- "
                        + "\n- ".join(problems))
     else:
-        raise RuntimeError("factcheck kept rejecting the script")
-
-    today = datetime.date.today().isoformat()
-    job_id = f"{today}_{slugify(meta['title'])}"
-    out = ROOT / "data" / "brainrot" / job_id
-    out.mkdir(parents=True, exist_ok=True)
-    (out / "metadata.json").write_text(json.dumps({
-        "title": meta["title"], "description": meta.get("description", ""),
-        "hashtags": meta.get("hashtags", []), "script": script,
-        "mode": mode, "topic": pick.get("topic"),
-        "source": (src or {}).get("url", ""), "date": today,
-    }, indent=2), encoding="utf-8")
-
-    if dry:
-        print("== dry run, stopping before render")
-        return job_id
-
-    print("== rendering")
-    sections = [("hook", len(hook.split())), ("intro", len(INTRO.split())),
-                ("body", len(body.split())), ("cta", len(CTA.split())),
-                ("kicker", len(kicker.split()))]
-    r = brainrot_render.render(script, job_id, sections=sections)
-    print(f"   poses: {r['poses']}")
-    print(f"   {r['duration']}s, {r['words']} words, {r['chunks']} caption chunks")
-
-    covered.append({"date": today, "topic": pick.get("topic", ""),
-                    "title": (src or {}).get("title", meta["title"])})
-    save_covered(covered)
-    (ROOT / "data" / "brainrot" / "latest.txt").write_text(job_id)
-    print(f"DONE {job_id}")
-    return job_id
+        raise StoryRejected("factcheck kept rejecting the script")
+    return meta, hook, body, kicker, script
 
 
 if __name__ == "__main__":
