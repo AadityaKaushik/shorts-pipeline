@@ -169,7 +169,7 @@ function makeCache(color) {
 // running back to front (root, .com, google's server); web server front-centre.
 const NODE_POS = {
   you: [-2.7, 0, 0.9], you2: [-2.6, 0, -1.3], res: [-0.8, 0, 0.0],
-  root: [1.5, 0, -2.0], tld: [2.0, 0, -0.2], auth: [1.6, 0, 1.6], web: [0.4, 0, 2.3],
+  root: [0.7, 0, -2.5], tld: [2.2, 0, -1.0], auth: [1.2, 0, 1.0], web: [-0.9, 0, 2.4],
   cache: [0.15, 0, 0.35],
 };
 const NODE_TOP = { you: 1.0, you2: 1.0, res: 1.62, root: 1.66, tld: 1.62, auth: 1.62, web: 1.62, cache: 0.84 };
@@ -207,7 +207,7 @@ const anchor = (k, extra = 0) => add3(NODE_POS[k], [0, NODE_TOP[k] + extra, 0]);
 // One entry per narration line. Labels: node -> [title, subtitle, colour].
 const BEATS = [
   { comment: '// networking · how DNS works', head: [['Where is ', 'w'], ['google.com', 'cyan'], ['?', 'w']],
-    cam: { p: [-0.3, 6.0, 7.9], t: [-0.3, 0.6, 0.1] },
+    cam: { p: [-0.2, 6.4, 8.2], t: [-0.2, 0.6, 0.0] },
     labels: { you: ['You', 'typing google.com', HEX.cyan] },
     term: ['$', 'dig google.com', HEX.white] },
   { comment: '// computers route by IP address', head: [['Names ', 'w'], ['→ ', 'muted'], ['numbers', 'amber']],
@@ -219,23 +219,23 @@ const BEATS = [
     labels: { you: ['You', 'asking for google.com', HEX.cyan], res: ['DNS Resolver', 'run by your ISP', HEX.cyan] },
     term: ['you', '→ resolver  google.com A?', HEX.cyan] },
   { comment: '// step 2 · root server', head: [['Start at the ', 'w'], ['root', 'violet']],
-    cam: { p: [0.35, 4.8, 4.8], t: [0.35, 0.8, -1.0] },
+    cam: { p: [-0.05, 5.0, 4.6], t: [-0.05, 0.8, -1.25] },
     labels: { res: ['DNS Resolver', 'asking the root', HEX.cyan], root: ['Root server', '1 of 13 named roots', HEX.violet] },
     term: ['resolver', '→ root  google.com A?', HEX.cyan] },
   { comment: '// a referral, not an answer', head: [['Root', 'violet'], [' → ask .com', 'w']],
-    cam: { p: [0.1, 4.6, 5.0], t: [0.3, 0.8, -1.0] },
+    cam: { p: [-0.3, 4.8, 4.8], t: [0.0, 0.8, -1.2] },
     labels: { res: ['DNS Resolver', 'got a referral', HEX.cyan], root: ['Root server', '→ try .com', HEX.violet] },
     term: ['root', '← try .com (a.gtld-servers.net)', HEX.violet] },
   { comment: '// step 3 · top-level domain', head: [['.com', 'violet'], [' points onward', 'w']],
-    cam: { p: [0.6, 4.5, 5.3], t: [0.6, 0.8, -0.1] },
+    cam: { p: [0.7, 4.6, 5.0], t: [0.7, 0.8, -0.5] },
     labels: { res: ['DNS Resolver', 'following referrals', HEX.cyan], tld: ['.com server', '→ try ns1.google.com', HEX.violet] },
     term: ['.com', '← try ns1.google.com', HEX.violet] },
   { comment: '// step 4 · authoritative server', head: [['The ', 'w'], ['answer', 'amber']],
-    cam: { p: [0.4, 4.5, 6.2], t: [0.4, 0.8, 0.8] },
+    cam: { p: [0.2, 4.5, 6.0], t: [0.2, 0.8, 0.5] },
     labels: { res: ['DNS Resolver', 'got the answer', HEX.amber], auth: ['ns1.google.com', 'authoritative', HEX.amber] },
     term: ['ns1', '← A 142.250.183.14', HEX.amber] },
   { comment: '// only now does the request start', head: [['Now ', 'w'], ['connect', 'green']],
-    cam: { p: [-1.1, 4.9, 7.4], t: [-1.1, 0.6, 1.2] },
+    cam: { p: [-1.5, 4.8, 6.9], t: [-1.5, 0.6, 1.1] },
     labels: { you: ['You', '142.250.183.14', HEX.amber], web: ['Google', 'web server', HEX.green] },
     term: ['you', '→ 142.250.183.14:443  connect', HEX.green] },
   { comment: '// time to live (TTL)', head: [['Cache ', 'green'], ['the answer', 'w']],
@@ -243,11 +243,11 @@ const BEATS = [
     labels: { res: ['Resolver cache', 'google.com · TTL {ttl}s', HEX.green] },
     term: ['cache', 'google.com  TTL 300s', HEX.green] },
   { comment: '// next lookup · cache hit', head: [['Instant ', 'green'], ['answer', 'w']],
-    cam: { p: [-1.7, 4.1, 4.4], t: [-1.7, 0.7, -0.65] },
+    cam: { p: [-1.6, 4.2, 4.5], t: [-1.6, 0.7, -0.6] },
     labels: { you2: ['Next user', 'google.com?', HEX.pink], res: ['Resolver cache', 'hit · no root trip', HEX.green] },
     term: ['cache', 'hit → 142.250.183.14  0 hops', HEX.green] },
   { comment: '// DNS in one line', head: [["The internet's ", 'w'], ['phonebook', 'cyan']],
-    cam: { p: [-0.3, 6.3, 8.4], t: [-0.3, 0.6, 0.1] },
+    cam: { p: [-0.2, 6.6, 8.6], t: [-0.2, 0.6, 0.0] },
     labels: {},
     term: [';;', 'names → numbers, in milliseconds', HEX.muted] },
 ];
@@ -266,7 +266,15 @@ const HOPS = [
 // node visibility: [beat it appears in, offset s]; dims: beat -> {node: level}
 const APPEAR = { you: [0, -0.3], res: [0, 0.5], root: [0, 0.9], tld: [0, 1.2], auth: [0, 1.5],
                  web: [7, 1.4], cache: [8, 0.5], you2: [9, 0.0] };
-const DIMS = { 9: { root: 0.22, tld: 0.22, auth: 0.22, web: 0.22 } };
+// spotlight: per beat, nodes not involved dim to 0.25
+const FOCUS = [null, ['you'], ['you', 'res'], ['res', 'root'], ['res', 'root'], ['res', 'tld'],
+  ['res', 'auth'], ['you', 'res', 'web'], ['res', 'cache'], ['you2', 'res', 'cache'], null];
+const DIMS = {};
+FOCUS.forEach((f, i) => {
+  if (!f) return;
+  DIMS[i] = {};
+  for (const k of ['you', 'you2', 'res', 'root', 'tld', 'auth', 'web', 'cache']) if (!f.includes(k)) DIMS[i][k] = 0.25;
+});
 
 let TL;
 const S = i => TL.beats[i].start;
