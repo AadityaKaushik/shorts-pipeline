@@ -16,6 +16,23 @@
           "job_id": "1c8e21ef09b94054b6525db01549f4c5"
         }
       }
+    },
+    {
+      "date": "2026-10-14",
+      "time": "2026-10-14T05:08:28",
+      "provider": "upload_post",
+      "job": "2026-10-14_openai-engineer-arrested-for-bugging-exe",
+      "title": "OpenAI engineer arrested for bugging exec conference room",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "message": "Upload initiated successfully in background. Your synchronous request was taking too long and has been durably handed off to the upload worker. Check its status with GET /api/uploadposts/status?request_id=9732809b7b664ccc9fc4095fd1d9af4b. Docs: https://docs.upload-post.com/api/upload-status",
+          "request_id": "9732809b7b664ccc9fc4095fd1d9af4b",
+          "total_platforms": 1,
+          "job_id": "86e1886c5eff49da87f8871b752372ac"
+        }
+      }
     }
   ]
 }
