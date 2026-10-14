@@ -4,3 +4,5 @@ data/
 __pycache__/
 *.pyc
 *:Zone.Identifier
+webvideo/node_modules/
+webvideo/build/

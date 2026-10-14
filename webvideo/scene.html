@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=block" rel="stylesheet">
+<script type="importmap">{"imports": {"three": "./node_modules/three/build/three.module.js"}}</script>
+<style>
+  /* Frame is 540x960 CSS px, rendered at DPR 2 -> 1080x1920.
+     Vertical zones: 0-140 platform UI | 140-235 headline | 235-590 3D stage
+     | 600-735 terminal | 750+ platform caption UI. Nothing crosses a zone. */
+  :root {
+    --cyan: #4fd1ff; --violet: #a78bfa; --amber: #fbbf24; --green: #34d399;
+    --pink: #f472b6; --white: #e8eefc; --muted: #7f8db0;
+  }
+  html, body { margin: 0; width: 540px; height: 960px; overflow: hidden; background: #04060c; }
+  #gl { position: absolute; inset: 0; width: 540px; height: 960px; }
+  #vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 42% at 50% 44%, rgba(40,70,140,0.10), rgba(0,0,0,0) 70%),
+      radial-gradient(ellipse 95% 70% at 50% 46%, rgba(0,0,0,0) 55%, rgba(2,3,8,0.92) 100%);
+  }
+  #hud { position: absolute; left: 0; right: 0; top: 148px; height: 90px; }
+  .comment, .headline { position: absolute; left: 0; right: 0; text-align: center; white-space: nowrap; }
+  .comment {
+    top: 0; font: 500 13px 'JetBrains Mono', monospace; color: var(--muted); letter-spacing: 0.4px;
+  }
+  .comment .caret { display: inline-block; width: 7px; height: 14px; margin-left: 2px;
+    vertical-align: -2px; background: var(--muted); }
+  .headline { top: 24px; font: 800 40px 'Inter', sans-serif; letter-spacing: -0.8px; color: var(--white); }
+  .headline .inner { display: inline-block; }
+  .w { color: var(--white); text-shadow: 0 0 22px rgba(232,238,252,0.18); }
+  .muted { color: var(--muted); }
+  .cyan { color: var(--cyan); text-shadow: 0 0 22px rgba(79,209,255,0.55); }
+  .violet { color: var(--violet); text-shadow: 0 0 22px rgba(167,139,250,0.55); }
+  .amber { color: var(--amber); text-shadow: 0 0 22px rgba(251,191,36,0.55); }
+  .green { color: var(--green); text-shadow: 0 0 22px rgba(52,211,153,0.55); }
+
+  .label {
+    position: absolute; transform: translate(-50%, -100%); padding: 5px 11px 6px;
+    border-radius: 8px; background: rgba(7, 11, 22, 0.82); text-align: center; white-space: nowrap;
+    border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--c) 28%, transparent);
+  }
+  .label .t { font: 700 12.5px 'Inter', sans-serif; color: #eef3ff; letter-spacing: -0.1px; }
+  .label .s { font: 500 9.5px 'JetBrains Mono', monospace; color: var(--c); margin-top: 1px; letter-spacing: 0.3px; }
+
+  #term {
+    position: absolute; left: 22px; right: 22px; top: 604px; height: 128px; border-radius: 12px;
+    background: rgba(9, 13, 25, 0.86); border: 1px solid rgba(120,140,190,0.20);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5); overflow: hidden;
+  }
+  #term .bar { height: 26px; display: flex; align-items: center; gap: 6px; padding: 0 12px;
+    font: 500 10.5px 'JetBrains Mono', monospace; color: var(--muted); }
+  #term .bar i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  #term .bar i:nth-child(1) { background: #ff5f57; } #term .bar i:nth-child(2) { background: #febc2e; }
+  #term .bar i:nth-child(3) { background: #28c840; } #term .bar span { margin-left: 6px; }
+  #lines { padding: 2px 0 0; }
+  .line { height: 23px; line-height: 23px; padding: 0 14px; border-left: 2px solid transparent;
+    font: 500 13px 'JetBrains Mono', monospace; white-space: nowrap; }
+  .line .who { display: inline-block; width: 9ch; color: var(--muted); }
+  .line.old { opacity: 0.5; }
+  .line.cur { background: color-mix(in srgb, var(--c) 11%, transparent); border-left-color: var(--c); }
+  .line .msg { color: var(--c); }
+  .line .cursor { display: inline-block; width: 7px; height: 14px; background: var(--c); vertical-align: -2px; margin-left: 1px; }
+
+  #fade { position: absolute; inset: 0; background: #000; pointer-events: none; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="vignette"></div>
+<div id="labels"></div>
+<div id="hud"></div>
+<div id="term"><div class="bar"><i></i><i></i><i></i><span>dns-lookup — zsh</span></div><div id="lines"></div></div>
+<div id="fade"></div>
+<script type="module" src="./scene.js"></script>
+</body>
+</html>

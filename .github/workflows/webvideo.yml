@@ -1,0 +1,77 @@
+# One-off web-animation video (Three.js scene in webvideo/), rendered frame by
+# frame in headless Chrome, narrated by Kokoro. Manual trigger only.
+#   mode=preview -> a few still frames (fast check)
+#   mode=full    -> the finished MP4
+name: webvideo
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "preview stills or full video"
+        type: choice
+        options: [preview, full]
+        default: preview
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache TTS model
+        uses: actions/cache@v4
+        with:
+          path: ci-cache
+          key: kokoro-model-v1
+
+      - name: Start TTS
+        run: |
+          mkdir -p ci-cache && chmod -R a+rwX ci-cache
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build tts
+          until curl -s http://localhost:8001/health > /dev/null; do sleep 2; done
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Tools
+        run: |
+          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+          cd webvideo && npm install --no-save --no-audit --no-fund three@0.169.0 puppeteer@23.6.0
+
+      - name: Narrate
+        run: python3 webvideo/tts.py
+
+      - name: Render
+        working-directory: webvideo
+        run: |
+          python3 -m http.server 8080 > /dev/null 2>&1 &
+          sleep 1
+          node render.mjs ${{ inputs.mode }}
+
+      - name: Mix narration and music
+        if: inputs.mode == 'full'
+        working-directory: webvideo/build
+        run: |
+          total=$(python3 -c "import json; print(json.load(open('timeline.json'))['total'])")
+          ffmpeg -y -v error -i video_silent.mp4 -i narration.wav \
+            -i "../../assets/bgm/bgm_yt_audio/The Palace Gardens - Asher Fulero.mp3" \
+            -filter_complex "[1:a]aresample=48000,pan=stereo|c0=c0|c1=c0[v];[2:a]aresample=48000,volume=0.07,afade=t=in:d=1.5,afade=t=out:st=$(python3 -c "print(max(0,$total-2.5))"):d=2.5[m];[v][m]amix=inputs=2:duration=first:normalize=0[a]" \
+            -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -ar 48000 -t "$total" -movflags +faststart dns_explainer.mp4
+          ls -la
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: webvideo-${{ inputs.mode }}
+          path: |
+            webvideo/build/*.png
+            webvideo/build/dns_explainer.mp4
+            webvideo/build/timeline.json
+          retention-days: 7
+          if-no-files-found: ignore

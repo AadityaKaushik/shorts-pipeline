@@ -1,0 +1,16 @@
+{
+  "voice": "af_heart",
+  "narration": [
+    "You type google dot com and press enter. Before you can even blink, four computers have teamed up just to find where Google lives.",
+    "Because computers don't route by names. They route by numbers, called IP addresses.",
+    "So your laptop first asks a DNS resolver, usually run by your internet provider.",
+    "The resolver doesn't know the answer yet, so it starts at the very top, with a root server.",
+    "The root doesn't know Google, but it knows who runs dot com, and sends the resolver there.",
+    "The dot com server points it one step further, to the servers Google runs itself.",
+    "And Google's own server finally replies with the real answer, the IP address.",
+    "The resolver passes it back to your laptop, and only now can the actual connection to Google begin.",
+    "Here's the clever part. The resolver keeps that answer in its cache for a set time, called the time to live.",
+    "So when the next person asks, the answer comes back instantly, with no trip to the root at all.",
+    "That's DNS. The internet's phone book, looked up billions of times every single day."
+  ]
+}
