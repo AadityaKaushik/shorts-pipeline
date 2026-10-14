@@ -4,7 +4,9 @@
 import * as THREE from 'three';
 
 const W = 540, H = 960, DPR = 2;
-const VIEW_SHIFT = 65;          // lifts the 3D stage centre from y=480 to y=415 (stage zone 235-590)
+const STAGE = { top: 226, h: 376 };   // must match #gl in scene.html
+const LABEL_MIN_Y = STAGE.top + 54;   // a label's bottom edge; keeps the whole pill inside the stage
+const LABEL_MAX_Y = STAGE.top + STAGE.h - 6;
 const HEX = {
   cyan: '#4fd1ff', violet: '#a78bfa', amber: '#fbbf24', green: '#34d399',
   pink: '#f472b6', white: '#e8eefc', muted: '#7f8db0', grid: '#2c3a5c',
@@ -163,21 +165,22 @@ function makeCache(color) {
 }
 
 // ---------- the world ----------
+// Left = your side (laptop, resolver); right = the DNS hierarchy as a column
+// running back to front (root, .com, google's server); web server front-centre.
 const NODE_POS = {
-  you: [-1.3, 0, 2.6], you2: [1.5, 0, 2.7], res: [0, 0, 0.6],
-  root: [-1.7, 0, -1.9], tld: [0.1, 0, -2.5], auth: [1.8, 0, -1.7], web: [2.15, 0, 0.85],
-  cache: [0.95, 0, 0.75],
+  you: [-2.7, 0, 0.9], you2: [-2.6, 0, -1.3], res: [-0.8, 0, 0.0],
+  root: [1.5, 0, -2.0], tld: [2.0, 0, -0.2], auth: [1.6, 0, 1.6], web: [0.4, 0, 2.3],
+  cache: [0.15, 0, 0.35],
 };
 const NODE_TOP = { you: 1.0, you2: 1.0, res: 1.62, root: 1.66, tld: 1.62, auth: 1.62, web: 1.62, cache: 0.84 };
 
 const canvas = document.getElementById('gl');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(DPR);
-renderer.setSize(W, H, false);
+renderer.setSize(W, STAGE.h, false);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#04060c');
-const camera = new THREE.PerspectiveCamera(36, W / H, 0.1, 200);
-camera.setViewOffset(W, H, 0, VIEW_SHIFT, W, H);
+const camera = new THREE.PerspectiveCamera(36, W / STAGE.h, 0.1, 200);
 
 const gridPts = [];
 for (let x = -7; x <= 7; x++) gridPts.push(...seg([x, 0, -7], [x, 0, 7], 0.16, 0.7, 0.55));
@@ -204,51 +207,51 @@ const anchor = (k, extra = 0) => add3(NODE_POS[k], [0, NODE_TOP[k] + extra, 0]);
 // One entry per narration line. Labels: node -> [title, subtitle, colour].
 const BEATS = [
   { comment: '// networking · how DNS works', head: [['Where is ', 'w'], ['google.com', 'cyan'], ['?', 'w']],
-    cam: { p: [0, 7.6, 11.2], t: [0, 0.35, 0.2] },
+    cam: { p: [-0.3, 6.0, 7.9], t: [-0.3, 0.6, 0.1] },
     labels: { you: ['You', 'typing google.com', HEX.cyan] },
     term: ['$', 'dig google.com', HEX.white] },
   { comment: '// computers route by IP address', head: [['Names ', 'w'], ['→ ', 'muted'], ['numbers', 'amber']],
-    cam: { p: [-1.1, 3.9, 7.6], t: [-1.2, 0.55, 2.2] },
+    cam: { p: [-2.6, 3.2, 4.7], t: [-2.7, 0.6, 0.9] },
     labels: { you: ['You', 'needs an IP address', HEX.cyan] },
     term: [';', 'google.com  →  ?.?.?.?', HEX.muted] },
   { comment: '// step 1 · your DNS resolver', head: [['Ask the ', 'w'], ['resolver', 'cyan']],
-    cam: { p: [-0.5, 5.6, 9.2], t: [-0.6, 0.5, 1.4] },
+    cam: { p: [-1.75, 4.1, 5.4], t: [-1.75, 0.7, 0.45] },
     labels: { you: ['You', 'asking for google.com', HEX.cyan], res: ['DNS Resolver', 'run by your ISP', HEX.cyan] },
     term: ['you', '→ resolver  google.com A?', HEX.cyan] },
   { comment: '// step 2 · root server', head: [['Start at the ', 'w'], ['root', 'violet']],
-    cam: { p: [-0.7, 6.6, 8.6], t: [-0.8, 0.55, -0.5] },
+    cam: { p: [0.35, 4.8, 4.8], t: [0.35, 0.8, -1.0] },
     labels: { res: ['DNS Resolver', 'asking the root', HEX.cyan], root: ['Root server', '1 of 13 named roots', HEX.violet] },
     term: ['resolver', '→ root  google.com A?', HEX.cyan] },
   { comment: '// a referral, not an answer', head: [['Root', 'violet'], [' → ask .com', 'w']],
-    cam: { p: [-0.9, 6.4, 8.4], t: [-0.85, 0.55, -0.6] },
+    cam: { p: [0.1, 4.6, 5.0], t: [0.3, 0.8, -1.0] },
     labels: { res: ['DNS Resolver', 'got a referral', HEX.cyan], root: ['Root server', '→ try .com', HEX.violet] },
     term: ['root', '← try .com (a.gtld-servers.net)', HEX.violet] },
   { comment: '// step 3 · top-level domain', head: [['.com', 'violet'], [' points onward', 'w']],
-    cam: { p: [0.1, 6.6, 8.4], t: [0.05, 0.55, -0.8] },
+    cam: { p: [0.6, 4.5, 5.3], t: [0.6, 0.8, -0.1] },
     labels: { res: ['DNS Resolver', 'following referrals', HEX.cyan], tld: ['.com server', '→ try ns1.google.com', HEX.violet] },
     term: ['.com', '← try ns1.google.com', HEX.violet] },
   { comment: '// step 4 · authoritative server', head: [['The ', 'w'], ['answer', 'amber']],
-    cam: { p: [0.8, 6.6, 8.4], t: [0.85, 0.55, -0.5] },
+    cam: { p: [0.4, 4.5, 6.2], t: [0.4, 0.8, 0.8] },
     labels: { res: ['DNS Resolver', 'got the answer', HEX.amber], auth: ['ns1.google.com', 'authoritative', HEX.amber] },
     term: ['ns1', '← A 142.250.183.14', HEX.amber] },
   { comment: '// only now does the request start', head: [['Now ', 'w'], ['connect', 'green']],
-    cam: { p: [0.3, 7.0, 10.4], t: [0.35, 0.4, 0.6] },
+    cam: { p: [-1.1, 4.9, 7.4], t: [-1.1, 0.6, 1.2] },
     labels: { you: ['You', '142.250.183.14', HEX.amber], web: ['Google', 'web server', HEX.green] },
     term: ['you', '→ 142.250.183.14:443  connect', HEX.green] },
   { comment: '// time to live (TTL)', head: [['Cache ', 'green'], ['the answer', 'w']],
-    cam: { p: [0.35, 3.4, 5.6], t: [0.35, 0.85, 0.55] },
+    cam: { p: [-0.35, 3.3, 3.7], t: [-0.35, 0.9, 0.2] },
     labels: { res: ['Resolver cache', 'google.com · TTL {ttl}s', HEX.green] },
     term: ['cache', 'google.com  TTL 300s', HEX.green] },
   { comment: '// next lookup · cache hit', head: [['Instant ', 'green'], ['answer', 'w']],
-    cam: { p: [0.6, 5.6, 9.2], t: [0.6, 0.5, 1.4] },
+    cam: { p: [-1.7, 4.1, 4.4], t: [-1.7, 0.7, -0.65] },
     labels: { you2: ['Next user', 'google.com?', HEX.pink], res: ['Resolver cache', 'hit · no root trip', HEX.green] },
     term: ['cache', 'hit → 142.250.183.14  0 hops', HEX.green] },
   { comment: '// DNS in one line', head: [["The internet's ", 'w'], ['phonebook', 'cyan']],
-    cam: { p: [0, 7.8, 11.6], t: [0, 0.35, 0.1] },
+    cam: { p: [-0.3, 6.3, 8.4], t: [-0.3, 0.6, 0.1] },
     labels: {},
     term: [';;', 'names → numbers, in milliseconds', HEX.muted] },
 ];
-const CAM_START = { p: [4.8, 10.5, 13.5], t: [0, 0.35, 0.2] };
+const CAM_START = { p: [3.6, 8.6, 11.0], t: [-0.3, 0.6, 0.1] };
 
 // hops: [beat, from, to, colour, offset s, duration s]
 const HOPS = [
@@ -370,10 +373,13 @@ function nodeOpacity(k, t) {
 const v3 = new THREE.Vector3();
 function project(p) {
   v3.set(p[0], p[1], p[2]).project(camera);
-  return [(v3.x + 1) / 2 * W, (1 - v3.y) / 2 * H];
+  return [(v3.x + 1) / 2 * W, STAGE.top + (1 - v3.y) / 2 * STAGE.h];
 }
 
+// Labels stay inside the stage window and never touch each other: each one is
+// clamped to the stage, then nudged clear of labels already placed this frame.
 function updateLabels(t) {
+  const placed = [];
   for (const r of labelRuns) {
     const t0 = S(r.b0), t1 = E(r.b1);
     const o = ramp(t, t0 + 0.15, t0 + 0.5) * (1 - ramp(t, t1 - 0.3, t1)) * nodeOpacity(r.node, t);
@@ -382,8 +388,18 @@ function updateLabels(t) {
     if (o < 0.005) continue;
     r.sub.textContent = r.spec[1].replace('{ttl}', String(300 - Math.max(0, Math.floor(t - t0))));
     let [x, y] = project(anchor(r.node, 0.3));
-    const half = r.el.offsetWidth / 2;
-    x = clamp(x, half + 10, W - half - 10);
+    const w = r.el.offsetWidth, h = r.el.offsetHeight;
+    x = clamp(x, w / 2 + 12, W - w / 2 - 12);
+    y = clamp(y, LABEL_MIN_Y, LABEL_MAX_Y);
+    for (const q of placed) {
+      const overlapX = Math.abs(x - q.x) < (w + q.w) / 2 + 6;
+      const overlapY = Math.abs(y - q.y) < (h + q.h) / 2 + 6;
+      if (overlapX && overlapY) {
+        const up = q.y - q.h - 6, down = q.y + h + 6;
+        y = up >= LABEL_MIN_Y ? up : Math.min(down, LABEL_MAX_Y);
+      }
+    }
+    placed.push({ x, y, w, h });
     r.el.style.left = x.toFixed(1) + 'px';
     r.el.style.top = (y + (1 - ramp(t, t0 + 0.15, t0 + 0.5)) * 6).toFixed(1) + 'px';
   }
