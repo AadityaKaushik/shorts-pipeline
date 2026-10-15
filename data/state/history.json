@@ -69,6 +69,11 @@
       "topic": "Rotation Matrix",
       "category": "linear algebra",
       "date": "2026-10-13"
+    },
+    {
+      "topic": "Softmax Function",
+      "category": "deep learning",
+      "date": "2026-10-15"
     }
   ]
 }
