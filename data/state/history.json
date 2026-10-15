@@ -74,6 +74,11 @@
       "topic": "Softmax Function",
       "category": "deep learning",
       "date": "2026-10-15"
+    },
+    {
+      "topic": "Pulse Width Modulation for LED dimming",
+      "category": "embedded hardware design",
+      "date": "2026-10-15"
     }
   ]
 }
