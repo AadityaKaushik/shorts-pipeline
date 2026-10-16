@@ -300,6 +300,49 @@
           "status": "completed"
         }
       }
+    },
+    {
+      "date": "2026-10-16",
+      "time": "2026-10-16T03:57:31",
+      "provider": "upload_post",
+      "folder": "2026-10-12_unit-testing",
+      "title": "How Unit Tests Automatically Catch Code Bugs Before Release",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "results": {
+            "youtube": {
+              "success": true,
+              "post_id": "Jv9bvPWMBas",
+              "url": "https://www.youtube.com/watch?v=Jv9bvPWMBas",
+              "youtube_upload_status": "uploaded",
+              "youtube_processing_status": "processing",
+              "video_was_transcoded": false,
+              "changes": [],
+              "prevalidation_metadata": {
+                "width": 1080,
+                "height": 1920,
+                "fps": 30.0,
+                "duration": 75.267,
+                "container": "mov,mp4,m4a,3gp,3g2,mj2",
+                "video_codec": "h264",
+                "audio_codec": "aac"
+              },
+              "status": "completed",
+              "attempts": 1
+            }
+          },
+          "usage": {
+            "count": 8,
+            "limit": 10,
+            "last_reset": "2026-10-05T01:43:27.857710"
+          },
+          "request_id": "799e120a08f345f6879ccb4e496e65ec",
+          "job_id": "74492cef2f734d588583c16878235d9f",
+          "status": "completed"
+        }
+      }
     }
   ]
 }
