@@ -67,6 +67,23 @@
           "job_id": "589f7457fd164a8f86db1d72606b7d06"
         }
       }
+    },
+    {
+      "date": "2026-10-17",
+      "time": "2026-10-17T05:06:34",
+      "provider": "upload_post",
+      "job": "2026-10-17_ps5-becomes-ai-inference-box-with-llama-",
+      "title": "PS5 becomes AI inference box with llama.cpp",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "message": "Upload initiated successfully in background. Your synchronous request was taking too long and has been durably handed off to the upload worker. Check its status with GET /api/uploadposts/status?request_id=196a8b792b5a4afeb861c856f78804f3. Docs: https://docs.upload-post.com/api/upload-status",
+          "request_id": "196a8b792b5a4afeb861c856f78804f3",
+          "total_platforms": 1,
+          "job_id": "b31c1fb578ff44f191dd69173cf95a3f"
+        }
+      }
     }
   ]
 }

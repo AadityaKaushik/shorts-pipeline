@@ -48,5 +48,10 @@
     "date": "2026-10-16",
     "topic": "AdFection: Zero\u2011Click Spyware Hides in Your Ads",
     "title": "AdFection: Targeted ads turned into a pipeline for zero-click mercenary spyware"
+  },
+  {
+    "date": "2026-10-17",
+    "topic": "Llama.cpp on a jailbroken PS5",
+    "title": "Llama.cpp on a jailbroken PS5: run any GGUF model natively on the console"
   }
 ]
