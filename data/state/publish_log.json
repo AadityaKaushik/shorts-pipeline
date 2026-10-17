@@ -343,6 +343,49 @@
           "status": "completed"
         }
       }
+    },
+    {
+      "date": "2026-10-17",
+      "time": "2026-10-17T03:57:29",
+      "provider": "upload_post",
+      "folder": "2026-10-12_voltage-divider",
+      "title": "How a Voltage Divider Splits Voltage with Resistors",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "results": {
+            "youtube": {
+              "success": true,
+              "post_id": "nzNVoAzsZm4",
+              "url": "https://www.youtube.com/watch?v=nzNVoAzsZm4",
+              "youtube_upload_status": "uploaded",
+              "youtube_processing_status": "processing",
+              "video_was_transcoded": false,
+              "changes": [],
+              "prevalidation_metadata": {
+                "width": 1080,
+                "height": 1920,
+                "fps": 30.0,
+                "duration": 77.134,
+                "container": "mov,mp4,m4a,3gp,3g2,mj2",
+                "video_codec": "h264",
+                "audio_codec": "aac"
+              },
+              "status": "completed",
+              "attempts": 1
+            }
+          },
+          "usage": {
+            "count": 9,
+            "limit": 10,
+            "last_reset": "2026-10-05T01:43:27.857710"
+          },
+          "request_id": "dc6f1f89a7fd4c6da68150d99cd7c1c8",
+          "job_id": "17f45d27ebe74aa2881fc1966345ee24",
+          "status": "completed"
+        }
+      }
     }
   ]
 }
