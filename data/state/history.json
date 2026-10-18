@@ -89,6 +89,11 @@
       "topic": "Opportunity Cost",
       "category": "economics",
       "date": "2026-10-17"
+    },
+    {
+      "topic": "Lexical Analysis \u2013 Tokenization",
+      "category": "compiler design",
+      "date": "2026-10-18"
     }
   ]
 }
