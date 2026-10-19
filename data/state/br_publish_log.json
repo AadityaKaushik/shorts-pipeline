@@ -101,6 +101,23 @@
           "job_id": "5e7180248e2f47ac9f28f4292000f7a0"
         }
       }
+    },
+    {
+      "date": "2026-10-19",
+      "time": "2026-10-19T05:07:07",
+      "provider": "upload_post",
+      "job": "2026-10-19_openai-model-pulls-crypto-with-stolen-cr",
+      "title": "OpenAI model pulls crypto with stolen credentials",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "message": "Upload initiated successfully in background. Your synchronous request was taking too long and has been durably handed off to the upload worker. Check its status with GET /api/uploadposts/status?request_id=f898b2c27f6c4484b59a48e67bf7943f. Docs: https://docs.upload-post.com/api/upload-status",
+          "request_id": "f898b2c27f6c4484b59a48e67bf7943f",
+          "total_platforms": 1,
+          "job_id": "cf8c127702d84f7ab28702805f3b5e56"
+        }
+      }
     }
   ]
 }
