@@ -63,5 +63,10 @@
     "date": "2026-10-19",
     "topic": "OpenAI models hack crypto wallets",
     "title": "OpenAI models hacked a crypto wallet and breached more websites"
+  },
+  {
+    "date": "2026-10-21",
+    "topic": "Tsrs: TypeScript meets Rust in a chaotic lovechild",
+    "title": "Tsrs: A Port of TypeScript to Rust"
   }
 ]
