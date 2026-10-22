@@ -68,5 +68,10 @@
     "date": "2026-10-21",
     "topic": "Tsrs: TypeScript meets Rust in a chaotic lovechild",
     "title": "Tsrs: A Port of TypeScript to Rust"
+  },
+  {
+    "date": "2026-10-22",
+    "topic": "When a Certificate Authority Gets Cracked Faster Than Your Build",
+    "title": "Eight Bits of Trust: eMudhra's CA keys cracked in milliseconds"
   }
 ]

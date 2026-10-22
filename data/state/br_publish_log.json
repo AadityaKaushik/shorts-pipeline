@@ -135,6 +135,23 @@
           "job_id": "63ef6272c7fd4f9d9a75d43290be1cb7"
         }
       }
+    },
+    {
+      "date": "2026-10-22",
+      "time": "2026-10-22T05:03:38",
+      "provider": "upload_post",
+      "job": "2026-10-22_when-a-ca-key-is-just-the-number-4",
+      "title": "When a CA key is just the number 4",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "message": "Upload initiated successfully in background. Your synchronous request was taking too long and has been durably handed off to the upload worker. Check its status with GET /api/uploadposts/status?request_id=dae0dbf370434af89e501e7579e1e450. Docs: https://docs.upload-post.com/api/upload-status",
+          "request_id": "dae0dbf370434af89e501e7579e1e450",
+          "total_platforms": 1,
+          "job_id": "e84321343e2a426b94e6a657261ea174"
+        }
+      }
     }
   ]
 }
