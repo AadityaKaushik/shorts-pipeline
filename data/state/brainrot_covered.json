@@ -73,5 +73,10 @@
     "date": "2026-10-22",
     "topic": "When a Certificate Authority Gets Cracked Faster Than Your Build",
     "title": "Eight Bits of Trust: eMudhra's CA keys cracked in milliseconds"
+  },
+  {
+    "date": "2026-10-23",
+    "topic": "Switch\u202f2 jailbreak: the SmileBasic integer overflow that opened the console",
+    "title": "Switch 2 security takes a hit as hackers unlock homebrew access"
   }
 ]

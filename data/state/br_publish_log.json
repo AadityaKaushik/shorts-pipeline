@@ -152,6 +152,23 @@
           "job_id": "e84321343e2a426b94e6a657261ea174"
         }
       }
+    },
+    {
+      "date": "2026-10-23",
+      "time": "2026-10-23T05:06:41",
+      "provider": "upload_post",
+      "job": "2026-10-23_smilebasic-overflow-cracks-switch-2",
+      "title": "SmileBasic overflow cracks Switch\u202f2",
+      "ok": true,
+      "detail": {
+        "response": {
+          "success": true,
+          "message": "Upload initiated successfully in background. Your synchronous request was taking too long and has been durably handed off to the upload worker. Check its status with GET /api/uploadposts/status?request_id=a0361b44ac6045c1b44e058fc904b36e. Docs: https://docs.upload-post.com/api/upload-status",
+          "request_id": "a0361b44ac6045c1b44e058fc904b36e",
+          "total_platforms": 1,
+          "job_id": "4e01d0e5b477496a9cc89cf690590b2e"
+        }
+      }
     }
   ]
 }
