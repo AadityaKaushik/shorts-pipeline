@@ -6,18 +6,23 @@
 No queue: the video is generated minutes earlier in the same workflow run.
 Routing: posts 1-10 of the calendar month via Upload-Post, 11-30 via
 bundle.social (the *_BR accounts), beyond that skip the day.
+Graceful fallback: if the selected provider raises an HTTP quota/limit error
+(402, 429) or signals exhaustion in the response body, the script automatically
+retries with the other provider before giving up.
+Override: set UPLOAD_POST_DISABLED_BR=true in .env to force bundle.social.
 Posted-today guard makes duplicate triggers harmless. Exit 0 posted/skipped, 1 failure.
 """
 import argparse
 import json
 import sys
+import urllib.error
 import urllib.request
 from datetime import date, datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
-from publish_daily import load_env, multipart
+from publish_daily import load_env, multipart, _is_quota_error, _call_provider  # noqa: E402
 
 LOG = ROOT / "data" / "state" / "br_publish_log.json"
 UPLOAD_POST_LIMIT = 10
@@ -31,11 +36,14 @@ def caption(meta):
     return text[:2100]
 
 
-def post_upload_post(env, video, meta):
+def post_upload_post(env, video, meta, dry):
     fields = [("user", env["UPLOAD_POST_PROFILE_BR"]),
               ("platform[]", "instagram"),
               ("media_type", "REELS"),
               ("title", caption(meta))]
+    if dry:
+        print(f"  [dry] would POST {video.stat().st_size // 1024} KB via upload-post (instagram/reel)")
+        return {"ok": True, "dry": True}
     body, ctype = multipart(fields, "video", video)
     req = urllib.request.Request(
         "https://api.upload-post.com/api/upload", data=body,
@@ -48,8 +56,11 @@ def post_upload_post(env, video, meta):
     return {"ok": ok, "response": resp}
 
 
-def post_bundle_social(env, video, meta):
+def post_bundle_social(env, video, meta, dry):
     key, team = env["BUNDLE_SOCIAL_API_KEY_BR"], env["BUNDLE_SOCIAL_TEAM_ID_BR"]
+    if dry:
+        print(f"  [dry] would upload {video.stat().st_size // 1024} KB via bundle.social (instagram/reel)")
+        return {"ok": True, "dry": True}
     body, ctype = multipart([("teamId", team)], "file", video)
     req = urllib.request.Request("https://api.bundle.social/api/v1/upload", data=body,
                                  headers={"x-api-key": key, "Content-Type": ctype, **UA})
@@ -76,6 +87,30 @@ def post_bundle_social(env, video, meta):
     return {"ok": True, "response": resp}
 
 
+def _provider_sequence(counts, env):
+    """Return the ordered list of (provider_name, poster_fn) to try.
+
+    - If UPLOAD_POST_DISABLED_BR=true in the environment, upload-post is skipped
+      entirely (the free quota is known to be exhausted for this month).
+    - Otherwise the normal monthly-count gate applies: upload-post first until
+      its limit is reached, then bundle.social.
+    - Each entry is tried in turn; on a quota/limit error the next is attempted.
+    """
+    disabled = env.get("UPLOAD_POST_DISABLED_BR", "").lower() in ("1", "true", "yes")
+
+    sequence = []
+    if not disabled and counts["upload_post"] < UPLOAD_POST_LIMIT:
+        sequence.append(("upload_post", post_upload_post))
+    if counts["bundle_social"] < BUNDLE_LIMIT:
+        sequence.append(("bundle_social", post_bundle_social))
+    # Reverse-fallback: if bundle.social is primary but hits a quota error,
+    # add upload-post as a last resort (unless it is disabled).
+    if not disabled and sequence and sequence[0][0] == "bundle_social":
+        if counts["upload_post"] < UPLOAD_POST_LIMIT:
+            sequence.append(("upload_post", post_upload_post))
+    return sequence
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("job_id")
@@ -99,31 +134,55 @@ def main():
     for p in log["posts"]:
         if p.get("ok") and p.get("date", "").startswith(month):
             counts[p["provider"]] += 1
-    if counts["upload_post"] < UPLOAD_POST_LIMIT:
-        provider, poster = "upload_post", post_upload_post
-    elif counts["bundle_social"] < BUNDLE_LIMIT:
-        provider, poster = "bundle_social", post_bundle_social
-    else:
+
+    sequence = _provider_sequence(counts, env)
+
+    if not sequence:
         print(f"SKIP: both monthly free quotas used ({counts})")
         return 0
-    print(f"provider: {provider} (this month so far: {counts})")
+
+    print(f"provider sequence: {[p for p, _ in sequence]} (this month so far: {counts})")
     print(f"caption:\n{caption(meta)}\n")
 
     if args.dry:
-        print(f"[dry] would post {video.stat().st_size // 1024} KB via {provider}")
+        provider, poster = sequence[0]
+        print(f"provider: {provider}")
+        _call_provider(provider, poster, env, video, meta, dry=True)
         return 0
 
-    try:
-        result = poster(env, video, meta)
-    except Exception as e:
-        detail = ""
-        if hasattr(e, "read"):
-            try:
-                detail = e.read().decode()[:400]
-            except Exception:
-                pass
-        print(f"  post FAILED: {type(e).__name__}: {e} {detail}")
-        result = {"ok": False, "error": f"{type(e).__name__}: {e} {detail}"}
+    result = None
+    provider = None
+    for attempt_provider, attempt_poster in sequence:
+        print(f"  trying provider: {attempt_provider}")
+        attempt_result, quota_hit = _call_provider(
+            attempt_provider, attempt_poster, env, video, meta, dry=False)
+        if attempt_result.get("ok"):
+            result = attempt_result
+            provider = attempt_provider
+            break
+        # Log the failed attempt for visibility.
+        log["posts"].append({
+            "date": today,
+            "time": datetime.now().isoformat(timespec="seconds"),
+            "provider": attempt_provider,
+            "job": args.job_id,
+            "title": meta.get("title"),
+            "ok": False,
+            "detail": {k: v for k, v in attempt_result.items() if k != "ok"},
+        })
+        if quota_hit:
+            print(f"  {attempt_provider} quota exhausted — falling back to next provider")
+            continue
+        # Non-quota failure: stop immediately, do not waste the fallback.
+        print(f"  {attempt_provider} failed with a non-quota error — not falling back")
+        result = attempt_result
+        provider = attempt_provider
+        break
+
+    if result is None:
+        print("all providers exhausted")
+        result = {"ok": False, "error": "all providers exhausted"}
+        provider = "none"
 
     log["posts"].append({"date": today, "time": datetime.now().isoformat(timespec="seconds"),
                          "provider": provider, "job": args.job_id,
