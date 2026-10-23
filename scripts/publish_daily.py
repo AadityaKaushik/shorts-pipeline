@@ -160,6 +160,7 @@ def post_bundle_social(env, video, meta, dry):
         "socialAccountTypes": ["YOUTUBE"],
         "data": {"YOUTUBE": {
             "type": "SHORT",
+            "text": meta.get("title", "")[:100],
             "title": meta.get("title", "")[:100],
             "description": meta.get("description", ""),
             "uploadIds": [upload_id],
