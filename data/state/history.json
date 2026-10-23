@@ -94,6 +94,11 @@
       "topic": "Lexical Analysis \u2013 Tokenization",
       "category": "compiler design",
       "date": "2026-10-18"
+    },
+    {
+      "topic": "Hamming Code Error Correction",
+      "category": "digital communication",
+      "date": "2026-10-23"
     }
   ]
 }
