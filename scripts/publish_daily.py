@@ -22,7 +22,7 @@ import sys
 import urllib.error
 import urllib.request
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -155,11 +155,11 @@ def post_bundle_social(env, video, meta, dry):
     post = {
         "teamId": team,
         "status": "SCHEDULED",
-        "postDate": datetime.utcnow().isoformat() + "Z",
+        "postDate": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "socialAccountTypes": ["YOUTUBE"],
         "data": {"YOUTUBE": {
             "type": "SHORT",
-            "text": meta.get("title", "")[:100],
+            "title": meta.get("title", "")[:100],
             "description": meta.get("description", ""),
             "uploadIds": [upload_id],
             "privacy": "PUBLIC",

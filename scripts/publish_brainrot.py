@@ -74,7 +74,7 @@ def post_bundle_social(env, video, meta, dry):
         "status": "SCHEDULED",
         "postDate": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "socialAccountTypes": ["INSTAGRAM"],
-        "data": {"INSTAGRAM": {"type": "REEL", "text": caption(meta),
+        "data": {"INSTAGRAM": {"type": "REEL", "title": caption(meta),
                                "uploadIds": [upload_id]}},
     }
     req = urllib.request.Request("https://api.bundle.social/api/v1/post",
