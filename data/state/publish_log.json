@@ -429,6 +429,46 @@
           "status": "completed"
         }
       }
+    },
+    {
+      "date": "2026-10-23",
+      "time": "2026-10-23T09:42:56",
+      "provider": "bundle_social",
+      "folder": "2026-10-15_pulse-width-modulation-for-led-dimming",
+      "title": "How Pulse Width Modulation Dims LEDs",
+      "ok": true,
+      "detail": {
+        "response": {
+          "id": "781b1842-6905-4bc7-919c-6aec16b2f452",
+          "teamId": "e99b9b15-6a7c-4d7e-bc8d-f610ea515ef5",
+          "organizationId": "85dbd2a5-898f-42e7-bd66-c9493150f181",
+          "title": "How Pulse Width Modulation Dims LEDs",
+          "referenceKey": null,
+          "postDate": "2026-10-23T09:42:55.963Z",
+          "postedDate": null,
+          "status": "SCHEDULED",
+          "data": {
+            "YOUTUBE": {
+              "type": "SHORT",
+              "uploadIds": [
+                "2d349e3a-f9e1-473a-9264-791328d73116"
+              ],
+              "description": "Learn how rapidly turning an LED on and off controls its brightness without changing the voltage. By adjusting the duty cycle, you change the average power delivered to the light.\n\n#Shorts #EmbeddedSystems #Electronics #STEM",
+              "privacy": "PUBLIC",
+              "madeForKids": false
+            }
+          },
+          "error": null,
+          "errors": {},
+          "errorsVerbose": {},
+          "externalData": {},
+          "retryCount": 0,
+          "createdAt": "2026-10-23T09:42:56.191Z",
+          "updatedAt": "2026-10-23T09:42:56.191Z",
+          "deletedAt": null,
+          "firstComment": null
+        }
+      }
     }
   ]
 }
