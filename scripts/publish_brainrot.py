@@ -71,6 +71,7 @@ def post_bundle_social(env, video, meta, dry):
         return {"ok": False, "error": f"no upload id: {json.dumps(up)[:300]}"}
     post = {
         "teamId": team,
+        "title": caption(meta)[:100],
         "status": "SCHEDULED",
         "postDate": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "socialAccountTypes": ["INSTAGRAM"],

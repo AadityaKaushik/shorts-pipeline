@@ -154,6 +154,7 @@ def post_bundle_social(env, video, meta, dry):
     # Step 2: create the post
     post = {
         "teamId": team,
+        "title": meta.get("title", "")[:100],
         "status": "SCHEDULED",
         "postDate": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "socialAccountTypes": ["YOUTUBE"],
