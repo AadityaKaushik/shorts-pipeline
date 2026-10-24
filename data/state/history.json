@@ -99,6 +99,11 @@
       "topic": "Hamming Code Error Correction",
       "category": "digital communication",
       "date": "2026-10-23"
+    },
+    {
+      "topic": "Page Replacement: Why LRU Evicts the Least Recently Used Page",
+      "category": "computer systems programming",
+      "date": "2026-10-24"
     }
   ]
 }
