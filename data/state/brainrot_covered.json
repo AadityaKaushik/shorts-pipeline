@@ -83,5 +83,10 @@
     "date": "2026-10-24",
     "topic": "We finally hacked the iPhone (and it was\u2026)",
     "title": "Today, we hacked what we'd set out to hack: the iPhone"
+  },
+  {
+    "date": "2026-10-26",
+    "topic": "Old CNN Beats Fancy LLMs at Skin Cancer Diagnosis",
+    "title": "A 10-year-old CNN outperforms frontier LLMs for skin cancer diagnosis"
   }
 ]

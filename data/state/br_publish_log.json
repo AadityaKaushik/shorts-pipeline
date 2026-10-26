@@ -207,6 +207,44 @@
           "firstComment": null
         }
       }
+    },
+    {
+      "date": "2026-10-26",
+      "time": "2026-10-26T05:05:58",
+      "provider": "bundle_social",
+      "job": "2026-10-26_old-cnn-beats-fancy-llms-at-skin-cancer-",
+      "title": "Old CNN beats fancy LLMs at skin cancer diagnosis",
+      "ok": true,
+      "detail": {
+        "response": {
+          "id": "2ba47ef8-1f84-4c24-b095-6550abfdd97b",
+          "teamId": "9f77e05d-e6ff-4abc-9ae3-810692e730f4",
+          "organizationId": "307ab403-2cb7-4a09-a032-5b92bf9b6d10",
+          "title": "Old CNN beats fancy LLMs at skin cancer diagnosis\n\nA dermatologist found a decade-old CNN outperform",
+          "referenceKey": null,
+          "postDate": "2026-10-26T05:05:57.962Z",
+          "postedDate": null,
+          "status": "SCHEDULED",
+          "data": {
+            "INSTAGRAM": {
+              "type": "REEL",
+              "text": "Old CNN beats fancy LLMs at skin cancer diagnosis\n\nA dermatologist found a decade-old CNN outperformed the latest language models on a skin cancer test. The results show hype isn\u2019t always substance.\n\n#tech #ai #ml #dermatology #llm",
+              "uploadIds": [
+                "ebe6e1e9-205b-4566-ba1b-c260449c3515"
+              ]
+            }
+          },
+          "error": null,
+          "errors": {},
+          "errorsVerbose": {},
+          "externalData": {},
+          "retryCount": 0,
+          "createdAt": "2026-10-26T05:05:58.153Z",
+          "updatedAt": "2026-10-26T05:05:58.153Z",
+          "deletedAt": null,
+          "firstComment": null
+        }
+      }
     }
   ]
 }
