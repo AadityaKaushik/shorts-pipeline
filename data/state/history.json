@@ -104,6 +104,11 @@
       "topic": "Page Replacement: Why LRU Evicts the Least Recently Used Page",
       "category": "computer systems programming",
       "date": "2026-10-24"
+    },
+    {
+      "topic": "Two\u2011Pointer Technique for Pair Sum",
+      "category": "data structures and algorithms",
+      "date": "2026-10-27"
     }
   ]
 }
