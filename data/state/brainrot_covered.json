@@ -88,5 +88,10 @@
     "date": "2026-10-26",
     "topic": "Old CNN Beats Fancy LLMs at Skin Cancer Diagnosis",
     "title": "A 10-year-old CNN outperforms frontier LLMs for skin cancer diagnosis"
+  },
+  {
+    "date": "2026-10-28",
+    "topic": "UEFI Boot\u2011time Code Execution Flaw",
+    "title": "Code-execution flaw in UEFI firmware affects most servers on planet Earth"
   }
 ]
