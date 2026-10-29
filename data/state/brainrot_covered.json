@@ -93,5 +93,10 @@
     "date": "2026-10-28",
     "topic": "UEFI Boot\u2011time Code Execution Flaw",
     "title": "Code-execution flaw in UEFI firmware affects most servers on planet Earth"
+  },
+  {
+    "date": "2026-10-29",
+    "topic": "Apple's Git Still Trusts Compromised eMudhra Certificates",
+    "title": "Apple's git still trusts the compromised eMudhra certificates"
   }
 ]
