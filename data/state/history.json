@@ -114,6 +114,11 @@
       "topic": "Back Electromotive Force in Electric Motors",
       "category": "electromagnetic theory",
       "date": "2026-10-29"
+    },
+    {
+      "topic": "Bias\u2011Variance Tradeoff",
+      "category": "machine learning",
+      "date": "2026-10-29"
     }
   ]
 }
