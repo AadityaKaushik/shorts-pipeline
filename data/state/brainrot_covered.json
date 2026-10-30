@@ -98,5 +98,10 @@
     "date": "2026-10-29",
     "topic": "Apple's Git Still Trusts Compromised eMudhra Certificates",
     "title": "Apple's git still trusts the compromised eMudhra certificates"
+  },
+  {
+    "date": "2026-10-30",
+    "topic": "Tiny world model runs games on a Raspberry Pi Pico 2\u202fW",
+    "title": "A tiny world model running games on a Raspberry Pi Pico 2 W"
   }
 ]
