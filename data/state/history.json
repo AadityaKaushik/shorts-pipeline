@@ -119,6 +119,11 @@
       "topic": "Bias\u2011Variance Tradeoff",
       "category": "machine learning",
       "date": "2026-10-29"
+    },
+    {
+      "topic": "B-Tree Indexing",
+      "category": "database management systems",
+      "date": "2026-10-30"
     }
   ]
 }
