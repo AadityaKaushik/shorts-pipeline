@@ -103,5 +103,10 @@
     "date": "2026-10-30",
     "topic": "Tiny world model runs games on a Raspberry Pi Pico 2\u202fW",
     "title": "A tiny world model running games on a Raspberry Pi Pico 2 W"
+  },
+  {
+    "date": "2026-11-01",
+    "topic": "Backdoored VS\u202fCode extension: Anthropic Cursor hack",
+    "title": "Anthropic VS code extension on Cursor backdoored for nearly 12 hours"
   }
 ]
