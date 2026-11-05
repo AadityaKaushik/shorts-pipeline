@@ -113,5 +113,10 @@
     "date": "2026-11-03",
     "topic": "When Your Android Partner Secretly Builds a Botnet",
     "title": "One of Google\u2019s Android partners turned 1.3 million set-top boxes into a botnet"
+  },
+  {
+    "date": "2026-11-05",
+    "topic": "GitHub Outage: Pull Requests Vanish, Devs Panic",
+    "title": "Incident with Pull Requests, Git Operations and Issues"
   }
 ]
