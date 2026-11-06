@@ -118,5 +118,10 @@
     "date": "2026-11-05",
     "topic": "GitHub Outage: Pull Requests Vanish, Devs Panic",
     "title": "Incident with Pull Requests, Git Operations and Issues"
+  },
+  {
+    "date": "2026-11-06",
+    "topic": "sshole \u2013 the SSH vulnerability that hands strangers a backdoor",
+    "title": "sshole"
   }
 ]
