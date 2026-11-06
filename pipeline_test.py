@@ -142,8 +142,9 @@ FALLBACK_MODELS = {
     # code/repair fall back to the free OpenRouter coder. Quality is still
     # gated by static checks, the bounds checker and the repair loop. The
     # fallback never fires when --code-model was passed explicitly (A/B runs).
-    "code": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
-    "repair": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+    # (nemotron-3-super-120b was withdrawn from OpenRouter by 29 Oct 2026: 404)
+    "code": "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free",
+    "repair": "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free",
 }
 
 
