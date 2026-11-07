@@ -134,6 +134,11 @@
       "topic": "TCP Three\u2011Way Handshake",
       "category": "computer networks",
       "date": "2026-11-06"
+    },
+    {
+      "topic": "Instruction Pipelining",
+      "category": "digital logic and computer organization",
+      "date": "2026-11-07"
     }
   ]
 }
