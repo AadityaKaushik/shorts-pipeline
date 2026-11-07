@@ -495,6 +495,44 @@
           "firstComment": null
         }
       }
+    },
+    {
+      "date": "2026-11-07",
+      "time": "2026-11-07T06:14:32",
+      "provider": "bundle_social",
+      "job": "2026-11-07_firecracker-escape-intern-drops-keycard-",
+      "title": "Firecracker escape: intern drops keycard, raccoon runs wild",
+      "ok": true,
+      "detail": {
+        "response": {
+          "id": "59e779ac-beda-4320-accd-b24c6135301f",
+          "teamId": "9f77e05d-e6ff-4abc-9ae3-810692e730f4",
+          "organizationId": "307ab403-2cb7-4a09-a032-5b92bf9b6d10",
+          "title": "Firecracker escape: intern drops keycard, raccoon runs wild\n\nA guest escaped a Firecracker microVM, ",
+          "referenceKey": null,
+          "postDate": "2026-11-07T06:14:32.037Z",
+          "postedDate": null,
+          "status": "SCHEDULED",
+          "data": {
+            "INSTAGRAM": {
+              "type": "REEL",
+              "text": "Firecracker escape: intern drops keycard, raccoon runs wild\n\nA guest escaped a Firecracker microVM, took control of a root\u2011run host process, and let an AI\u2011powered raccoon roam the cloud stack. All that happened just yesterday.\n\n#tech #security #cloud #firecracker #pwnescape",
+              "uploadIds": [
+                "0eb10675-d0b1-43cd-9c2e-f6687c91ce0f"
+              ]
+            }
+          },
+          "error": null,
+          "errors": {},
+          "errorsVerbose": {},
+          "externalData": {},
+          "retryCount": 0,
+          "createdAt": "2026-11-07T06:14:32.513Z",
+          "updatedAt": "2026-11-07T06:14:32.513Z",
+          "deletedAt": null,
+          "firstComment": null
+        }
+      }
     }
   ]
 }
