@@ -128,5 +128,10 @@
     "date": "2026-11-07",
     "topic": "Firecracker VM Escape: PwnEscape Part\u00a02",
     "title": "Firecracker VM Escape: PwnEscape Part 2"
+  },
+  {
+    "date": "2026-11-08",
+    "topic": "Apple's secret family member classifier on every Mac",
+    "title": "Every Mac comes with an (undocumented) family member classifier"
   }
 ]
