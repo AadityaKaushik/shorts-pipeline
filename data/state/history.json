@@ -139,6 +139,11 @@
       "topic": "Instruction Pipelining",
       "category": "digital logic and computer organization",
       "date": "2026-11-07"
+    },
+    {
+      "topic": "Impulse Response of an LTI System",
+      "category": "signals and systems",
+      "date": "2026-11-08"
     }
   ]
 }
