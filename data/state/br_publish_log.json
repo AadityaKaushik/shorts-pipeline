@@ -571,6 +571,44 @@
           "firstComment": null
         }
       }
+    },
+    {
+      "date": "2026-11-09",
+      "time": "2026-11-09T05:07:00",
+      "provider": "bundle_social",
+      "job": "2026-11-09_284b-llm-on-a-64-gb-pc-dinosaur-on-a-tre",
+      "title": "284B LLM on a 64\u202fGB PC: dinosaur on a treadmill",
+      "ok": true,
+      "detail": {
+        "response": {
+          "id": "67fc7684-4ed1-467f-8c66-c4411b076760",
+          "teamId": "9f77e05d-e6ff-4abc-9ae3-810692e730f4",
+          "organizationId": "307ab403-2cb7-4a09-a032-5b92bf9b6d10",
+          "title": "284B LLM on a 64\u202fGB PC: dinosaur on a treadmill\n\nWe break down how a 284\u2011billion\u2011parameter DeepSeek ",
+          "referenceKey": null,
+          "postDate": "2026-11-09T05:06:59.845Z",
+          "postedDate": null,
+          "status": "SCHEDULED",
+          "data": {
+            "INSTAGRAM": {
+              "type": "REEL",
+              "text": "284B LLM on a 64\u202fGB PC: dinosaur on a treadmill\n\nWe break down how a 284\u2011billion\u2011parameter DeepSeek model runs on a modest 64\u202fGB CPU\u2011only machine, and why it moves at a glacial pace.\n\n#tech #ai #llm #hardware #opensource",
+              "uploadIds": [
+                "605a88de-07ad-44f6-93ff-6e3cc6865777"
+              ]
+            }
+          },
+          "error": null,
+          "errors": {},
+          "errorsVerbose": {},
+          "externalData": {},
+          "retryCount": 0,
+          "createdAt": "2026-11-09T05:07:00.052Z",
+          "updatedAt": "2026-11-09T05:07:00.052Z",
+          "deletedAt": null,
+          "firstComment": null
+        }
+      }
     }
   ]
 }

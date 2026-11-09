@@ -133,5 +133,10 @@
     "date": "2026-11-08",
     "topic": "Apple's secret family member classifier on every Mac",
     "title": "Every Mac comes with an (undocumented) family member classifier"
+  },
+  {
+    "date": "2026-11-09",
+    "topic": "Running a 284B LLM on 64\u202fGB RAM (no GPU)",
+    "title": "Llama-modchip: 284B DeepSeek on 64GB RAM, no GPU"
   }
 ]
