@@ -144,6 +144,11 @@
       "topic": "Impulse Response of an LTI System",
       "category": "signals and systems",
       "date": "2026-11-08"
+    },
+    {
+      "topic": "Self\u2011Attention Mechanism",
+      "category": "generative AI",
+      "date": "2026-11-09"
     }
   ]
 }
