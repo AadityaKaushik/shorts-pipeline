@@ -138,5 +138,10 @@
     "date": "2026-11-09",
     "topic": "Running a 284B LLM on 64\u202fGB RAM (no GPU)",
     "title": "Llama-modchip: 284B DeepSeek on 64GB RAM, no GPU"
+  },
+  {
+    "date": "2026-11-10",
+    "topic": "Gemini's Human Data Leak",
+    "title": "Google Gemini routes personal Drive files and emails to human annotators"
   }
 ]
