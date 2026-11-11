@@ -143,5 +143,10 @@
     "date": "2026-11-10",
     "topic": "Gemini's Human Data Leak",
     "title": "Google Gemini routes personal Drive files and emails to human annotators"
+  },
+  {
+    "date": "2026-11-11",
+    "topic": "AI\u2011Generated Code is a House of Cards",
+    "title": "AI usage generates a fragile codebase"
   }
 ]
