@@ -159,6 +159,11 @@
       "topic": "Pigeonhole Principle",
       "category": "discrete mathematics",
       "date": "2026-11-10"
+    },
+    {
+      "topic": "Dependency Injection",
+      "category": "software engineering",
+      "date": "2026-11-11"
     }
   ]
 }
