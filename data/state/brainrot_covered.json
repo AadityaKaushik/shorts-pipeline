@@ -148,5 +148,10 @@
     "date": "2026-11-11",
     "topic": "AI\u2011Generated Code is a House of Cards",
     "title": "AI usage generates a fragile codebase"
+  },
+  {
+    "date": "2026-11-12",
+    "topic": "When you try to run the entire AWS cloud on your laptop",
+    "title": "AWS emulator"
   }
 ]

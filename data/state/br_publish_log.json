@@ -685,6 +685,44 @@
           "firstComment": null
         }
       }
+    },
+    {
+      "date": "2026-11-12",
+      "time": "2026-11-12T05:05:28",
+      "provider": "bundle_social",
+      "job": "2026-11-12_when-the-whole-aws-fits-on-a-laptop",
+      "title": "When the whole AWS fits on a laptop",
+      "ok": true,
+      "detail": {
+        "response": {
+          "id": "e607bdbb-3ad1-4a29-83d1-dbf50f770646",
+          "teamId": "9f77e05d-e6ff-4abc-9ae3-810692e730f4",
+          "organizationId": "307ab403-2cb7-4a09-a032-5b92bf9b6d10",
+          "title": "When the whole AWS fits on a laptop\n\nThe new AWS Emulator lets you run all AWS APIs locally, but pre",
+          "referenceKey": null,
+          "postDate": "2026-11-12T05:05:28.454Z",
+          "postedDate": null,
+          "status": "SCHEDULED",
+          "data": {
+            "INSTAGRAM": {
+              "type": "REEL",
+              "text": "When the whole AWS fits on a laptop\n\nThe new AWS Emulator lets you run all AWS APIs locally, but pretending the entire cloud fits on a laptop leads to some odd debugging adventures.\n\n#tech #aws #open-source #cloud #devhumor",
+              "uploadIds": [
+                "0df9b740-158b-4224-8b84-c82b8f5b0d70"
+              ]
+            }
+          },
+          "error": null,
+          "errors": {},
+          "errorsVerbose": {},
+          "externalData": {},
+          "retryCount": 0,
+          "createdAt": "2026-11-12T05:05:28.624Z",
+          "updatedAt": "2026-11-12T05:05:28.624Z",
+          "deletedAt": null,
+          "firstComment": null
+        }
+      }
     }
   ]
 }
