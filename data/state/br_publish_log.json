@@ -723,6 +723,44 @@
           "firstComment": null
         }
       }
+    },
+    {
+      "date": "2026-11-13",
+      "time": "2026-11-13T05:07:37",
+      "provider": "bundle_social",
+      "job": "2026-11-13_diy-hack-turns-300-embroidery-machine-in",
+      "title": "DIY hack turns $300 embroidery machine into free software",
+      "ok": true,
+      "detail": {
+        "response": {
+          "id": "5defd0e5-5a7e-44c1-9345-a79d074a478f",
+          "teamId": "9f77e05d-e6ff-4abc-9ae3-810692e730f4",
+          "organizationId": "307ab403-2cb7-4a09-a032-5b92bf9b6d10",
+          "title": "DIY hack turns $300 embroidery machine into free software\n\nA developer got fed up with a subscriptio",
+          "referenceKey": null,
+          "postDate": "2026-11-13T05:07:36.236Z",
+          "postedDate": null,
+          "status": "SCHEDULED",
+          "data": {
+            "INSTAGRAM": {
+              "type": "REEL",
+              "text": "DIY hack turns $300 embroidery machine into free software\n\nA developer got fed up with a subscription\u2011locked embroidery machine and released an open\u2011source Rust editor that lets anyone stitch for free.\n\n#tech #opensource #hardware #saas #embroidery",
+              "uploadIds": [
+                "f0c0cb0b-734e-4510-bd42-0375e1a4528f"
+              ]
+            }
+          },
+          "error": null,
+          "errors": {},
+          "errorsVerbose": {},
+          "externalData": {},
+          "retryCount": 0,
+          "createdAt": "2026-11-13T05:07:37.567Z",
+          "updatedAt": "2026-11-13T05:07:37.567Z",
+          "deletedAt": null,
+          "firstComment": null
+        }
+      }
     }
   ]
 }
