@@ -169,6 +169,11 @@
       "topic": "Orthogonal Frequency Division Multiplexing (OFDM)",
       "category": "communication systems",
       "date": "2026-11-12"
+    },
+    {
+      "topic": "Determinant Area Scaling",
+      "category": "linear algebra",
+      "date": "2026-11-13"
     }
   ]
 }
