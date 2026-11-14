@@ -179,6 +179,11 @@
       "topic": "Data Augmentation",
       "category": "deep learning",
       "date": "2026-11-14"
+    },
+    {
+      "topic": "Debounce Logic for Mechanical Switches",
+      "category": "embedded hardware design",
+      "date": "2026-11-14"
     }
   ]
 }
