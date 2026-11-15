@@ -184,6 +184,11 @@
       "topic": "Debounce Logic for Mechanical Switches",
       "category": "embedded hardware design",
       "date": "2026-11-14"
+    },
+    {
+      "topic": "Short-Circuit Evaluation in Boolean Logic",
+      "category": "programming fundamentals",
+      "date": "2026-11-15"
     }
   ]
 }
