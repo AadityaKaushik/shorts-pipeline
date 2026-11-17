@@ -837,6 +837,44 @@
           "firstComment": null
         }
       }
+    },
+    {
+      "date": "2026-11-17",
+      "time": "2026-11-17T05:07:13",
+      "provider": "bundle_social",
+      "job": "2026-11-17_windows-11-is-secretly-watching-every-de",
+      "title": "Windows 11 is secretly watching every dev tool you use",
+      "ok": true,
+      "detail": {
+        "response": {
+          "id": "36a540b5-bd0e-44da-ad9d-140a6d511646",
+          "teamId": "9f77e05d-e6ff-4abc-9ae3-810692e730f4",
+          "organizationId": "307ab403-2cb7-4a09-a032-5b92bf9b6d10",
+          "title": "Windows 11 is secretly watching every dev tool you use\n\nA recent Hacker News post reveals Windows\u202f11",
+          "referenceKey": null,
+          "postDate": "2026-11-17T05:07:13.568Z",
+          "postedDate": null,
+          "status": "SCHEDULED",
+          "data": {
+            "INSTAGRAM": {
+              "type": "REEL",
+              "text": "Windows 11 is secretly watching every dev tool you use\n\nA recent Hacker News post reveals Windows\u202f11 logs every IDE and CLI, sending the data to Microsoft. Trevor explains what this means for developers.\n\n#tech #windows #telemetry #development #privacy",
+              "uploadIds": [
+                "cd926849-754d-4f61-af7c-76326fccf9a5"
+              ]
+            }
+          },
+          "error": null,
+          "errors": {},
+          "errorsVerbose": {},
+          "externalData": {},
+          "retryCount": 0,
+          "createdAt": "2026-11-17T05:07:13.802Z",
+          "updatedAt": "2026-11-17T05:07:13.802Z",
+          "deletedAt": null,
+          "firstComment": null
+        }
+      }
     }
   ]
 }
