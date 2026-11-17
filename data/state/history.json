@@ -199,6 +199,11 @@
       "topic": "Abstract Syntax Tree (AST) \u2013 Hierarchical code representation",
       "category": "compiler design",
       "date": "2026-11-17"
+    },
+    {
+      "topic": "Cyclic Redundancy Check (CRC)",
+      "category": "digital communication",
+      "date": "2026-11-17"
     }
   ]
 }
