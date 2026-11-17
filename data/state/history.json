@@ -194,6 +194,11 @@
       "topic": "Law of Demand",
       "category": "economics",
       "date": "2026-11-15"
+    },
+    {
+      "topic": "Abstract Syntax Tree (AST) \u2013 Hierarchical code representation",
+      "category": "compiler design",
+      "date": "2026-11-17"
     }
   ]
 }
