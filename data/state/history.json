@@ -204,6 +204,11 @@
       "topic": "Cyclic Redundancy Check (CRC)",
       "category": "digital communication",
       "date": "2026-11-17"
+    },
+    {
+      "topic": "Atomic Compare\u2011and\u2011Swap (CAS) for lock\u2011free counters",
+      "category": "computer systems programming",
+      "date": "2026-11-18"
     }
   ]
 }
