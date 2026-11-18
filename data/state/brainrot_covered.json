@@ -173,5 +173,10 @@
     "date": "2026-11-17",
     "topic": "Windows\u202f11 is spying on my dev tools",
     "title": "Windows 11 Is Collecting Data on Which Coding Agents and Developer Tools You Use"
+  },
+  {
+    "date": "2026-11-18",
+    "topic": "Java4Shell \u2013 Base64 Turns Into a Backdoor",
+    "title": "Java4Shell: RCE in OpenJDK when processing Base64"
   }
 ]
