@@ -209,6 +209,11 @@
       "topic": "Atomic Compare\u2011and\u2011Swap (CAS) for lock\u2011free counters",
       "category": "computer systems programming",
       "date": "2026-11-18"
+    },
+    {
+      "topic": "Hash Table Lookup",
+      "category": "data structures and algorithms",
+      "date": "2026-11-19"
     }
   ]
 }
