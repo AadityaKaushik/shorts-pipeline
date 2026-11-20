@@ -219,6 +219,11 @@
       "topic": "Faraday's Law of Induction",
       "category": "electromagnetic theory",
       "date": "2026-11-19"
+    },
+    {
+      "topic": "Gradient Descent: The Steepest Path to Minimum Loss",
+      "category": "machine learning",
+      "date": "2026-11-20"
     }
   ]
 }
