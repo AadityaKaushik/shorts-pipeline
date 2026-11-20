@@ -178,5 +178,10 @@
     "date": "2026-11-18",
     "topic": "Java4Shell \u2013 Base64 Turns Into a Backdoor",
     "title": "Java4Shell: RCE in OpenJDK when processing Base64"
+  },
+  {
+    "date": "2026-11-20",
+    "topic": "Garage Door Spam \u2013 When Your Smart Door Becomes the New Spam Target",
+    "title": "Garage Door Spam"
   }
 ]
