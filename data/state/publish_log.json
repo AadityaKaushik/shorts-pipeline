@@ -1494,6 +1494,47 @@
           "firstComment": null
         }
       }
+    },
+    {
+      "date": "2026-11-21",
+      "time": "2026-11-21T03:57:19",
+      "provider": "bundle_social",
+      "folder": "2026-11-17_cyclic-redundancy-check-crc",
+      "title": "How Cyclic Redundancy Check Detects Bit Errors in Files",
+      "ok": true,
+      "detail": {
+        "response": {
+          "id": "6de81121-9e83-44ad-8038-0ab45b79bd11",
+          "teamId": "e99b9b15-6a7c-4d7e-bc8d-f610ea515ef5",
+          "organizationId": "85dbd2a5-898f-42e7-bd66-c9493150f181",
+          "title": "How Cyclic Redundancy Check Detects Bit Errors in Files",
+          "referenceKey": null,
+          "postDate": "2026-11-21T03:57:18.782Z",
+          "postedDate": null,
+          "status": "SCHEDULED",
+          "data": {
+            "YOUTUBE": {
+              "type": "SHORT",
+              "uploadIds": [
+                "879de5f8-3249-48ce-9d40-ca56943f6461"
+              ],
+              "text": "How Cyclic Redundancy Check Detects Bit Errors in Files",
+              "description": "Discover how the Cyclic Redundancy Check uses polynomial division and remainders to instantly detect single-bit errors in downloaded files.\n\n#Shorts #Networking #ComputerScience #Engineering",
+              "privacy": "PUBLIC",
+              "madeForKids": false
+            }
+          },
+          "error": null,
+          "errors": {},
+          "errorsVerbose": {},
+          "externalData": {},
+          "retryCount": 0,
+          "createdAt": "2026-11-21T03:57:18.909Z",
+          "updatedAt": "2026-11-21T03:57:18.909Z",
+          "deletedAt": null,
+          "firstComment": null
+        }
+      }
     }
   ]
 }
