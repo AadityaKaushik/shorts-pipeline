@@ -183,5 +183,10 @@
     "date": "2026-11-20",
     "topic": "Garage Door Spam \u2013 When Your Smart Door Becomes the New Spam Target",
     "title": "Garage Door Spam"
+  },
+  {
+    "date": "2026-11-21",
+    "topic": "Self\u2011Updating LLMs: When your model starts committing to itself",
+    "title": "Language Models Can Rewrite Their Own Weights"
   }
 ]
