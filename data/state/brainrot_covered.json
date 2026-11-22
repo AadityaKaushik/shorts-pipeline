@@ -188,5 +188,10 @@
     "date": "2026-11-21",
     "topic": "Self\u2011Updating LLMs: When your model starts committing to itself",
     "title": "Language Models Can Rewrite Their Own Weights"
+  },
+  {
+    "date": "2026-11-22",
+    "topic": "LLMs can read and write executables byte\u2011by\u2011byte",
+    "title": "LLMs can read and write executables byte by byte from a hex dump"
   }
 ]
