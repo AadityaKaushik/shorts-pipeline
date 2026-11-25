@@ -1103,6 +1103,44 @@
           "firstComment": null
         }
       }
+    },
+    {
+      "date": "2026-11-25",
+      "time": "2026-11-25T05:07:47",
+      "provider": "bundle_social",
+      "job": "2026-11-25_ai-assistants-still-can-t-handle-everyda",
+      "title": "AI assistants still can\u2019t handle everyday tasks",
+      "ok": true,
+      "detail": {
+        "response": {
+          "id": "f66ee685-d7f8-4f67-87b2-2b58c33628b2",
+          "teamId": "9f77e05d-e6ff-4abc-9ae3-810692e730f4",
+          "organizationId": "307ab403-2cb7-4a09-a032-5b92bf9b6d10",
+          "title": "AI assistants still can\u2019t handle everyday tasks\n\nA new benchmark reveals that even the most advanced",
+          "referenceKey": null,
+          "postDate": "2026-11-25T05:07:47.458Z",
+          "postedDate": null,
+          "status": "SCHEDULED",
+          "data": {
+            "INSTAGRAM": {
+              "type": "REEL",
+              "text": "AI assistants still can\u2019t handle everyday tasks\n\nA new benchmark reveals that even the most advanced personal AI assistants struggle with everyday tasks, often creating new problems.\n\n#tech #ai #machinelearning #news #benchmark",
+              "uploadIds": [
+                "74112fdb-0161-43e7-8420-7b95a1f60711"
+              ]
+            }
+          },
+          "error": null,
+          "errors": {},
+          "errorsVerbose": {},
+          "externalData": {},
+          "retryCount": 0,
+          "createdAt": "2026-11-25T05:07:47.592Z",
+          "updatedAt": "2026-11-25T05:07:47.592Z",
+          "deletedAt": null,
+          "firstComment": null
+        }
+      }
     }
   ]
 }
