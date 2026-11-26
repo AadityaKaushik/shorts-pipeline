@@ -208,5 +208,10 @@
     "date": "2026-11-25",
     "topic": "AI Assistants Still Can't Do Simple Tasks",
     "title": "Even the best AI agents struggle with everyday life"
+  },
+  {
+    "date": "2026-11-26",
+    "topic": "SSH is actually a GUI framework",
+    "title": "SSH is a GUI framework"
   }
 ]
